@@ -1,0 +1,19 @@
+// plugins
+apply plugin: 'java'
+apply plugin: 'scala'
+
+repositories {
+    jcenter()
+}
+
+ext {
+    scalaVersion = '2.11.0'
+    junitVersion = '4.12'
+}
+
+dependencies {
+    compile("org.scala-lang:scala-compiler:$scalaVersion")
+    compile("org.scala-lang:scala-library:$scalaVersion")
+    
+    testCompile "junit:junit:$junitVersion"
+}
