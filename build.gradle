@@ -1,6 +1,8 @@
 // plugins
-apply plugin: 'java'
 apply plugin: 'scala'
+apply plugin: 'application'
+
+version = '1.0'
 
 repositories {
     jcenter()
@@ -17,6 +19,9 @@ dependencies {
 
     testCompile "junit:junit:$junitVersion"
 }
+
+// Application plugin configuration to create a Fat Jar
+mainClassName = "delorean"
 
 tasks.withType(Test) {
     testLogging {
@@ -45,3 +50,5 @@ tasks.withType(Test) {
         }
     }
 }
+
+build.finalizedBy(installDist)
