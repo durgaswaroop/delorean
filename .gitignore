@@ -58,3 +58,6 @@ project/plugins/project/
 # Gradle specific
 .gradle
 build
+
+# Delorean specifi
+.tm
