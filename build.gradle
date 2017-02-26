@@ -21,7 +21,7 @@ dependencies {
 }
 
 // Application plugin configuration to create a Fat Jar
-mainClassName = "delorean"
+mainClassName = "Delorean"
 
 tasks.withType(Test) {
     testLogging {

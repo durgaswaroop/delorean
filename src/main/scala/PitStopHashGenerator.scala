@@ -20,22 +20,38 @@ class PitStopHashGenerator {
     }
 
     def computeHashOfAFile(filePath: String): Unit = {
+        println(s"Caculating hash for file: $filePath")
         var hashLineMap: Map[String, String] = Map.empty
 
         // Get all lines of the file as an Iterator
         val lines: Iterator[String] = getLinesOfFile(filePath)
+        println(s"lines = ${lines.mkString("\n")}")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
-        lines.foreach { x => hashLineMap += (computeHash(x, SHA1) → x) }
+        lines.foreach { x => hashLineMap = hashLineMap + (computeHash(x, SHA1) → x) }
+
+        println(s"Generated hashmap: $hashLineMap")
+
+        // Add line_hash - line to the string pool file
+        addHashesAndContentOfLinesToPool(hashLineMap, ".tm/string_pool")
 
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
         val fileHash: String = computeHash(lines.mkString("\n"), SHA256)
+        println(s"hash generated: $fileHash")
+
+        // Add line hashes to hashes file
+        addLineHashesToHashesFile(hashLineMap.keys, s".tm/hashes/$fileHash")
 
         // Once the file hash is computed, Add it to travelogue file
         addToTravelogueFile(fileHash, filePath)
 
+    }
 
-        addHashesOfLinesToFile(hashLineMap, ".tm/hashes/" + fileHash)
+    def addLineHashesToHashesFile(lineHashes: Iterable[String], file: String): Unit = {
+        // printwriter empties the contents of a file if it exists
+        val writer: PrintWriter = new PrintWriter(file)
+        lineHashes.foreach(x ⇒ writer.write(s"$x\n"))
+        writer.flush()
     }
 
     def getLinesOfFile(filePath: String): Iterator[String] = Source.fromFile(filePath).getLines()
@@ -44,7 +60,7 @@ class PitStopHashGenerator {
         MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString("")
     }
 
-    def addHashesOfLinesToFile(hashLineMap: Map[String, String], hashFilePath: String): Unit = {
+    def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], hashFilePath: String): Unit = {
         var fileMap: Map[String, String] = getFileAsMap(hashFilePath)
 
         hashLineMap.foreach(tuple ⇒ {
