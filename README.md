@@ -8,7 +8,7 @@
 ### Terminology
 Keeping true to the theme of Science Fiction and Science in general these are
 some of the terminology you need to know relating it to terms used in Git
-* git init     -> delorean travel
+* git init     -> delorean ride
 * git add      -> delorean ???
 * git commit   -> delorean pitstop
 * git branch   -> delorean create-timeline

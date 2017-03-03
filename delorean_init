@@ -1,0 +1,1 @@
+mkdir -p .tm/hashes .tm/travelogues .tm/pitstops > /dev/null

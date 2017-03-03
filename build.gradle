@@ -4,24 +4,26 @@ apply plugin: 'application'
 
 version = '1.0'
 
+// Application plugin configuration to create an executable
+mainClassName = "Delorean"
+
 repositories {
     jcenter()
 }
 
 ext {
     scalaVersion = '2.11.0'
+
     junitVersion = '4.12'
 }
 
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
+    compile('com.typesafe.scala-logging:scala-logging-slf4j_2.11:2.1.2')
 
     testCompile "junit:junit:$junitVersion"
 }
-
-// Application plugin configuration to create a Fat Jar
-mainClassName = "Delorean"
 
 tasks.withType(Test) {
     testLogging {

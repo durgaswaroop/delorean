@@ -1,4 +1,4 @@
-import java.io.File
+import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import org.junit.Assert._
@@ -25,6 +25,35 @@ class HasherTest {
     }
 
     @Test
+    def computeHashTest(): Unit = {
+        val string1 = "Hello"
+        val string2 = "world"
+        assertNotEquals(hasher.computeHash(string1, "SHA-256"), hasher.computeHash(string2, "SHA-256"))
+        assertEquals(hasher.computeHash(string1, "SHA-256"), hasher.computeHash(string1, "SHA-256"))
+    }
+
+    @Test
+    def addHashesAndContentOfLinesToPoolTest(): Unit = {
+        val stringPoolFile = ".tm/string_pool_test"
+        // To empty the file
+        new PrintWriter(stringPoolFile)
+
+        val map1 = Map("0aiw4n" → "world", "81anf0" → "doc")
+        hasher.addHashesAndContentOfLinesToPool(map1, stringPoolFile)
+        assertEquals(map1.size, hasher.getLinesOfFile(stringPoolFile).length)
+
+        // Pool file will grow every time. So, the second time the num of lines should be the sum of two
+        val map2 = Map[String, String]()
+        hasher.addHashesAndContentOfLinesToPool(map2, stringPoolFile)
+        assertEquals(map1.size + map2.size, hasher.getLinesOfFile(stringPoolFile).length)
+
+        // When an existing (hash -> string) pair is found. It will not be added again. So, "doc" will not be added.
+        val map3 = Map[String, String]("81anf0" → "doc", "aw3edc" → "hello")
+        hasher.addHashesAndContentOfLinesToPool(map3, stringPoolFile)
+        assertEquals(map1.size + map2.size + map3.size - 1, hasher.getLinesOfFile(stringPoolFile).length)
+    }
+
+    @Test
     def writeMapToFileANDGetFileAsMapTest(): Unit = {
         val map1 = Map("1" → "one", "2" → "two")
         hasher.writeMapToFile(map1, outputFile)
@@ -44,14 +73,6 @@ class HasherTest {
     }
 
     @Test
-    def computeHashTest(): Unit = {
-        val string1 = "Hello"
-        val string2 = "world"
-        assertNotEquals(hasher.computeHash(string1, "SHA-256"), hasher.computeHash(string2, "SHA-256"))
-        assertEquals(hasher.computeHash(string1, "SHA-256"), hasher.computeHash(string1, "SHA-256"))
-    }
-
-    @Test
     def addLineHashesToHashesFileTest(): Unit = {
         val hashFileName = ".tm/hashes/abcdefghijklmnopqrstuvwxyz"
         val list2 = List()
@@ -61,30 +82,6 @@ class HasherTest {
         val list1 = List("abc123", "123abc")
         hasher.addLineHashesToHashesFile(list1, hashFileName)
         assertEquals(list1.length, hasher.getLinesOfFile(hashFileName).length)
-    }
-
-    // @Test
-    def addHashesAndContentOfLinesToPoolTest(): Unit = {
-        val stringPoolFile = ".tm/string_pool_test"
-
-        val map1 = Map("0aiw4n" → "world", "81anf0" → "doc")
-        hasher.addHashesAndContentOfLinesToPool(map1, stringPoolFile)
-        assertEquals(map1.size, hasher.getLinesOfFile(stringPoolFile).length)
-
-        val map2 = Map[String, String]()
-        hasher.addHashesAndContentOfLinesToPool(map2, stringPoolFile)
-        assertEquals(map2.size, hasher.getLinesOfFile(stringPoolFile).length)
-    }
-
-    @Test
-    def writeMapToFileTest(): Unit = {
-        val map1 = Map("1" → "one", "2" → "two")
-        hasher.writeMapToFile(map1, outputFile)
-        assertEquals(map1.size, hasher.getLinesOfFile(outputFile).length)
-
-        val map2 = Map[String, String]()
-        hasher.writeMapToFile(map2, outputFile)
-        assertEquals(map2.size, hasher.getLinesOfFile(outputFile).length)
     }
 
 }
