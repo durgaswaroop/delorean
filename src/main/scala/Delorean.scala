@@ -1,9 +1,11 @@
-import com.typesafe.scalalogging.slf4j.LazyLogging
+import java.util.logging.{Level, Logger}
 
-object Delorean extends LazyLogging {
+object Delorean {
+    val logger: Logger = Logger.getLogger(this.getClass.getName)
+
     def main(args: Array[String]): Unit = {
         val hasher: Hasher = new Hasher
-        logger.debug(s"Length of Arguments = ${args.length}")
+        logger.log(Level.INFO, s"Length of Arguments = ${args.length}")
         if (args.length == 0) {
             println(
                 """usage: delorean [--version] <command> [<args>]
@@ -15,8 +17,9 @@ object Delorean extends LazyLogging {
                   | pitstop     Record the changes to the repo
                 """.stripMargin)
         } else {
-            // args.foreach(hasher.computeHashOfFile)
-            hasher.computePitStopHash(args)
+            // Will initialize a new repo
+            if (args(0) == "ride") new Ride
+            else hasher.computePitStopHash(args)
         }
     }
 }

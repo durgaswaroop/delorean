@@ -20,7 +20,6 @@ ext {
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
-    compile('com.typesafe.scala-logging:scala-logging-slf4j_2.11:2.1.2')
 
     testCompile "junit:junit:$junitVersion"
 }

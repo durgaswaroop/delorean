@@ -1,12 +1,13 @@
 import java.io.File
 import java.nio.file.{Files, Paths, StandardCopyOption}
 import java.security.MessageDigest
+import java.util.logging.Logger
 
 import FileOps._
-import com.typesafe.scalalogging.slf4j.LazyLogging
 
-class Hasher extends LazyLogging {
+class Hasher {
 
+    val logger: Logger = Logger.getLogger(this.getClass.getName)
     // 32 byte long
     val MD5: String = "MD5"
     // 64 byte long
@@ -40,11 +41,11 @@ class Hasher extends LazyLogging {
 
         // Get all lines of the file as a List
         val lines = getLinesOfFile(filePath)
-        logger.debug(s"Lines:\n$lines\n")
+        logger.info(s"Lines:\n$lines\n")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
         lines.foreach(x => hashLineMap += (computeHash(x, MD5) → x))
-        logger.debug(s"Map:\n$hashLineMap\n")
+        logger.info(s"Map:\n$hashLineMap\n")
 
         // Add line_hash - line to the string pool file
         addHashesAndContentOfLinesToPool(hashLineMap, ".tm/string_pool")
