@@ -5,6 +5,8 @@ object ParseOption {
 
     val commands = List("ride", "add", "pitstop")
 
+    val hasher: Hasher = new Hasher
+
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
         case "ride" ⇒ ride(argsList.tail)
@@ -15,8 +17,12 @@ object ParseOption {
 
     private def ride(rideArguments: List[String]): Unit = if (rideArguments.nonEmpty) Usage("ride") else new Ride
 
-    private def add(addArguments: List[String]): Unit = if (addArguments.isEmpty) Usage("add") else ???
+    private def add(addArguments: List[String]): Unit = if (addArguments.isEmpty) Usage("add") else {
+        hasher.computeHashOfAddedFiles(addArguments.toArray)
+    }
 
-    private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.nonEmpty) Usage("pitstop") else ???
+    private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.nonEmpty) Usage("pitstop") else {
+        hasher.computePitStopHash()
+    }
 
 }
