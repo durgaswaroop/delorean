@@ -1,5 +1,4 @@
 import java.io.File
-import java.nio.file.{Files, Paths, StandardCopyOption}
 import java.security.MessageDigest
 import java.util.logging.Logger
 
@@ -30,10 +29,9 @@ class Hasher {
         // Generate pitstop hash as the temp file
         val pitstopHash: String = computeHashOfFile(tempPitstopFile)
 
-        // Rename temp file's name to that of the pitstop hash
-        Files.copy(Paths.get(tempPitstopFile), Paths.get(s".tm/pitstops/$pitstopHash"), StandardCopyOption.REPLACE_EXISTING)
-        //        Files.move(Paths.get(tempPitstopFile), Paths.get(s".tm/pitstops/$pitstopHash"), StandardCopyOption.REPLACE_EXISTING)
-        new File(tempPitstopFile).delete()
+        // Copy temp file's to that of the pitstop hash
+        copyFile(tempPitstopFile, s".tm/pitstops/$pitstopHash")
+
     }
 
     def computeHash(str: String, hash: String): String = {

@@ -1,6 +1,5 @@
 import java.io.PrintWriter
-import java.nio.file.{FileAlreadyExistsException, Files, Paths}
-import java.security.MessageDigest
+import java.nio.file._
 
 import scala.io.Source
 
@@ -67,6 +66,11 @@ object FileOps {
         // Once the map is populated, write the map to travelogue file
         writeMapToFile(map, travelogueFile)
     }
+
+    // copies file from src to dest
+    def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest),
+        StandardCopyOption.REPLACE_EXISTING)
+
 
     // returns false if the file already exists
     def createIfDoesNotExist(filePath: String): Boolean = {
