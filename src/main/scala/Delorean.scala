@@ -1,11 +1,11 @@
-import java.util.logging.{Level, Logger}
+import java.util.logging.Logger
 
 object Delorean {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
 
     def main(args: Array[String]): Unit = {
         val hasher: Hasher = new Hasher
-        logger.log(Level.INFO, s"Length of Arguments = ${args.length}")
+        logger.fine(s"Length of Arguments = ${args.length}")
         if (args.length == 0) {
             println(
                 """usage: delorean [--version] <command> [<args>]

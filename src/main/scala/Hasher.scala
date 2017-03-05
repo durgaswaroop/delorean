@@ -41,11 +41,11 @@ class Hasher {
 
         // Get all lines of the file as a List
         val lines = getLinesOfFile(filePath)
-        logger.info(s"Lines:\n$lines\n")
+        logger.fine(s"Lines:\n$lines\n")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
         lines.foreach(x => hashLineMap += (computeHash(x, MD5) → x))
-        logger.info(s"Map:\n$hashLineMap\n")
+        logger.fine(s"Map:\n$hashLineMap\n")
 
         // Add line_hash - line to the string pool file
         addHashesAndContentOfLinesToPool(hashLineMap, ".tm/string_pool")
