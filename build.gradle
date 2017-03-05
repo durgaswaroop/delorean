@@ -12,16 +12,17 @@ repositories {
 }
 
 ext {
-    scalaVersion = '2.11.0'
+    scalaVersion = '2.12.1'
 
-    junitVersion = '4.12'
+    junitVersion = '5.0.0-ALPHA'
 }
 
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
 
-    testCompile "junit:junit:$junitVersion"
+    testCompile("org.junit:junit5-engine:$junitVersion")
+
 }
 
 tasks.withType(Test) {

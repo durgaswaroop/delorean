@@ -1,8 +1,5 @@
-import java.io.{File, PrintWriter}
-import java.nio.file.{Files, Paths}
-
-import org.junit.Assert._
-import org.junit._
+import org.junit.gen5.api.Assertions.{assertEquals, assertNotEquals}
+import org.junit.gen5.api.{AfterEach, BeforeEach, Test}
 
 class HasherTest {
 
@@ -13,9 +10,9 @@ class HasherTest {
     val travelogueFile = "src/test/resources/.tm/travelogue"
     var hasher: Hasher = _
 
-    @Before def setUp(): Unit = hasher = new Hasher
+    @BeforeEach def setUp(): Unit = hasher = new Hasher
 
-    @After def tearDown(): Unit = hasher = null
+    @AfterEach def tearDown(): Unit = hasher = null
 
     @Test
     def computeHashTest(): Unit = {

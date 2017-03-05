@@ -2,8 +2,8 @@ import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import FileOps._
-import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.Test
+import org.junit.gen5.api.Assertions.{assertEquals, assertTrue}
+import org.junit.gen5.api._
 
 class FileOpsTest {
     val testFile = "src/test/resources/test"
