@@ -1,9 +1,16 @@
-import java.io.PrintWriter
+import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 
 import scala.io.Source
 
 object FileOps {
+
+    def filesMatchingInDir(dir: File, check: String ⇒ Boolean): Array[File] = {
+        dir.listFiles(new FilenameFilter {
+            override def accept(dir: File, name: String) = check(name)
+        })
+    }
+
     def getLinesOfFile(filePath: String): List[String] = Source.fromFile(filePath).getLines().toList
 
     def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], stringPoolFile: String): Unit = {
@@ -39,11 +46,15 @@ object FileOps {
         filenameHashMap
     }
 
-    def writeMapToFile(map: Map[String, String], filePath: String): Unit = {
+    def writeMapToFile(map: Map[String, String], filePath: String, fileToAppendTo: File = null): Unit = {
         // printwriter empties the contents of a file if it exists
-        val writer: PrintWriter = new PrintWriter(filePath)
+        val writer: PrintWriter = {
+            if (fileToAppendTo == null) new PrintWriter(filePath)
+            else new PrintWriter(new FileWriter(fileToAppendTo, true))
+        }
         map.foreach(tuple ⇒ writer.write(s"${tuple._1}:${tuple._2}\n"))
         writer.flush()
+        writer.close()
     }
 
     def addLineHashesToHashesFile(lineHashes: Iterable[String], file: String): Unit = {
@@ -51,6 +62,7 @@ object FileOps {
         val writer: PrintWriter = new PrintWriter(file)
         lineHashes.foreach(x ⇒ writer.write(s"$x\n"))
         writer.flush()
+        writer.close()
     }
 
     def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
@@ -81,6 +93,5 @@ object FileOps {
             case _: FileAlreadyExistsException ⇒ false
         }
     }
-
 
 }

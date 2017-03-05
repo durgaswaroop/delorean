@@ -11,31 +11,46 @@ class Hasher {
     val MD5: String = "MD5"
     // 64 byte long
     val SHA256: String = "SHA-256"
+    // temporary pitstop file that gets created when you do 'delorean add <files>'
+    val pitstopsFolder: File = new File(".tm/pitstops/")
+
+    def computeHashOfAddedFiles(filePaths: Array[String]): Unit = {
+        var fileNameFileHashMap: Map[String, String] = Map.empty
+        filePaths.foreach { file ⇒
+            fileNameFileHashMap += (computeHashOfFile(file) → file)
+        }
+        val files: Array[File] = filesMatchingInDir(pitstopsFolder, fileName ⇒ fileName.startsWith("_temp"))
+        val tempPitstopFile = if (files.nonEmpty) files(0) else File.createTempFile("_temp", null, pitstopsFolder)
+        // write the hashes of all added files to temp pitstop file
+        writeMapToFile(fileNameFileHashMap, null, tempPitstopFile)
+
+        // Have to add more info about the commit like Pitstop time, Rider name and Rider log
+    }
 
     // Hash for a List of files
-    def computePitStopHash(filePaths: Array[String]): Unit = {
-        if (filePaths.length == 0) {
-            println("Not enough arguments")
-            System.exit(1)
-        }
-        var fileNamefileHashMap: Map[String, String] = Map.empty
-        filePaths.foreach { file ⇒
-            fileNamefileHashMap += (computeHashOfFile(file) → file)
-        }
-        // write the hashes of all files to temp file
-        val tempPitstopFile = ".tm/pitstops/_temp"
-        writeMapToFile(fileNamefileHashMap, tempPitstopFile)
-
+    def computePitStopHash(): Unit = {
         // Generate pitstop hash as the temp file
-        val pitstopHash: String = computeHashOfFile(tempPitstopFile)
+        val files: Array[File] = filesMatchingInDir(pitstopsFolder, fileName ⇒ fileName.startsWith("_temp"))
+        if (files.isEmpty) {
+            println("Delorean is all charged up. No need for Pitstops.")
+            return
+        }
+        val tempPitstopFile = files(0)
+        tempPitstopFile.deleteOnExit()
+        val tempPitstopFilePath = tempPitstopFile.getPath
+        val pitstopHash: String = computeHashOfFile(tempPitstopFilePath)
 
         // Copy temp file's to that of the pitstop hash
-        copyFile(tempPitstopFile, s".tm/pitstops/$pitstopHash")
+        copyFile(tempPitstopFilePath, s".tm/pitstops/$pitstopHash")
 
+        // Once the temp file is copied, we can delete it
+        //        Files.delete(Paths.get(tempPitstopFile))
+        //        println(f.getAbsolutePath + ", " + f.canRead + ", " + f.canWrite)
+        //        if (f.delete) println("Deleted") else println("Not deleted")
     }
 
     def computeHash(str: String, hash: String): String = {
-        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString("")
+        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 
     def computeHashOfFile(filePath: String): String = {
