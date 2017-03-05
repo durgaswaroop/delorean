@@ -16,10 +16,17 @@ object Delorean {
                   | add         Add files to repository
                   | pitstop     Record the changes to the repo
                 """.stripMargin)
+            System.exit(1)
         } else {
-            // Will initialize a new repo
-            if (args(0) == "ride") new Ride
-            else hasher.computePitStopHash(args)
+            args(0) match {
+                // Will initialize a new repo
+                case "ride" ⇒ new Ride
+                case "pitstop" ⇒ hasher.computePitStopHash(args.tail)
+                case _ ⇒ {
+                    println("Invalid Option")
+                    System.exit(1)
+                }
+            }
         }
     }
 }

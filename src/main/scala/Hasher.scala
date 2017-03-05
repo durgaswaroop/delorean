@@ -15,6 +15,10 @@ class Hasher {
 
     // Hash for a List of files
     def computePitStopHash(filePaths: Array[String]): Unit = {
+        if (filePaths.length == 0) {
+            println("Not enough arguments")
+            System.exit(1)
+        }
         var fileNamefileHashMap: Map[String, String] = Map.empty
         filePaths.foreach { file ⇒
             fileNamefileHashMap += (computeHashOfFile(file) → file)
