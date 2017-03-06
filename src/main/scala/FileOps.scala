@@ -11,6 +11,11 @@ object FileOps {
         })
     }
 
+    def writeToFile(filePath: String, content: String): Unit = {
+        createIfDoesNotExist(filePath)
+        scala.tools.nsc.io.File(filePath).writeAll(content)
+    }
+
     def getLinesOfFile(filePath: String): List[String] = Source.fromFile(filePath).getLines().toList
 
     def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], stringPoolFile: String): Unit = {
