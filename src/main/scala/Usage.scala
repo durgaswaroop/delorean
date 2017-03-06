@@ -7,6 +7,7 @@ object Usage {
         case "ride" ⇒ rideUsage()
         case "add" ⇒ addUsage()
         case "pitstop" ⇒ pitstopUsage()
+        case "config" ⇒ configUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
     }
 
@@ -19,6 +20,7 @@ object Usage {
               | ride        Tell Delorean to initialize a new repo
               | add         Add files to repository
               | pitstop     Record the changes to the repo
+              | config      Configuration options
             """.stripMargin)
     }
 
@@ -46,6 +48,16 @@ object Usage {
             """
               |Usage: delorean pitstop -rl "<Rider Log>"
               |                - Creates a new pitstop with the given Rider log.
+              |
+              |For more: delorean --help
+            """.stripMargin)
+    }
+
+    def configUsage(): Unit = {
+        println(
+            """
+              |Usage: delorean config <property name> <property value>
+              |                - Adds/Updates delorean configuration
               |
               |For more: delorean --help
             """.stripMargin)

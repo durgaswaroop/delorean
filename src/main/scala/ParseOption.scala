@@ -1,3 +1,5 @@
+import java.io.File
+
 /**
   * Parser for the command line options
   */
@@ -12,6 +14,7 @@ object ParseOption {
         case "ride" ⇒ ride(argsList.tail)
         case "add" ⇒ add(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
+        case "config" ⇒ config(argsList.tail)
         case unknown ⇒ println(s"Invalid Option: '$unknown'")
     }
 
@@ -24,6 +27,11 @@ object ParseOption {
     private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.isEmpty) Usage("pitstop") else {
         if (pitstopArguments.length != 2 || pitstopArguments.head != "-rl") Usage("pitstop")
         else hasher.computePitStopHash(pitstopArguments(1))
+    }
+
+    private def config(configArguments: List[String]): Unit = {
+        if (configArguments.isEmpty || configArguments.length != 2) Usage("config")
+        else FileOps.writeMapToFile(Map(configArguments(0) → configArguments(1)), "null", new File(".tm/config"))
     }
 
 }
