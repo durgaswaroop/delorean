@@ -44,8 +44,8 @@ object Usage {
     def pitstopUsage(): Unit = {
         println(
             """
-              |Usage: delorean pitstop
-              |                - Creates a new pitstop
+              |Usage: delorean pitstop -rl "<Rider Log>"
+              |                - Creates a new pitstop with the given Rider log.
               |
               |For more: delorean --help
             """.stripMargin)

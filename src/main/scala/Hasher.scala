@@ -28,7 +28,7 @@ class Hasher {
     }
 
     // Hash for a List of files
-    def computePitStopHash(): Unit = {
+    def computePitStopHash(riderLog: String): Unit = {
         // Generate pitstop hash as the temp file
         val files: Array[File] = filesMatchingInDir(pitstopsFolder, fileName ⇒ fileName.startsWith("_temp"))
         if (files.isEmpty) {

@@ -21,8 +21,9 @@ object ParseOption {
         hasher.computeHashOfAddedFiles(addArguments.toArray)
     }
 
-    private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.nonEmpty) Usage("pitstop") else {
-        hasher.computePitStopHash()
+    private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.isEmpty) Usage("pitstop") else {
+        if (pitstopArguments.length != 2 || pitstopArguments.head != "-rl") Usage("pitstop")
+        else hasher.computePitStopHash(pitstopArguments(1))
     }
 
 }
