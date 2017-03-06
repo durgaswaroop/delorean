@@ -30,8 +30,8 @@ class Hasher {
 
     // Creates metadata file with same name as that of the pitstop hash
     def createMetadataFile(pitstopHash: String, riderLog: String): Unit = {
-        val time = s"Time:${LocalDateTime.now}"
-        val timeAndRider = if (Configuration("rider").nonEmpty) time + s"Rider:$Configuration('rider')" else time
+        val time = s"Time:${LocalDateTime.now}\n"
+        val timeAndRider = if (Configuration("rider").nonEmpty) time + s"""Rider:$Configuration("rider")\n""" else time
         val fullMetadata = timeAndRider + s"RiderLog:\n$riderLog"
         writeToFile(s".tm/metadata/$pitstopHash", fullMetadata)
     }
