@@ -1,5 +1,6 @@
 import java.io.File
 import java.security.MessageDigest
+import java.time.LocalDateTime
 import java.util.logging.Logger
 
 import FileOps._
@@ -27,6 +28,14 @@ class Hasher {
         // Have to add more info about the commit like Pitstop time, Rider name and Rider log
     }
 
+    // Creates metadata file with same name as that of the pitstop hash
+    def createMetadataFile(pitstopHash: String, riderLog: String): Unit = {
+        val time = s"Time:${LocalDateTime.now}"
+        val timeAndRider = if (Configuration("rider").nonEmpty) time + s"Rider:$Configuration('rider')" else time
+        val fullMetadata = timeAndRider + s"RiderLog:\n$riderLog"
+        writeToFile(s".tm/metadata/$pitstopHash", fullMetadata)
+    }
+
     // Hash for a List of files
     def computePitStopHash(riderLog: String): Unit = {
         // Generate pitstop hash as the temp file
@@ -42,6 +51,7 @@ class Hasher {
 
         // Copy temp file's to that of the pitstop hash
         copyFile(tempPitstopFilePath, s".tm/pitstops/$pitstopHash")
+        createMetadataFile(pitstopHash, riderLog)
 
         // Once the temp file is copied, we can delete it
         //        Files.delete(Paths.get(tempPitstopFile))
