@@ -5,8 +5,6 @@ import java.io.File
   */
 object ParseOption {
 
-    val commands = List("ride", "add", "pitstop")
-
     val hasher: Hasher = new Hasher
 
     def apply(argsList: List[String]): Unit = argsList.head match {
@@ -31,7 +29,7 @@ object ParseOption {
 
     private def config(configArguments: List[String]): Unit = {
         if (configArguments.isEmpty || configArguments.length != 2) Usage("config")
-        else FileOps.writeMapToFile(Map(configArguments(0) → configArguments(1)), "null", new File(".tm/config"))
+        else FileOps.writeMapToFile(Map(configArguments.head → configArguments(1)), "null", new File(".tm/config"))
     }
 
 }
