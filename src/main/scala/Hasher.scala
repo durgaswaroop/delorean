@@ -1,6 +1,7 @@
 import java.io.File
 import java.security.MessageDigest
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
 
 import FileOps._
@@ -30,8 +31,8 @@ class Hasher {
 
     // Creates metadata file with same name as that of the pitstop hash
     def createMetadataFile(pitstopHash: String, riderLog: String): Unit = {
-        val time = s"Time:${LocalDateTime.now}\n"
-        val timeAndRider = if (Configuration("rider").nonEmpty) time + s"""Rider:$Configuration("rider")\n""" else time
+        val time = s"Time:${ZonedDateTime.now.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zzzz"))}\n"
+        val timeAndRider = if (Configuration("rider").nonEmpty) time + s"""Rider:${Configuration("rider")}\n""" else time
         val fullMetadata = timeAndRider + s"RiderLog:\n$riderLog"
         writeToFile(s".tm/metadata/$pitstopHash", fullMetadata)
     }
