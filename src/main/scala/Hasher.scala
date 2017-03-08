@@ -6,6 +6,8 @@ import java.util.logging.Logger
 
 import FileOps._
 
+import scala.collection.mutable
+
 class Hasher {
 
     val logger: Logger = Logger.getLogger(this.getClass.getName)
@@ -17,7 +19,7 @@ class Hasher {
     val pitstopsFolder: File = new File(".tm/pitstops/")
 
     def computeHashOfAddedFiles(filePaths: Array[String]): Unit = {
-        var fileNameFileHashMap: Map[String, String] = Map.empty
+        var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
         filePaths.foreach { file ⇒
             fileNameFileHashMap += (computeHashOfFile(file) → file)
         }

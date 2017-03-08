@@ -1,5 +1,7 @@
 import java.io.File
 
+import scala.collection.mutable
+
 /**
   * Parser for the command line options
   */
@@ -29,7 +31,7 @@ object ParseOption {
 
     private def config(configArguments: List[String]): Unit = {
         if (configArguments.isEmpty || configArguments.length != 2) Usage("config")
-        else FileOps.writeMapToFile(Map(configArguments.head → configArguments(1)), "null", new File(".tm/config"))
+        else FileOps.writeMapToFile(mutable.LinkedHashMap(configArguments.head → configArguments(1)), "null", new File(".tm/config"))
     }
 
 }

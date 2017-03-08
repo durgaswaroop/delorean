@@ -5,6 +5,8 @@ import FileOps._
 import org.junit.gen5.api.Assertions.{assertEquals, assertTrue}
 import org.junit.gen5.api._
 
+import scala.collection.mutable
+
 class FileOpsTest {
     val testFile = "src/test/resources/test"
     val testCopyFile = "src/test/resources/test_copy"
@@ -42,11 +44,11 @@ class FileOpsTest {
 
     @Test
     def writeMapToFileANDGetFileAsMapTest(): Unit = {
-        val map1 = Map("1" → "one", "2" → "two")
+        val map1 = mutable.LinkedHashMap("1" → "one", "2" → "two")
         writeMapToFile(map1, outputFile)
         assertEquals(map1, getFileAsMap(outputFile))
 
-        val map2 = Map[String, String]()
+        val map2 = mutable.LinkedHashMap[String, String]()
         writeMapToFile(map2, outputFile)
         assertEquals(map2, getFileAsMap(outputFile))
     }

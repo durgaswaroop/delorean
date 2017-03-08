@@ -1,6 +1,7 @@
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 
+import scala.collection.mutable
 import scala.io.Source
 
 object FileOps {
@@ -19,7 +20,7 @@ object FileOps {
     def getLinesOfFile(filePath: String): List[String] = Source.fromFile(filePath).getLines().toList
 
     def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], stringPoolFile: String): Unit = {
-        var fileMap: Map[String, String] = getFileAsMap(stringPoolFile)
+        var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
 
         hashLineMap.foreach(tuple ⇒ {
             if (!fileMap.contains(tuple._1)) {
@@ -34,8 +35,8 @@ object FileOps {
     // returns the "filename: fileHash" file as a Map of (filename -> fileHash
     // OR
     // returns the lineHash: lineContent Map
-    def getFileAsMap(filePath: String): Map[String, String] = {
-        var filenameHashMap: Map[String, String] = Map.empty
+    def getFileAsMap(filePath: String): mutable.LinkedHashMap[String, String] = {
+        var filenameHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
         if (!createIfDoesNotExist(filePath)) {
             val fileLines = getLinesOfFile(filePath)
             if (fileLines.nonEmpty) {
@@ -51,7 +52,7 @@ object FileOps {
         filenameHashMap
     }
 
-    def writeMapToFile(map: Map[String, String], filePath: String, fileToAppendTo: File = null): Unit = {
+    def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, fileToAppendTo: File = null): Unit = {
         // printwriter empties the contents of a file if it exists
         val writer: PrintWriter = {
             if (fileToAppendTo == null) new PrintWriter(filePath)
@@ -72,7 +73,7 @@ object FileOps {
 
     def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
         val travelogueFile = ".tm/travelogue"
-        var map: Map[String, String] = getFileAsMap(travelogueFile)
+        var map: mutable.LinkedHashMap[String, String] = getFileAsMap(travelogueFile)
 
         // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
         // So we add in the current key value pair which just updates the value of existing key
