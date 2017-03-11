@@ -14,7 +14,7 @@ object Usage {
 
     def fullUsage(): Unit = {
         println(
-            """usage: delorean [--version] <command> [<args>]
+            """usage: delorean <command> [<args>] [--version] [--help]
               |
               | These are the common Delorean commands:
               |

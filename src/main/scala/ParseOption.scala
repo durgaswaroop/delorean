@@ -1,5 +1,7 @@
 import java.io.File
 
+import FileOps.writeMapToFile
+
 import scala.collection.mutable
 
 /**
@@ -16,7 +18,7 @@ object ParseOption {
         case "add" ⇒ add(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "config" ⇒ config(argsList.tail)
-        case unknown ⇒ println(s"Invalid Option: '$unknown'")
+        case unknown ⇒ println(s"delorean: '$unknown' is not a valid delorean command. See 'delorean --help'")
     }
 
     private def ride(rideArguments: List[String]): Unit = if (rideArguments.nonEmpty) Usage("ride") else new Ride
@@ -25,14 +27,14 @@ object ParseOption {
         hasher.computeHashOfAddedFiles(addArguments.toArray)
     }
 
-    private def pitstop(pitstopArguments: List[String]): Unit = if (pitstopArguments.isEmpty) Usage("pitstop") else {
-        if (pitstopArguments.length != 2 || pitstopArguments.head != "-rl") Usage("pitstop")
+    private def pitstop(pitstopArguments: List[String]): Unit = {
+        if (pitstopArguments.isEmpty || pitstopArguments.length != 2 || pitstopArguments.head != "-rl") Usage("pitstop")
         else hasher.computePitStopHash(pitstopArguments(1))
     }
 
-    private def config(configArguments: List[String]): Unit = {
-        if (configArguments.isEmpty || configArguments.length != 2) Usage("config")
-        else FileOps.writeMapToFile(mutable.LinkedHashMap(configArguments.head → configArguments(1)), "null", new File(".tm/config"))
+    private def config(configArgs: List[String]): Unit = {
+        if (configArgs.isEmpty || configArgs.length != 2) Usage("config")
+        else writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), "null", new File(".tm/config"))
     }
 
     private def version(versionArguments: List[String]): Unit = {
