@@ -11,6 +11,7 @@ object ParseOption {
 
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
+        case "-v" | "-V" | "--version" ⇒ version(argsList.tail)
         case "ride" ⇒ ride(argsList.tail)
         case "add" ⇒ add(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
@@ -34,4 +35,7 @@ object ParseOption {
         else FileOps.writeMapToFile(mutable.LinkedHashMap(configArguments.head → configArguments(1)), "null", new File(".tm/config"))
     }
 
+    private def version(versionArguments: List[String]): Unit = {
+        if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${Version.version}")
+    }
 }

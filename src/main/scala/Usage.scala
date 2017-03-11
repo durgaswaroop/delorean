@@ -8,6 +8,7 @@ object Usage {
         case "add" ⇒ addUsage()
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
+        case "version" ⇒ versionUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
     }
 
@@ -60,6 +61,14 @@ object Usage {
               |                - Adds/Updates delorean configuration
               |
               |For more: delorean --help
+            """.stripMargin)
+    }
+
+    def versionUsage(): Unit = {
+        println(
+            """
+              |Usage: delorean ([--version] [-V] [-v])
+              |                - Prints the current version of delorean
             """.stripMargin)
     }
 }
