@@ -36,7 +36,11 @@ class Hasher {
         val time = s"Time:${ZonedDateTime.now.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zzzz"))}\n"
         val rider = if (Configuration("rider").nonEmpty) Configuration("rider") else System.getProperty("user.name")
         val timeAndRider = time + s"Rider:$rider\n"
-        val fullMetadata = timeAndRider + s"RiderLog:\n$riderLog"
+        // parent pitstop would be whatever is present in the current indicator file.
+        val parentPitstop = getLinesOfFile(".tm/indicators/current").head
+        val timeAndRiderAndParents = timeAndRider + s"Parent(s):\n$parentPitstop\n"
+        val fullMetadata = timeAndRiderAndParents + s"RiderLog:\n$riderLog"
+
         writeToFile(s".tm/metadata/$pitstopHash", fullMetadata)
     }
 
