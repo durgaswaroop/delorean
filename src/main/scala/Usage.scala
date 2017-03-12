@@ -9,6 +9,7 @@ object Usage {
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
         case "version" ⇒ versionUsage()
+        case "show-timeline" ⇒ showTimeLineUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
     }
 
@@ -18,10 +19,11 @@ object Usage {
               |
               | These are the common Delorean commands:
               |
-              | ride        Tell Delorean to initialize a new repo
-              | add         Add files to repository
-              | pitstop     Record the changes to the repo
-              | config      Configuration options
+              | ride          Tell Delorean to initialize a new repo
+              | add           Add files to repository
+              | pitstop       Record the changes to the repo
+              | config        Configuration options
+              | show-timeline Shows all the pitstops in the current timeline
             """.stripMargin)
     }
 
@@ -69,6 +71,14 @@ object Usage {
             """
               |Usage: delorean ([--version] [-V] [-v])
               |                - Prints the current version of delorean
+            """.stripMargin)
+    }
+
+    def showTimeLineUsage(): Unit = {
+        println(
+            """
+              |Usage: delorean show-timeline
+              |                - Displays all the pitstops in the current timeline
             """.stripMargin)
     }
 }

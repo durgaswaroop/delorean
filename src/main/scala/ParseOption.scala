@@ -19,6 +19,7 @@ object ParseOption {
         case "add" ⇒ add(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "config" ⇒ config(argsList.tail)
+        case "show-timeline" ⇒ showTimeLine(argsList.tail)
         case unknown ⇒ println(s"delorean: '$unknown' is not a valid delorean command. See 'delorean --help'")
     }
 
@@ -40,5 +41,9 @@ object ParseOption {
 
     private def version(versionArguments: List[String]): Unit = {
         if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${Version.version}")
+    }
+
+    private def showTimeLine(showTimeLineArguments: List[String]): Unit = {
+        if (showTimeLineArguments.nonEmpty) Usage("show-timeline") else new ShowTimeLine
     }
 }
