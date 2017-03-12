@@ -56,6 +56,7 @@ class Hasher {
         // Copy temp file's to that of the pitstop hash
         copyFile(tempPitstopFilePath, s".tm/pitstops/$pitstopHash")
         createMetadataFile(pitstopHash, riderLog)
+        writeToFile(".tm/indicators/current", pitstopHash)
 
         // Once the temp file is copied, we can delete it
         //        Files.delete(Paths.get(tempPitstopFile))
