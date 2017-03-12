@@ -1,6 +1,7 @@
 import java.io.File
 
 import FileOps.writeMapToFile
+import Variables._
 
 import scala.collection.mutable
 
@@ -34,7 +35,7 @@ object ParseOption {
 
     private def config(configArgs: List[String]): Unit = {
         if (configArgs.isEmpty || configArgs.length != 2) Usage("config")
-        else writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), "null", new File(".tm/config"))
+        else writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), "null", new File(CONFIG))
     }
 
     private def version(versionArguments: List[String]): Unit = {

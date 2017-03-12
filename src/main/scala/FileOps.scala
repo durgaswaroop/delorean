@@ -1,6 +1,8 @@
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 
+import Variables._
+
 import scala.collection.mutable
 import scala.io.Source
 
@@ -72,8 +74,7 @@ object FileOps {
     }
 
     def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
-        val travelogueFile = ".tm/travelogue"
-        var map: mutable.LinkedHashMap[String, String] = getFileAsMap(travelogueFile)
+        var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
 
         // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
         // So we add in the current key value pair which just updates the value of existing key
@@ -82,7 +83,7 @@ object FileOps {
         }
 
         // Once the map is populated, write the map to travelogue file
-        writeMapToFile(map, travelogueFile)
+        writeMapToFile(map, TRAVELOGUE)
     }
 
     // copies file from src to dest

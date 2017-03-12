@@ -1,14 +1,16 @@
 import java.io.File
 
-class Ride {
-    val deloreanDirectory = new File(".tm/")
-    val pitstopDirectory = new File(".tm/pitstops/")
-    val hashesDirectory = new File(".tm/hashes/")
-    val metadataDirectory = new File(".tm/metadata/")
-    val indicatorsDirectory = new File(".tm/indicators/")
+import Variables._
 
-    val configFile = new File(".tm/config")
-    val currentTimeLine = new File(".tm/indicators/current")
+class Ride {
+    val deloreanDirectory = new File(TIME_MACHINE)
+    val pitstopDirectory = new File(PITSTOPS_FOLDER)
+    val hashesDirectory = new File(HASHES_FOLDER)
+    val metadataDirectory = new File(METADATA_FOLDER)
+    val indicatorsDirectory = new File(INDICATORS_FOLDER)
+
+    val configFile = new File(CONFIG)
+    val currentTimeLine = new File(CURRENT_INDICATOR)
 
     pitstopDirectory.mkdirs
     hashesDirectory.mkdirs
