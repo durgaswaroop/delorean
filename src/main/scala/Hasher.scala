@@ -32,47 +32,6 @@ class Hasher {
         // Have to add more info about the commit like Pitstop time, Rider name and Rider log
     }
 
-    // Creates metadata file with same name as that of the pitstop hash
-    def createMetadataFile(pitstopHash: String, riderLog: String): Unit = {
-        val time = s"Time:${ZonedDateTime.now.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zzzz"))}\n"
-        val rider = if (Configuration("rider").nonEmpty) Configuration("rider") else System.getProperty("user.name")
-        val timeAndRider = time + s"Rider:$rider\n"
-        // parent pitstop would be whatever is present in the current indicator file.
-        val parentPitstop = getLinesOfFile(CURRENT_INDICATOR).head
-        val timeAndRiderAndParents = timeAndRider + s"Parent(s):\n$parentPitstop\n"
-        val fullMetadata = timeAndRiderAndParents + s"RiderLog:\n$riderLog"
-
-        writeToFile(METADATA_FOLDER + pitstopHash, fullMetadata)
-    }
-
-    // Hash for a List of files
-    def computePitStopHash(riderLog: String): Unit = {
-        // Generate pitstop hash as the temp file
-        val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
-        if (files.isEmpty) {
-            println("Delorean is all charged up. No need for Pitstops.")
-            return
-        }
-        val tempPitstopFile = files(0)
-        tempPitstopFile.deleteOnExit()
-        val tempPitstopFilePath = tempPitstopFile.getPath
-        val pitstopHash: String = computeHashOfFile(tempPitstopFilePath)
-
-        // Copy temp file's to that of the pitstop hash
-        copyFile(tempPitstopFilePath, PITSTOPS_FOLDER + pitstopHash)
-        createMetadataFile(pitstopHash, riderLog)
-        writeToFile(CURRENT_INDICATOR, pitstopHash)
-
-        // Once the temp file is copied, we can delete it
-        //        Files.delete(Paths.get(tempPitstopFile))
-        //        println(f.getAbsolutePath + ", " + f.canRead + ", " + f.canWrite)
-        //        if (f.delete) println("Deleted") else println("Not deleted")
-    }
-
-    def computeHash(str: String, hash: String): String = {
-        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
-    }
-
     def computeHashOfFile(filePath: String): String = {
         var hashLineMap: Map[String, String] = Map.empty
 
@@ -98,5 +57,59 @@ class Hasher {
 
         // return filHash
         fileHash
+    }
+
+    // Hash for a List of files
+    def computePitStopHash(riderLog: String): Unit = {
+        // Generate pitstop hash as the temp file
+        val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
+        if (files.isEmpty) {
+            println("Delorean is all charged up. No need for Pitstops.")
+            return
+        }
+        val tempPitstopFile = files(0)
+        tempPitstopFile.deleteOnExit()
+        val tempPitstopFilePath = tempPitstopFile.getPath
+        val allFilesHash: String = computeHashOfFile(tempPitstopFile.getPath)
+        val metadataAndHash: (String, String) = computeMetadataAndItsHash(riderLog)
+        val metadata = metadataAndHash._1
+        val metadataHash = metadataAndHash._2
+
+        // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
+        val pitstopHash = computeHash(allFilesHash + metadataHash, SHA256)
+
+        // Copy temp file's to that of the pitstop hash
+        copyFile(tempPitstopFilePath, PITSTOPS_FOLDER + pitstopHash)
+        writeToFile(METADATA_FOLDER + pitstopHash, metadata)
+        // createMetadataFile(pitstopHash, riderLog)
+
+        // Write the new pitstop hash into the current indicator
+        writeToFile(CURRENT_INDICATOR, pitstopHash)
+
+        // Once the temp file is copied, we can delete it
+        //        Files.delete(Paths.get(tempPitstopFile))
+        //        println(f.getAbsolutePath + ", " + f.canRead + ", " + f.canWrite)
+        //        if (f.delete) println("Deleted") else println("Not deleted")
+    }
+
+    def computeMetadataAndItsHash(riderLog: String): (String, String) = {
+        val time = s"Time:${ZonedDateTime.now.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zzzz"))}\n"
+        val rider = if (Configuration("rider").nonEmpty) Configuration("rider") else System.getProperty("user.name")
+        val timeAndRider = time + s"Rider:$rider\n"
+
+        // parent pitstop would be whatever is present in the current indicator file.
+        val lines = getLinesOfFile(CURRENT_INDICATOR)
+        // The current file may be empty for the first commit. In that case we will just put an empty string
+        val parentPitstop = if (lines.nonEmpty) lines.head else ""
+
+        val timeAndRiderAndParents = timeAndRider + s"Parent(s):\n$parentPitstop\n"
+        val fullMetadata = timeAndRiderAndParents + s"RiderLog:\n$riderLog"
+
+        // return the hash of the fullMetadata string along with the fullMetadata string itself
+        (fullMetadata, computeHash(fullMetadata, SHA256))
+    }
+
+    def computeHash(str: String, hash: String): String = {
+        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 }
