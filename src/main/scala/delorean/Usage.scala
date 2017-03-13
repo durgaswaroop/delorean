@@ -17,7 +17,7 @@ object Usage {
     }
 
     def fullUsage(): Unit = {
-        println(
+        print(
             """usage: delorean <command> [<args>] [--version] [--help]
               |
               | These are the common Delorean commands:
@@ -31,7 +31,7 @@ object Usage {
     }
 
     def rideUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean ride
               |                - Initializes a new Delorean Repository
@@ -41,7 +41,7 @@ object Usage {
     }
 
     def addUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean add <file1> <file2> ..
               |
@@ -50,7 +50,7 @@ object Usage {
     }
 
     def pitstopUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean pitstop -rl "<Rider Log>"
               |                - Creates a new pitstop with the given Rider log.
@@ -60,7 +60,7 @@ object Usage {
     }
 
     def configUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean config <property name> <property value>
               |                - Adds/Updates delorean configuration
@@ -70,7 +70,7 @@ object Usage {
     }
 
     def versionUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean ([--version] [-V] [-v])
               |                - Prints the current version of delorean
@@ -78,7 +78,7 @@ object Usage {
     }
 
     def statusUsage(): Unit = {
-        println(
+        print(
             """
               |Usage: delorean status
               |                - Displays the current status of the repository
