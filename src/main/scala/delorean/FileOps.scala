@@ -22,7 +22,12 @@ object FileOps {
         scala.tools.nsc.io.File(filePath).writeAll(content)
     }
 
-    def getLinesOfFile(filePath: String): List[String] = Source.fromFile(filePath).getLines().toList
+    def getLinesOfFile(filePath: String): List[String] = {
+        val source = Source.fromFile(filePath, "UTF-8")
+        val lines = source.getLines().toList
+        source.close()
+        lines
+    }
 
     def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], stringPoolFile: String): Unit = {
         var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
