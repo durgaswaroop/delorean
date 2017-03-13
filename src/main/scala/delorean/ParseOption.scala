@@ -1,6 +1,7 @@
 package delorean
 
 import java.io.File
+import java.nio.file.{Files, Paths}
 
 import delorean.FileOps.writeMapToFile
 import delorean.commands._
@@ -47,7 +48,12 @@ object ParseOption {
     }
 
     private def status(statusArguments: List[String]): Unit = {
-        if (statusArguments.length > 1) Usage("status") else new Status
+        if (statusArguments.length > 1) Usage("status")
+        else if (statusArguments.length == 1) {
+            if (Files.exists(Paths.get(statusArguments.head))) println("Status: Coming soon")
+            else println(s"File '${statusArguments.head}' does not exist")
+        }
+        else new Status
     }
 
     private def showTimeLine(showTimeLineArguments: List[String]): Unit = {
