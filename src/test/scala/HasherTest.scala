@@ -1,3 +1,4 @@
+import delorean.Hasher
 import org.junit.gen5.api.Assertions.{assertEquals, assertNotEquals}
 import org.junit.gen5.api.{AfterEach, BeforeEach, Test}
 

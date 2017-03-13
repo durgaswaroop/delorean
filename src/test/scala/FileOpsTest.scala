@@ -1,7 +1,7 @@
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
-import FileOps._
+import delorean.FileOps._
 import org.junit.gen5.api.Assertions.{assertEquals, assertTrue}
 import org.junit.gen5.api._
 
