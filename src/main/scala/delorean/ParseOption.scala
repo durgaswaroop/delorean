@@ -51,6 +51,13 @@ object ParseOption {
     }
 
     private def showTimeLine(showTimeLineArguments: List[String]): Unit = {
-        if (showTimeLineArguments.nonEmpty) Usage("show-timeline") else new ShowTimeLine
+        if (showTimeLineArguments.size >= 2) Usage("show-timeline")
+        else if (showTimeLineArguments.size == 1) {
+            val head: String = showTimeLineArguments.head
+            if (head == "-s" || head == "--short") new ShowTimeLine
+            else if (head == "-l" || head == "--long") new ShowTimeLine(OutputFormat.LONG)
+            else Usage("show-timeline")
+        }
+        else new ShowTimeLine
     }
 }

@@ -2,11 +2,13 @@ package delorean
 package commands
 
 import delorean.FileOps._
+import delorean.commands.OutputFormat.OutputFormat
 
 /**
   * Class for the command 'show-timeline'.
+  *
   */
-class ShowTimeLine {
+class ShowTimeLine(val outputFormat: OutputFormat = OutputFormat.SHORT) {
     val currentIndicatorFileLines: List[String] = getLinesOfFile(CURRENT_INDICATOR)
 
     if (currentIndicatorFileLines.isEmpty) {
@@ -15,12 +17,20 @@ class ShowTimeLine {
     }
     else {
         var currentPitstop: String = currentIndicatorFileLines.head
-        println("* " + currentPitstop.take(6))
-
-        var parentPitstop = parent(currentPitstop)
-        while (parentPitstop nonEmpty) {
-            println("* " + parentPitstop.take(6))
-            parentPitstop = parent(parentPitstop)
+        if (outputFormat == OutputFormat.SHORT) {
+            printShort(currentPitstop)
+            var parentPitstop = parent(currentPitstop)
+            while (parentPitstop nonEmpty) {
+                printShort(parentPitstop)
+                parentPitstop = parent(parentPitstop)
+            }
+        } else {
+            printLong(currentPitstop)
+            var parentPitstop = parent(currentPitstop)
+            while (parentPitstop nonEmpty) {
+                printLong(parentPitstop)
+                parentPitstop = parent(parentPitstop)
+            }
         }
     }
 
@@ -29,4 +39,27 @@ class ShowTimeLine {
         // if (parent.nonEmpty) println("* " + parent.take(6))
         parent
     }
+
+    def printShort(pitstop: String): Unit = {
+        val metadata = Metadata(pitstop)
+        println("* " + pitstop.take(6) + " " + metadata.riderLog.take(60))
+    }
+
+    def printLong(pitstop: String): Unit = {
+        val metadata = Metadata(pitstop)
+        println(
+            s"""
+               |pitstop ${pitstop.take(25)}
+               |Rider: ${metadata.rider}
+               |Time:  ${metadata.time}
+               |
+               |Rider log: ${metadata.riderLog}
+                """.stripMargin)
+    }
+}
+
+object OutputFormat extends Enumeration {
+    type OutputFormat = Value
+    val SHORT = Value(0)
+    val LONG = Value(1)
 }

@@ -89,10 +89,14 @@ object Usage {
     }
 
     def showTimeLineUsage(): Unit = {
-        println(
+        print(
             """
-              |Usage: delorean show-timeline
-              |                - Displays all the pitstops in the current timeline
+              |Usage: delorean show-timeline [--short | -s] [--long | -l]
+              |                - Displays all the pitstops in the current timeline. Default shows short format output
+              |
+              |       Output Format options:
+              |       short - Displays a short pitstop hash and the rider log
+              |       long  - Displays full information of the pitstop including time, rider name etc.
             """.stripMargin)
     }
 }
