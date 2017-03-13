@@ -2,10 +2,8 @@ package delorean
 
 import java.util.logging.Logger
 
-import delorean.commands.ParseOption
-
 /**
-  * Created by dperla on 13-03-2017.
+  * Delorean main class.
   */
 object Delorean {
     val logger: Logger = Logger.getLogger(this.getClass.getName)

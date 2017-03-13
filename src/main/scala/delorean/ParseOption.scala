@@ -3,8 +3,8 @@ package delorean
 import java.io.File
 import java.nio.file.{Files, Paths}
 
-import delorean.FileOps.writeMapToFile
-import delorean.commands._
+import delorean.FileOps._
+import delorean.commands.{OutputFormat, Ride, ShowTimeLine, Status}
 
 import scala.collection.mutable
 
@@ -50,7 +50,9 @@ object ParseOption {
     }
 
     private def version(versionArguments: List[String]): Unit = {
-        if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${Version.version}")
+        if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${
+            Version.version
+        }")
     }
 
     private def status(statusArguments: List[String]): Unit = {

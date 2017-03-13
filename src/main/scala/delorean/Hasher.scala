@@ -32,8 +32,6 @@ class Hasher {
         val tempPitstopFile = if (files.nonEmpty) files(0) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
         // write the hashes of all added files to temp pitstop file
         writeMapToFile(fileNameFileHashMap, null, tempPitstopFile)
-
-        // Have to add more info about the commit like Pitstop time, Rider name and Rider log
     }
 
     def computeHashOfFile(filePath: String): String = {
