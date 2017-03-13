@@ -24,7 +24,13 @@ object ParseOption {
         case "config" ⇒ config(argsList.tail)
         case "status" ⇒ status(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
-        case unknown ⇒ println(s"delorean: '$unknown' is not a valid delorean command. See 'delorean --help'")
+        case unknown ⇒ {
+            var command = unknown
+            if (unknown.startsWith("-")) {
+                command = unknown.dropWhile(c ⇒ c == '-')
+                println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
+            } else println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
+        }
     }
 
     private def ride(rideArguments: List[String]): Unit = if (rideArguments.nonEmpty) Usage("ride") else new Ride
