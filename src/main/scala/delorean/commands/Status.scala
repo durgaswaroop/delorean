@@ -1,10 +1,12 @@
-import FileOps.getLinesOfFile
-import Variables.{CURRENT_INDICATOR, METADATA_FOLDER}
+package delorean
+package commands
+
+import delorean.FileOps._
 
 /**
-  * Class for the command 'show-timeline'.
+  * Class for the command 'status'
   */
-class ShowTimeLine {
+class Status {
     val currentIndicatorFileLines: List[String] = getLinesOfFile(CURRENT_INDICATOR)
 
     if (currentIndicatorFileLines.isEmpty) {
@@ -15,16 +17,15 @@ class ShowTimeLine {
         var currentPitstop: String = currentIndicatorFileLines.head
         println("* " + currentPitstop.take(6))
 
-        var parentPitstop = parent(currentPitstop)
-        while (parentPitstop nonEmpty) {
-            println("* " + parentPitstop.take(6))
-            parentPitstop = parent(parentPitstop)
+        while (parent(currentPitstop) != "") {
+            currentPitstop = parent(currentPitstop)
         }
     }
 
     def parent(pitstop: String): String = {
         val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop).filter(_.contains("Parent")).head.split(":", 2)(1)
-        // if (parent.nonEmpty) println("* " + parent.take(6))
+        if (parent.nonEmpty) println("* " + parent.take(6))
         parent
     }
+
 }

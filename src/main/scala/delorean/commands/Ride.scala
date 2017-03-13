@@ -1,6 +1,7 @@
-import java.io.File
+package delorean
+package commands
 
-import Variables._
+import java.io.File
 
 class Ride {
     val deloreanDirectory = new File(TIME_MACHINE)

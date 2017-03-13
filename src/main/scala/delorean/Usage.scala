@@ -1,3 +1,5 @@
+package delorean
+
 /**
   * Prints usage information for all the Delorean commands.
   */
@@ -9,6 +11,7 @@ object Usage {
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
         case "version" ⇒ versionUsage()
+        case "status" ⇒ statusUsage()
         case "show-timeline" ⇒ showTimeLineUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
     }
@@ -71,6 +74,17 @@ object Usage {
             """
               |Usage: delorean ([--version] [-V] [-v])
               |                - Prints the current version of delorean
+            """.stripMargin)
+    }
+
+    def statusUsage(): Unit = {
+        println(
+            """
+              |Usage: delorean status
+              |                - Displays the current status of the repository
+              |       delorean status <filename>
+              |                - Displays the status of the file
+              |                - Only one file is supported now
             """.stripMargin)
     }
 

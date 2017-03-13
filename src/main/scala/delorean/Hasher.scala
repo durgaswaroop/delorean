@@ -1,13 +1,17 @@
+package delorean
+
 import java.io.File
+import java.nio.file.attribute.FileTime
+import java.nio.file.{Files, Paths}
 import java.security.MessageDigest
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
 
-import FileOps._
-import Variables._
+import delorean.FileOps._
 
 import scala.collection.mutable
+import scala.util.Try
 
 class Hasher {
 
@@ -63,10 +67,25 @@ class Hasher {
     def computePitStopHash(riderLog: String): Unit = {
         // Generate pitstop hash as the temp file
         val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
+
+        val currentPitstop: String = if (getLinesOfFile(CURRENT_INDICATOR).nonEmpty) getLinesOfFile(CURRENT_INDICATOR).head else ""
+        //if (currentPitstop)
+        val currentPitstopTime: FileTime = Files.getLastModifiedTime(Paths.get(PITSTOPS_FOLDER + currentPitstop))
+        val tempFileTime: FileTime = Files.getLastModifiedTime(Paths.get(files.head.getPath))
+
         if (files.isEmpty) {
             println("Delorean is all charged up. No need for Pitstops.")
             return
         }
+
+//        else if (true) {
+//            // currentPitstopTime.compareTo(tempFileTime) > 0
+//            println(currentPitstopTime)
+//            println(tempFileTime)
+//            Files.delete(Paths.get(files.head.getPath))
+//            return
+//        }
+//        println("After")
         val tempPitstopFile = files(0)
         tempPitstopFile.deleteOnExit()
         val tempPitstopFilePath = tempPitstopFile.getPath
@@ -87,9 +106,7 @@ class Hasher {
         writeToFile(CURRENT_INDICATOR, pitstopHash)
 
         // Once the temp file is copied, we can delete it
-        //        Files.delete(Paths.get(tempPitstopFile))
-        //        println(f.getAbsolutePath + ", " + f.canRead + ", " + f.canWrite)
-        //        if (f.delete) println("Deleted") else println("Not deleted")
+        Try(Files.delete(Paths.get(tempPitstopFilePath)))
     }
 
     def computeMetadataAndItsHash(riderLog: String): (String, String) = {
@@ -102,7 +119,7 @@ class Hasher {
         // The current file may be empty for the first commit. In that case we will just put an empty string
         val parentPitstop = if (lines.nonEmpty) lines.head else ""
 
-        val timeAndRiderAndParents = timeAndRider + s"Parent(s):\n$parentPitstop\n"
+        val timeAndRiderAndParents = timeAndRider + s"Parent(s):$parentPitstop\n"
         val fullMetadata = timeAndRiderAndParents + s"RiderLog:\n$riderLog"
 
         // return the hash of the fullMetadata string along with the fullMetadata string itself

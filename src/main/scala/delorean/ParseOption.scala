@@ -1,7 +1,9 @@
+package delorean
+
 import java.io.File
 
-import FileOps.writeMapToFile
-import Variables._
+import delorean.FileOps.writeMapToFile
+import delorean.commands._
 
 import scala.collection.mutable
 
@@ -19,6 +21,7 @@ object ParseOption {
         case "add" ⇒ add(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "config" ⇒ config(argsList.tail)
+        case "status" ⇒ status(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
         case unknown ⇒ println(s"delorean: '$unknown' is not a valid delorean command. See 'delorean --help'")
     }
@@ -41,6 +44,10 @@ object ParseOption {
 
     private def version(versionArguments: List[String]): Unit = {
         if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${Version.version}")
+    }
+
+    private def status(statusArguments: List[String]): Unit = {
+        if (statusArguments.length > 1) Usage("status") else new Status
     }
 
     private def showTimeLine(showTimeLineArguments: List[String]): Unit = {

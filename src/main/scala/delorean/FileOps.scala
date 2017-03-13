@@ -1,11 +1,14 @@
+package delorean
+
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
-
-import Variables._
 
 import scala.collection.mutable
 import scala.io.Source
 
+/**
+  * Created by dperla on 13-03-2017.
+  */
 object FileOps {
 
     def filesMatchingInDir(dir: File, check: String ⇒ Boolean): Array[File] = {
