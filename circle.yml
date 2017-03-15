@@ -1,7 +1,10 @@
 machine:
   pre:
-    - ls -l
-    - chmod +x gradlew
+    - chmod +x delorean/gradlew
   java:
     version: oraclejdk8
 
+## Customize dependencies
+dependencies:
+  cache_directories:
+    - ~/.gradle
