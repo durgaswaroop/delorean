@@ -1,4 +1,7 @@
 machine:
+  pre:
+    - ls -l
+    - chmod +x gradlew
   java:
     version: oraclejdk8
-    
+
