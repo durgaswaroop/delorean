@@ -3,9 +3,17 @@ import java.nio.file.{Files, Paths}
 
 import delorean.FileOps._
 import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.Test
+import org.junit.{BeforeClass, Test}
 
 import scala.collection.mutable
+
+object FileOpsTest{
+    @BeforeClass
+    def callToRide(): Unit = {
+        // This will make sure it creates all the required files for the test
+        new delorean.commands.Ride
+    }
+}
 
 class FileOpsTest {
     val testFile = "src/test/resources/test"
