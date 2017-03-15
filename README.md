@@ -1,4 +1,4 @@
-# DeLorean - The Time Machine for your Marty McFiles
+## DeLorean - The Time Machine for your Marty McFiles [![CircleCI](https://circleci.com/gh/durgaswaroop/delorean/tree/master.svg?style=svg)](https://circleci.com/gh/durgaswaroop/delorean/tree/master)
 
 <img src="delorean.jpeg" align="center">
 
