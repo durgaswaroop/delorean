@@ -1,6 +1,6 @@
 package delorean
 
-import java.io.{File, FileWriter, PrintWriter}
+import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 
 import scala.collection.mutable
@@ -12,7 +12,9 @@ import scala.io.Source
 object FileOps {
 
     def filesMatchingInDir(dir: File, check: String ⇒ Boolean): Array[File] = {
-        dir.listFiles((dir, fileName) ⇒ check(fileName))
+        dir.listFiles(new FilenameFilter {
+            override def accept(dir: File, name: String): Boolean = check(name)
+        })
     }
 
     def writeToFile(filePath: String, content: String): Unit = {
