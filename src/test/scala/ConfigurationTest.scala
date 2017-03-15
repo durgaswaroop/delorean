@@ -1,6 +1,6 @@
 import delorean.Configuration
-import org.junit.gen5.api.Assertions._
-import org.junit.gen5.api.Test
+import org.junit.Assert._
+import org.junit.Test
 
 class ConfigurationTest {
     @Test

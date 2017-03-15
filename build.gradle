@@ -14,15 +14,14 @@ repositories {
 ext {
     scalaVersion = '2.12.1'
 
-    junitVersion = '5.0.0-ALPHA'
+    junitVersion = '4.12'
 }
 
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
 
-    testCompile("org.junit:junit5-engine:$junitVersion")
-
+    testCompile "junit:junit:$junitVersion"
 }
 
 tasks.withType(Test) {

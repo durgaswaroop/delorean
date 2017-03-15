@@ -1,6 +1,6 @@
 import delorean.Hasher
-import org.junit.gen5.api.Assertions.{assertEquals, assertNotEquals}
-import org.junit.gen5.api.{AfterEach, BeforeEach, Test}
+import org.junit.Assert._
+import org.junit._
 
 class HasherTest {
 
@@ -11,9 +11,9 @@ class HasherTest {
     val travelogueFile = "src/test/resources/.tm/travelogue"
     var hasher: Hasher = _
 
-    @BeforeEach def setUp(): Unit = hasher = new Hasher
+    @Before def setUp(): Unit = hasher = new Hasher
 
-    @AfterEach def tearDown(): Unit = hasher = null
+    @After def tearDown(): Unit = hasher = null
 
     @Test
     def computeHashTest(): Unit = {
