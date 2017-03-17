@@ -35,17 +35,17 @@ class FileOpsTest {
         // To empty the file
         new PrintWriter(stringPoolFile)
 
-        val map1 = Map("0aiw4n" → "world", "81anf0" → "doc")
+        val map1 = mutable.LinkedHashMap("0aiw4n" → "world", "81anf0" → "doc")
         addHashesAndContentOfLinesToPool(map1, stringPoolFile)
         assertEquals(map1.size, getLinesOfFile(stringPoolFile).length)
 
         // Pool file will grow every time. So, the second time the num of lines should be the sum of two
-        val map2 = Map[String, String]()
+        val map2 = mutable.LinkedHashMap[String, String]()
         addHashesAndContentOfLinesToPool(map2, stringPoolFile)
         assertEquals(map1.size + map2.size, getLinesOfFile(stringPoolFile).length)
 
         // When an existing (hash -> string) pair is found. It will not be added again. So, "doc" will not be added.
-        val map3 = Map[String, String]("81anf0" → "doc", "aw3edc" → "hello")
+        val map3 = mutable.LinkedHashMap[String, String]("81anf0" → "doc", "aw3edc" → "hello")
         addHashesAndContentOfLinesToPool(map3, stringPoolFile)
         assertEquals(map1.size + map2.size + map3.size - 1, getLinesOfFile(stringPoolFile).length)
     }

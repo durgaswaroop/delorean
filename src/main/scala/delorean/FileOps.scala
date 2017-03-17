@@ -29,7 +29,7 @@ object FileOps {
         lines
     }
 
-    def addHashesAndContentOfLinesToPool(hashLineMap: Map[String, String], stringPoolFile: String): Unit = {
+    def addHashesAndContentOfLinesToPool(hashLineMap: mutable.LinkedHashMap[String, String], stringPoolFile: String): Unit = {
         var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
 
         hashLineMap.foreach(tuple ⇒ {
@@ -73,7 +73,7 @@ object FileOps {
         writer.close()
     }
 
-    def addLineHashesToHashesFile(lineHashes: Iterable[String], file: String): Unit = {
+    def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
         // printwriter empties the contents of a file if it exists
         val writer: PrintWriter = new PrintWriter(file)
         lineHashes.foreach(x ⇒ writer.write(s"$x\n"))

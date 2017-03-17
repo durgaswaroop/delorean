@@ -35,7 +35,7 @@ class Hasher {
     }
 
     def computeHashOfFile(filePath: String): String = {
-        var hashLineMap: Map[String, String] = Map.empty
+        var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Get all lines of the file as a List
         val lines = getLinesOfFile(filePath)
@@ -52,7 +52,7 @@ class Hasher {
         val fileHash: String = computeHash(lines.mkString("\n"), SHA256)
 
         // Add line hashes to hashes file
-        addLineHashesToHashesFile(hashLineMap.keys, HASHES_FOLDER + fileHash)
+        addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
 
         // Once the file hash is computed, Add it to travelogue file
         addToTravelogueFile((filePath, fileHash))
