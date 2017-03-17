@@ -23,3 +23,7 @@ class Status {
     println("Files untracked:")
     //TODO: Should print the list of all the files in the repository except for the ones already added/pitstopped
 }
+
+object Status {
+    def apply: Status = new Status()
+}

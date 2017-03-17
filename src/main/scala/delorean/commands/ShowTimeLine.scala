@@ -8,7 +8,7 @@ import delorean.commands.OutputFormat.OutputFormat
   * Class for the command 'show-timeline'.
   *
   */
-class ShowTimeLine(val outputFormat: OutputFormat = OutputFormat.SHORT) {
+case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
     val currentIndicatorFileLines: List[String] = getLinesOfFile(CURRENT_INDICATOR)
 
     if (currentIndicatorFileLines.isEmpty) {
@@ -16,7 +16,7 @@ class ShowTimeLine(val outputFormat: OutputFormat = OutputFormat.SHORT) {
         println("No pitstops found in the repository.\nFor more information: delorean --help")
     }
     else {
-        var currentPitstop: String = currentIndicatorFileLines.head
+        val currentPitstop: String = currentIndicatorFileLines.head
         if (outputFormat == OutputFormat.SHORT) {
             printShort(currentPitstop)
             var parentPitstop = parent(currentPitstop)

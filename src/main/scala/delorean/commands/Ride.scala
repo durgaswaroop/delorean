@@ -11,13 +11,17 @@ class Ride {
     val indicatorsDirectory = new File(INDICATORS_FOLDER)
 
     val configFile = new File(CONFIG)
-    val currentTimeLine = new File(CURRENT_INDICATOR)
+    val currentPitstop = new File(CURRENT_INDICATOR)
 
     pitstopDirectory.mkdirs
     hashesDirectory.mkdirs
     metadataDirectory.mkdirs
     indicatorsDirectory.mkdir
-    currentTimeLine.createNewFile
+    currentPitstop.createNewFile
     configFile.createNewFile
     println("Delorean repository created. Delorean is ready for a ride")
+}
+
+object Ride {
+    def apply: Ride = new Ride()
 }

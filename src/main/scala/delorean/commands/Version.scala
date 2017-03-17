@@ -1,4 +1,4 @@
-package delorean
+package delorean.commands
 
 /**
   * Defines the current version of Delorean.

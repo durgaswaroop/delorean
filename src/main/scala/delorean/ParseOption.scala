@@ -1,12 +1,8 @@
 package delorean
 
-import java.io.File
 import java.nio.file.{Files, Paths}
 
-import delorean.FileOps._
-import delorean.commands.{OutputFormat, Ride, ShowTimeLine, Status}
-
-import scala.collection.mutable
+import delorean.commands._
 
 /**
   * Parser for the command line options
@@ -17,61 +13,55 @@ object ParseOption {
 
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
-        case "-v" | "-V" | "--version" ⇒ version(argsList.tail)
-        case "ride" ⇒ ride(argsList.tail)
         case "add" ⇒ add(argsList.tail)
-        case "pitstop" ⇒ pitstop(argsList.tail)
         case "config" ⇒ config(argsList.tail)
-        case "status" ⇒ status(argsList.tail)
+        case "pitstop" ⇒ pitstop(argsList.tail)
+        case "ride" ⇒ ride(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
-        case unknown ⇒ {
+        case "status" ⇒ status(argsList.tail)
+        case "version" | "-v" | "-V" | "--version" ⇒ version(argsList.tail)
+        case unknown ⇒
             var command = unknown
             if (unknown.startsWith("-")) {
                 command = unknown.dropWhile(c ⇒ c == '-')
                 println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
             } else println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
-        }
     }
 
-    private def ride(rideArguments: List[String]): Unit = if (rideArguments.nonEmpty) Usage("ride") else new Ride
-
-    private def add(addArguments: List[String]): Unit = if (addArguments.isEmpty) Usage("add") else {
-        hasher.computeHashOfAddedFiles(addArguments.toArray)
-    }
-
-    private def pitstop(pitstopArguments: List[String]): Unit = {
-        if (pitstopArguments.isEmpty || pitstopArguments.length != 2 || pitstopArguments.head != "-rl") Usage("pitstop")
-        else hasher.computePitStopHash(pitstopArguments(1))
-    }
+    private def add(addArgs: List[String]): Unit = if (addArgs.isEmpty) Usage("add") else Add(addArgs)
 
     private def config(configArgs: List[String]): Unit = {
-        if (configArgs.isEmpty || configArgs.length != 2) Usage("config")
-        else writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), "null", new File(CONFIG))
+        if (configArgs.isEmpty || configArgs.length != 2) Usage("config") else Config(configArgs)
     }
 
-    private def version(versionArguments: List[String]): Unit = {
-        if (versionArguments.nonEmpty) Usage("version") else println(s"delorean version ${
-            Version.version
-        }")
+    private def pitstop(pitstopArgs: List[String]): Unit = {
+        if (pitstopArgs.isEmpty || pitstopArgs.length != 2 || pitstopArgs.head != "-rl") Usage("pitstop")
+        else Pitstop
     }
 
-    private def status(statusArguments: List[String]): Unit = {
-        if (statusArguments.length > 1) Usage("status")
-        else if (statusArguments.length == 1) {
-            if (Files.exists(Paths.get(statusArguments.head))) println("Status: Coming soon")
-            else println(s"File '${statusArguments.head}' does not exist")
-        }
-        else new Status
-    }
+    private def ride(rideArgs: List[String]): Unit = if (rideArgs.nonEmpty) Usage("ride") else Ride
 
-    private def showTimeLine(showTimeLineArguments: List[String]): Unit = {
-        if (showTimeLineArguments.size >= 2) Usage("show-timeline")
-        else if (showTimeLineArguments.size == 1) {
-            val head: String = showTimeLineArguments.head
+    private def showTimeLine(showTimeLineArgs: List[String]): Unit = {
+        if (showTimeLineArgs.size >= 2) Usage("show-timeline")
+        else if (showTimeLineArgs.size == 1) {
+            val head: String = showTimeLineArgs.head
             if (head == "-s" || head == "--short") new ShowTimeLine
-            else if (head == "-l" || head == "--long") new ShowTimeLine(OutputFormat.LONG)
+            else if (head == "-l" || head == "--long") ShowTimeLine(OutputFormat.LONG)
             else Usage("show-timeline")
         }
-        else new ShowTimeLine
+        else ShowTimeLine
+    }
+
+    private def status(statusArgs: List[String]): Unit = {
+        if (statusArgs.length > 1) Usage("status")
+        else if (statusArgs.length == 1) {
+            if (Files.exists(Paths.get(statusArgs.head))) println("Status: Coming soon")
+            else println(s"File '${statusArgs.head}' does not exist")
+        }
+        else Status
+    }
+
+    private def version(versionArgs: List[String]): Unit = {
+        if (versionArgs.nonEmpty) Usage("version") else println(s"delorean version ${Version.version}")
     }
 }
