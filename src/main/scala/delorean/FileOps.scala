@@ -17,6 +17,12 @@ object FileOps {
         })
     }
 
+    /**
+      * Writes content to file. Overwrites the existing content.
+      *
+      * @param filePath : path to the file
+      * @param content  : Content to write to the file
+      */
     def writeToFile(filePath: String, content: String): Unit = {
         createIfDoesNotExist(filePath)
         scala.tools.nsc.io.File(filePath).writeAll(content)
@@ -29,6 +35,8 @@ object FileOps {
         lines
     }
 
+    // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
+    // overwriting the existing content.
     def addHashesAndContentOfLinesToPool(hashLineMap: mutable.LinkedHashMap[String, String], stringPoolFile: String): Unit = {
         var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
 
@@ -62,6 +70,7 @@ object FileOps {
         filenameHashMap
     }
 
+    // Overwrites the existing content.
     def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, fileToAppendTo: File = null): Unit = {
         // printwriter empties the contents of a file if it exists
         val writer: PrintWriter = {
@@ -73,6 +82,7 @@ object FileOps {
         writer.close()
     }
 
+    // Overwrites the existing content.
     def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
         // printwriter empties the contents of a file if it exists
         val writer: PrintWriter = new PrintWriter(file)
@@ -81,6 +91,8 @@ object FileOps {
         writer.close()
     }
 
+    // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
+    // overwriting the existing content.
     def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
         var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
 
@@ -98,7 +110,6 @@ object FileOps {
     def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest),
         StandardCopyOption.REPLACE_EXISTING)
 
-
     // returns false if the file already exists
     def createIfDoesNotExist(filePath: String): Boolean = {
         try {
@@ -108,5 +119,4 @@ object FileOps {
             case _: FileAlreadyExistsException ⇒ false
         }
     }
-
 }

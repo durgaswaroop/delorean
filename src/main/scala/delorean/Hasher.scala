@@ -1,7 +1,6 @@
 package delorean
 
 import java.io.File
-import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Paths}
 import java.security.MessageDigest
 import java.time.ZonedDateTime
@@ -23,13 +22,18 @@ class Hasher {
     // temporary pitstop file that gets created when you do 'delorean add <files>'
     val PITSTOPS_FOLDER_FILE: File = new File(PITSTOPS_FOLDER)
 
-    def computeHashOfAddedFiles(filePaths: Array[String]): Unit = {
+    def computeHashOfAddedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
-        filePaths.foreach { file ⇒
-            fileNameFileHashMap += (computeHashOfFile(file) → file)
-        }
-        val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
-        val tempPitstopFile = if (files.nonEmpty) files(0) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
+
+        // Compute hash of each added file
+        files foreach { file ⇒ fileNameFileHashMap += (computeHashOfFile(file) → file) }
+
+        // Once the hashes are computed, check for the presence of a "_temp" file.
+        // Existence of "_temp" file means that there were a few more files added before and not committed.
+        val tempFiles: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
+
+        // So, if the file exists, add information about the newly added files to that or else create a new temp file.
+        val tempPitstopFile = if (tempFiles.nonEmpty) tempFiles(0) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
         // write the hashes of all added files to temp pitstop file
         writeMapToFile(fileNameFileHashMap, null, tempPitstopFile)
     }
@@ -66,24 +70,12 @@ class Hasher {
         // Generate pitstop hash as the temp file
         val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
 
-        val currentPitstop: String = if (getLinesOfFile(CURRENT_INDICATOR).nonEmpty) getLinesOfFile(CURRENT_INDICATOR).head else ""
-        //if (currentPitstop)
-        val currentPitstopTime: FileTime = Files.getLastModifiedTime(Paths.get(PITSTOPS_FOLDER + currentPitstop))
-        val tempFileTime: FileTime = Files.getLastModifiedTime(Paths.get(files.head.getPath))
-
+        // When temp file is not present nothing to do because no files are 'added' yet
         if (files.isEmpty) {
-            println("Delorean is all charged up. No need for Pitstops.")
+            println("No files added. Delorean is all charged up. No need for Pitstops.")
             return
         }
 
-//        else if (true) {
-//            // currentPitstopTime.compareTo(tempFileTime) > 0
-//            println(currentPitstopTime)
-//            println(tempFileTime)
-//            Files.delete(Paths.get(files.head.getPath))
-//            return
-//        }
-//        println("After")
         val tempPitstopFile = files(0)
         tempPitstopFile.deleteOnExit()
         val tempPitstopFilePath = tempPitstopFile.getPath
