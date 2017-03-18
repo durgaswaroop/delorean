@@ -126,4 +126,36 @@ object FileOps {
             case _: FileAlreadyExistsException ⇒ false
         }
     }
+
+    def getCurrentPitstop: String = {
+        val currentPitstopOrTimeline: String = getLinesOfFile(CURRENT_INDICATOR).head
+        if (Files.exists(Paths.get(INDICATORS_FOLDER + currentPitstopOrTimeline))) {
+            val lines: List[String] = getLinesOfFile(INDICATORS_FOLDER + currentPitstopOrTimeline)
+            if (lines.nonEmpty) lines.head else ""
+        } else {
+            currentPitstopOrTimeline
+        }
+    }
+
+    // Gets the parent pitstop of the given pitstop. Would be an empty string if no parent is present.
+    def parent(pitstop: String): String = {
+        val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop).filter(_.contains("Parent")).head.split(":", 2)(1)
+        parent
+    }
+
+    def getFilesInThePitstop(pitstop: String): List[String] = {
+        val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop)
+        filesAndHashMap.values.toList
+    }
+
+    def getHashesOfAllFilesKnownToDelorean: Map[String, String] = {
+        var currentPitstop = getCurrentPitstop
+        var map: Map[String, String] = Map.empty
+        while (currentPitstop.nonEmpty) {
+            val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
+            pitstopMap.foreach(kvPair ⇒ if (!map.contains(kvPair._1)) map = map + kvPair)
+            currentPitstop = parent(currentPitstop)
+        }
+        map
+    }
 }

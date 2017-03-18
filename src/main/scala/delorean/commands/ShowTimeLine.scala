@@ -34,12 +34,6 @@ case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
         }
     }
 
-    def parent(pitstop: String): String = {
-        val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop).filter(_.contains("Parent")).head.split(":", 2)(1)
-        // if (parent.nonEmpty) println("* " + parent.take(6))
-        parent
-    }
-
     def printShort(pitstop: String): Unit = {
         val metadata = Metadata(pitstop)
         println("* " + pitstop.take(6) + " " + metadata.riderLog.take(60))
