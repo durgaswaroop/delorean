@@ -1,7 +1,10 @@
 package delorean
 
+import java.nio.file.{Files, Paths}
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ofPattern
+
+import delorean.FileOps.getLinesOfFile
 
 /**
   * Class for holding metadata information. Basically a POJO.
@@ -25,7 +28,13 @@ object Metadata {
       * @return
       */
     def apply(pitstopHash: String): Metadata = {
-        val metadataFileContent: Seq[String] = FileOps.getLinesOfFile(METADATA_FOLDER + pitstopHash)
+        val metadataFile: String = {
+            if (Files.exists(Paths.get(INDICATORS_FOLDER + pitstopHash)))
+                METADATA_FOLDER + getLinesOfFile(INDICATORS_FOLDER + pitstopHash).head
+            else
+                METADATA_FOLDER + pitstopHash
+        }
+        val metadataFileContent: Seq[String] = getLinesOfFile(metadataFile)
         val time: ZonedDateTime = {
             ZonedDateTime.parse(metadataFileContent.head.split(":", 2)(1), ofPattern("MMM dd yyyy hh:mm a zzzz"))
         }
