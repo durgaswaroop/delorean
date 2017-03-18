@@ -2,6 +2,8 @@ package delorean
 
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
+import java.util.function.Predicate
+import java.util.stream.Stream
 
 import scala.collection.mutable
 import scala.io.Source
@@ -15,6 +17,11 @@ object FileOps {
         dir.listFiles(new FilenameFilter {
             override def accept(dir: File, name: String): Boolean = check(name)
         })
+    }
+
+    def getFilesRecursively(dir: String, condition: Predicate[Path] = _ ⇒ true): Stream[Path] = {
+        //        println(Files.walk(Paths.get(dir)).filter(condition).toArray.toList)
+        Files.walk(Paths.get(dir)).filter(condition)
     }
 
     /**

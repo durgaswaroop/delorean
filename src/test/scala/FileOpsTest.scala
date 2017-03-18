@@ -30,6 +30,12 @@ class FileOpsTest {
     }
 
     @Test
+    def getFilesRecursivelyTest(): Unit = {
+        assertTrue(getFilesRecursively("src").anyMatch(_.getFileName.toString.equals("Delorean.scala")))
+        assertTrue(getFilesRecursively("src").anyMatch(_.getFileName.toString.equals("FileOps.scala")))
+    }
+
+    @Test
     def addHashesAndContentOfLinesToPoolTest(): Unit = {
         val stringPoolFile = ".tm/string_pool_test"
         // To empty the file
