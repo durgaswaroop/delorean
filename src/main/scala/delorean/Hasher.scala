@@ -104,7 +104,9 @@ class Hasher {
         // createMetadataFile(pitstopHash, riderLog)
 
         // Write the new pitstop hash into the current indicator
-        writeToFile(CURRENT_INDICATOR, pitstopHash)
+        val currentTimeLine = getLinesOfFile(CURRENT_INDICATOR).head
+        // If the current file is pointing to an actual timeline
+        if (currentTimeLine.nonEmpty) writeToFile(INDICATORS_FOLDER + currentTimeLine, pitstopHash)
 
         // Once the temp file is copied, we can delete it
         Try(Files.delete(Paths.get(tempPitstopFilePath)))
@@ -115,8 +117,12 @@ class Hasher {
         val rider = if (Configuration("rider").nonEmpty) Configuration("rider") else System.getProperty("user.name")
         val timeAndRider = time + s"Rider:$rider\n"
 
-        // parent pitstop would be whatever is present in the current indicator file.
-        val lines = getLinesOfFile(CURRENT_INDICATOR)
+        // parent pitstop would be whatever is present in the current indicator file which would become the parent once
+        // the new pitstop is calculated
+        val currentTimeLine: String = getLinesOfFile(CURRENT_INDICATOR).head
+        var lines = List[String]("")
+        if (Files.exists(Paths.get(INDICATORS_FOLDER + currentTimeLine))) lines = getLinesOfFile(INDICATORS_FOLDER + currentTimeLine)
+
         // The current file may be empty for the first commit. In that case we will just put an empty string
         val parentPitstop = if (lines.nonEmpty) lines.head else ""
 
