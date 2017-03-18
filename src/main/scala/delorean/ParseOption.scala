@@ -36,10 +36,10 @@ object ParseOption {
 
     private def pitstop(pitstopArgs: List[String]): Unit = {
         if (pitstopArgs.isEmpty || pitstopArgs.length != 2 || pitstopArgs.head != "-rl") Usage("pitstop")
-        else Pitstop
+        else Pitstop(pitstopArgs)
     }
 
-    private def ride(rideArgs: List[String]): Unit = if (rideArgs.nonEmpty) Usage("ride") else Ride
+    private def ride(rideArgs: List[String]): Unit = if (rideArgs.nonEmpty) Usage("ride") else new Ride
 
     private def showTimeLine(showTimeLineArgs: List[String]): Unit = {
         if (showTimeLineArgs.size >= 2) Usage("show-timeline")
@@ -49,7 +49,7 @@ object ParseOption {
             else if (head == "-l" || head == "--long") ShowTimeLine(OutputFormat.LONG)
             else Usage("show-timeline")
         }
-        else ShowTimeLine
+        else new ShowTimeLine
     }
 
     private def status(statusArgs: List[String]): Unit = {
@@ -58,7 +58,7 @@ object ParseOption {
             if (Files.exists(Paths.get(statusArgs.head))) println("Status: Coming soon")
             else println(s"File '${statusArgs.head}' does not exist")
         }
-        else Status
+        else new Status
     }
 
     private def version(versionArgs: List[String]): Unit = {

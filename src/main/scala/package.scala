@@ -13,4 +13,5 @@ package object delorean {
     val STRING_POOL: String = TIME_MACHINE + "string_pool"
     val TRAVELOGUE: String = TIME_MACHINE + "travelogue"
     val CURRENT_INDICATOR: String = INDICATORS_FOLDER + "current"
+    val DEFAULT_TIMELINE: String = INDICATORS_FOLDER + "present"
 }

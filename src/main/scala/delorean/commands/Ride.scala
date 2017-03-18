@@ -11,17 +11,19 @@ class Ride {
     val indicatorsDirectory = new File(INDICATORS_FOLDER)
 
     val configFile = new File(CONFIG)
-    val currentPitstop = new File(CURRENT_INDICATOR)
+    val currentFile = new File(CURRENT_INDICATOR)
+    val defaultTimelineFile = new File(DEFAULT_TIMELINE)
 
     pitstopDirectory.mkdirs
     hashesDirectory.mkdirs
     metadataDirectory.mkdirs
     indicatorsDirectory.mkdir
-    currentPitstop.createNewFile
     configFile.createNewFile
-    println("Delorean repository created. Delorean is ready for a ride")
-}
+    currentFile.createNewFile
+    defaultTimelineFile.createNewFile
 
-object Ride {
-    def apply: Ride = new Ride()
+    // Add "present" to the current indicator file as "present" is the default timeline
+    FileOps.writeToFile(currentFile.getPath, "present")
+
+    println("Delorean repository created. Delorean is ready for a ride")
 }
