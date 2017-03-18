@@ -38,7 +38,16 @@ class Hasher {
         writeMapToFile(fileNameFileHashMap, null, tempPitstopFile)
     }
 
-    def computeHashOfFile(filePath: String): String = {
+    /**
+      * Computes the hash of the given file and also does the relavant file operations such as storing the hashes to file,
+      * writing line contents to string pool etc.
+      * But if 'justGetTheHash' is true, we'll just calculate the file hash without writing anything to files.
+      *
+      * @param filePath       : Path of the file
+      * @param justGetTheHash : Just want to get the hash without doing the full computing process.
+      * @return
+      */
+    def computeHashOfFile(filePath: String, justGetTheHash: Boolean = false): String = {
         var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Get all lines of the file as a List
@@ -49,17 +58,19 @@ class Hasher {
         lines.foreach(x => hashLineMap += (computeHash(x, MD5) → x))
         logger.fine(s"Map:\n$hashLineMap\n")
 
-        // Add line_hash - line to the string pool file
-        addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
-
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
         val fileHash: String = computeHash(lines.mkString("\n"), SHA256)
 
-        // Add line hashes to hashes file
-        addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
+        if (!justGetTheHash) {
+            // Add line_hash - line to the string pool file
+            addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
 
-        // Once the file hash is computed, Add it to travelogue file
-        addToTravelogueFile((filePath, fileHash))
+            // Add line hashes to hashes file
+            addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
+
+            // Once the file hash is computed, Add it to travelogue file
+            addToTravelogueFile((filePath, fileHash))
+        }
 
         // return filHash
         fileHash
