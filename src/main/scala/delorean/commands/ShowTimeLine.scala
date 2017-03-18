@@ -9,28 +9,21 @@ import delorean.commands.OutputFormat.OutputFormat
   *
   */
 case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
-    val currentIndicatorFileLines: List[String] = getLinesOfFile(CURRENT_INDICATOR)
 
-    if (currentIndicatorFileLines.isEmpty) {
-        println("On timeline - default timeline ")
-        println("No pitstops found in the repository.\nFor more information: delorean --help")
-    }
-    else {
-        val currentPitstop: String = currentIndicatorFileLines.head
-        if (outputFormat == OutputFormat.SHORT) {
-            printShort(currentPitstop)
-            var parentPitstop = parent(currentPitstop)
-            while (parentPitstop nonEmpty) {
-                printShort(parentPitstop)
-                parentPitstop = parent(parentPitstop)
-            }
-        } else {
-            printLong(currentPitstop)
-            var parentPitstop = parent(currentPitstop)
-            while (parentPitstop nonEmpty) {
-                printLong(parentPitstop)
-                parentPitstop = parent(parentPitstop)
-            }
+    val currentPitstop: String = getCurrentPitstop
+    if (outputFormat == OutputFormat.SHORT) {
+        printShort(currentPitstop)
+        var parentPitstop = parent(currentPitstop)
+        while (parentPitstop nonEmpty) {
+            printShort(parentPitstop)
+            parentPitstop = parent(parentPitstop)
+        }
+    } else {
+        printLong(currentPitstop)
+        var parentPitstop = parent(currentPitstop)
+        while (parentPitstop nonEmpty) {
+            printLong(parentPitstop)
+            parentPitstop = parent(parentPitstop)
         }
     }
 
@@ -42,8 +35,7 @@ case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
     def printLong(pitstop: String): Unit = {
         val metadata = Metadata(pitstop)
         println(
-            s"""
-               |pitstop ${pitstop.take(25)}
+            s"""pitstop ${pitstop.take(25)}
                |Rider: ${metadata.rider}
                |Time:  ${metadata.time}
                |
