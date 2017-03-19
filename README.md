@@ -45,3 +45,12 @@ In short, you can do whatever you want with this project as long as you include 
 
 For more information, refer to the LICENSE file.
 
+### Commands that can be tried/used right now
+* delorean ride
+* delorean add \<files\>
+* delorean pitstop -rl "rider log"
+* delorean status
+* delorean config config-name config-value
+* delorean show-timeline
+* delorean show-timeline --long
+
