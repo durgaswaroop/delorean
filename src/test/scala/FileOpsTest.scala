@@ -7,7 +7,7 @@ import org.junit.{BeforeClass, Test}
 
 import scala.collection.mutable
 
-object FileOpsTest{
+object FileOpsTest {
     @BeforeClass
     def callToRide(): Unit = {
         // This will make sure it creates all the required files for the test
@@ -31,8 +31,9 @@ class FileOpsTest {
 
     @Test
     def getFilesRecursivelyTest(): Unit = {
-        assertTrue(getFilesRecursively("src").anyMatch(_.getFileName.toString.equals("Delorean.scala")))
-        assertTrue(getFilesRecursively("src").anyMatch(_.getFileName.toString.equals("FileOps.scala")))
+        val sep = File.separator
+        assertTrue(getFilesRecursively("src").contains(s"src${sep}main${sep}scala${sep}delorean${sep}Delorean.scala"))
+        assertTrue(getFilesRecursively("src").contains(s"src${sep}main${sep}scala${sep}delorean${sep}FileOps.scala"))
     }
 
     @Test
