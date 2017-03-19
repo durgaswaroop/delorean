@@ -86,7 +86,7 @@ class Status {
         val allFilesDeloreanKnows: List[String] = allFilesAndHashesKnownToDelorean.values.toList
 
         // ".tm" directory should be ignored always
-        val biffFileContents: List[String] = ".tm" :: getLinesOfFile(IGNORE_FILE)
+        val biffFileContents = ".tm" :: (if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE) else List.empty[String])
         var ignored = List[String]()
         biffFileContents.foreach(f ⇒ if (Files.isDirectory(Paths.get(f))) ignored = ignored ::: getFilesRecursively(f))
 
