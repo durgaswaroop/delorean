@@ -79,12 +79,9 @@ object FileOps {
     }
 
     // Overwrites the existing content.
-    def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, fileToAppendTo: File = null): Unit = {
+    def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, append: Boolean = false): Unit = {
         // printwriter empties the contents of a file if it exists
-        val writer: PrintWriter = {
-            if (fileToAppendTo == null) new PrintWriter(filePath)
-            else new PrintWriter(new FileWriter(fileToAppendTo, true))
-        }
+        val writer: PrintWriter = new PrintWriter(new FileWriter(filePath, append))
         map.foreach(tuple ⇒ writer.write(s"${tuple._1}:${tuple._2}\n"))
         writer.flush()
         writer.close()

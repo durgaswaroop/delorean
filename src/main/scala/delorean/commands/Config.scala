@@ -1,7 +1,5 @@
 package delorean.commands
 
-import java.io.File
-
 import delorean.CONFIG
 import delorean.FileOps._
 
@@ -15,6 +13,6 @@ case class Config(configArgs: List[String]) {
         val configMap = getFileAsMap(CONFIG)
         configMap.foreach(kv ⇒ println(s"${kv._1} = ${kv._2}"))
     } else {
-        writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), "null", new File(CONFIG))
+        writeMapToFile(mutable.LinkedHashMap(configArgs.head → configArgs(1)), CONFIG, append = true)
     }
 }

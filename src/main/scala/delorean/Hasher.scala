@@ -35,7 +35,7 @@ class Hasher {
         // So, if the file exists, add information about the newly added files to that or else create a new temp file.
         val tempPitstopFile = if (tempFiles.nonEmpty) tempFiles(0) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
         // write the hashes of all added files to temp pitstop file
-        writeMapToFile(fileNameFileHashMap, null, tempPitstopFile)
+        writeMapToFile(fileNameFileHashMap, tempPitstopFile.getPath, append = true)
     }
 
     /**
