@@ -65,6 +65,9 @@ object Usage {
               |Usage: delorean config <property name> <property value>
               |                - Adds/Updates delorean configuration
               |
+              |       delorean config ([--list] | [list] | [-l])
+              |                - Display current delorean configuration
+              |
               |For more: delorean --help
             """.stripMargin)
     }

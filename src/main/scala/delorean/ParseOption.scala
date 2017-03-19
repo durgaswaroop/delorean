@@ -31,7 +31,15 @@ object ParseOption {
     private def add(addArgs: List[String]): Unit = if (addArgs.isEmpty) Usage("add") else Add(addArgs)
 
     private def config(configArgs: List[String]): Unit = {
-        if (configArgs.isEmpty || configArgs.length != 2) Usage("config") else Config(configArgs)
+        if (configArgs.isEmpty) Usage("config")
+        else if (configArgs.length == 1) {
+            configArgs.head match {
+                case "--list" | "list" | "-l" ⇒ Config(configArgs)
+                case _ ⇒ Usage("config")
+            }
+        }
+        else if (configArgs.length == 2) Config(configArgs)
+        else Usage("config")
     }
 
     private def pitstop(pitstopArgs: List[String]): Unit = {
