@@ -43,7 +43,10 @@ class Status {
     var addedFileSet: List[String] = List("")
     if (tempFiles.length > 0) {
         addedFileSet = getFileAsMap(tempFiles.head.getPath).values.toList
-        println("Files ready to be added to a pitstop:")
+        println(
+            """Files ready to be added to a pitstop:
+              | (use "delorean pitstop -rl <rider log>" to make a pitstop
+            """.stripMargin)
         println(addedFileSet.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
@@ -55,7 +58,7 @@ class Status {
             """Files modified since last pitstop:
               | (use "delorean add <filename>" to stage the changes for the next pitstop
             """.stripMargin)
-        println(modifiedFiles.mkString("\tModified: ", "\n\tModified: ", "\n"))
+        println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
     val untrackedFiles: List[String] = getUntrackedFiles.filterNot(_.isEmpty)
@@ -94,7 +97,7 @@ class Status {
         }
 
         val prefix = "."
-        val allFilesInDirectory: List[String] = getFilesRecursively(prefix, predicate)
+        val allFilesInDirectory: List[String] = getFilesRecursively(prefix, predicate).filterNot(new File(_).isDirectory)
         allFilesInDirectory
     }
 
