@@ -47,7 +47,7 @@ class Status {
             """Files ready to be added to a pitstop:
               | (use "delorean pitstop -rl <rider log>" to make a pitstop
             """.stripMargin)
-        println(addedFileSet.mkString("\tModified: ", "\n\tModified: ", "\n"))
+        println(addedFileSet.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
     val allFilesAndHashesKnownToDelorean: Map[String, String] = getHashesOfAllFilesKnownToDelorean
@@ -68,7 +68,7 @@ class Status {
             """Untracked files:
               | (use "delorean add <filename>" to stage the file to be added to the next pitstop
             """.stripMargin)
-        println(untrackedFiles.mkString("\t", "\n\t", ""))
+        println(untrackedFiles.sorted.mkString("\t", "\n\t", ""))
     }
 
     def getModifiedFiles: List[String] = {
