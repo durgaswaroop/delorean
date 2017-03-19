@@ -14,4 +14,6 @@ package object delorean {
     val TRAVELOGUE: String = TIME_MACHINE + "travelogue"
     val CURRENT_INDICATOR: String = INDICATORS_FOLDER + "current"
     val DEFAULT_TIMELINE: String = INDICATORS_FOLDER + "present"
+
+    val IGNORE_FILE: String = ".biff"
 }

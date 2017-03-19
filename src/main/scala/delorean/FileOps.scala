@@ -3,8 +3,9 @@ package delorean
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 import java.util.function.Predicate
-import java.util.stream.Stream
+import java.util.stream.Collectors
 
+import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.io.Source
 
@@ -19,9 +20,9 @@ object FileOps {
         })
     }
 
-    def getFilesRecursively(dir: String, condition: Predicate[Path] = _ ⇒ true): Stream[Path] = {
-        //        println(Files.walk(Paths.get(dir)).filter(condition).toArray.toList)
-        Files.walk(Paths.get(dir)).filter(condition)
+    def getFilesRecursively(dir: String, condition: Predicate[Path] = _ ⇒ true): List[String] = {
+        val files: List[Path] = Files.walk(Paths.get(dir)).filter(condition).collect(Collectors.toList()).asScala.toList
+        files.map(p ⇒ p.normalize.toString)
     }
 
     /**
