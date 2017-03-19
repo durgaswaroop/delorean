@@ -9,7 +9,6 @@ import delorean.Hasher
   * For the command 'add'.
   */
 case class Add(files: List[String]) {
-    println(files)
     val hasher = new Hasher
     var allFiles: List[String] = List[String]()
     // If a directory is added, get all the files of the directory

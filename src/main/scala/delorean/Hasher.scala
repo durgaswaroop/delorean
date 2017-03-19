@@ -26,7 +26,7 @@ class Hasher {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Compute hash of each added file
-        files foreach { file ⇒ fileNameFileHashMap += (computeHashOfFile(file) → file) }
+        files foreach { file ⇒ fileNameFileHashMap += (computeFileHash(file) → file) }
 
         // Once the hashes are computed, check for the presence of a "_temp" file.
         // Existence of "_temp" file means that there were a few more files added before and not committed.
@@ -47,7 +47,7 @@ class Hasher {
       * @param justGetTheHash : Just want to get the hash without doing the full computing process.
       * @return
       */
-    def computeHashOfFile(filePath: String, justGetTheHash: Boolean = false): String = {
+    def computeFileHash(filePath: String, justGetTheHash: Boolean = false): String = {
         var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Get all lines of the file as a List
@@ -55,11 +55,11 @@ class Hasher {
         logger.fine(s"Lines:\n$lines\n")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
-        lines.foreach(x => hashLineMap += (computeHash(x, MD5) → x))
+        lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
         logger.fine(s"Map:\n$hashLineMap\n")
 
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
-        val fileHash: String = computeHash(lines.mkString("\n"), SHA256)
+        val fileHash: String = computeStringHash(lines.mkString("\n"), SHA256)
 
         if (!justGetTheHash) {
             // Add line_hash - line to the string pool file
@@ -90,18 +90,17 @@ class Hasher {
         val tempPitstopFile = files(0)
         tempPitstopFile.deleteOnExit()
         val tempPitstopFilePath = tempPitstopFile.getPath
-        val allFilesHash: String = computeHashOfFile(tempPitstopFile.getPath)
+        val allFilesHash: String = computeFileHash(tempPitstopFile.getPath)
         val metadataAndHash: (String, String) = computeMetadataAndItsHash(riderLog)
         val metadata = metadataAndHash._1
         val metadataHash = metadataAndHash._2
 
         // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
-        val pitstopHash = computeHash(allFilesHash + metadataHash, SHA256)
+        val pitstopHash = computeStringHash(allFilesHash + metadataHash, SHA256)
 
         // Copy temp file's to that of the pitstop hash
         copyFile(tempPitstopFilePath, PITSTOPS_FOLDER + pitstopHash)
         writeToFile(METADATA_FOLDER + pitstopHash, metadata)
-        // createMetadataFile(pitstopHash, riderLog)
 
         // Write the new pitstop hash into the current indicator
         val currentTimeLine = getLinesOfFile(CURRENT_INDICATOR).head
@@ -130,10 +129,10 @@ class Hasher {
         val fullMetadata = timeAndRiderAndParents + s"RiderLog:\n$riderLog"
 
         // return the hash of the fullMetadata string along with the fullMetadata string itself
-        (fullMetadata, computeHash(fullMetadata, SHA256))
+        (fullMetadata, computeStringHash(fullMetadata, SHA256))
     }
 
-    def computeHash(str: String, hash: String): String = {
+    def computeStringHash(str: String, hash: String): String = {
         MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 }

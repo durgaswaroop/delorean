@@ -154,6 +154,7 @@ object FileOps {
         if (tempFileArray.nonEmpty) tempFileArray(0).getPath else ""
     }
 
+    // hash -> fileName
     def getHashesOfAllFilesKnownToDelorean: Map[String, String] = {
         var currentPitstop = getCurrentPitstop
         var map: Map[String, String] = Map.empty

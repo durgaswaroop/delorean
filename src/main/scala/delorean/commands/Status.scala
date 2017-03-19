@@ -45,7 +45,7 @@ class Status {
         addedFileSet = getFileAsMap(tempFiles.head.getPath).values.toList
         println(
             """Files ready to be added to a pitstop:
-              | (use "delorean pitstop -rl <rider log>" to make a pitstop
+              | (use "delorean pitstop -rl <rider log>" to make a pitstop)
             """.stripMargin)
         println(addedFileSet.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
@@ -56,7 +56,7 @@ class Status {
     if (modifiedFiles.nonEmpty) {
         println(
             """Files modified since last pitstop:
-              | (use "delorean add <filename>" to stage the changes for the next pitstop
+              | (use "delorean add <filename>" to stage the changes for the next pitstop)
             """.stripMargin)
         println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
@@ -66,7 +66,7 @@ class Status {
     if (untrackedFiles.nonEmpty) {
         println(
             """Untracked files:
-              | (use "delorean add <filename>" to stage the file to be added to the next pitstop
+              | (use "delorean add <filename>" to stage the file to be added to the next pitstop)
             """.stripMargin)
         println(untrackedFiles.sorted.mkString("\t", "\n\t", ""))
     }
@@ -76,7 +76,7 @@ class Status {
         val allFiles: Iterable[String] = allFilesAndHashesKnownToDelorean.values
         var modifiedFiles: List[String] = List("")
         allFiles.foreach(file ⇒ {
-            val hash = hasher.computeHashOfFile(file, justGetTheHash = true)
+            val hash = hasher.computeFileHash(file, justGetTheHash = true)
             if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, file))) modifiedFiles = file :: modifiedFiles
         })
         modifiedFiles
