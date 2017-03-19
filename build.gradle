@@ -52,4 +52,14 @@ tasks.withType(Test) {
     }
 }
 
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class' : 'delorean.Delorean'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
 build.finalizedBy(installDist)
+build.finalizedBy(fatJar)
