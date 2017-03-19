@@ -5,6 +5,15 @@ import java.io.File
 
 class Ride {
     val deloreanDirectory = new File(TIME_MACHINE)
+
+    if (deloreanDirectory.exists()) {
+        print(
+            """delorean: Current directory is already part of a delorean repository.
+              |Nothing else to be done.
+            """.stripMargin)
+        System.exit(0)
+    }
+
     val pitstopDirectory = new File(PITSTOPS_FOLDER)
     val hashesDirectory = new File(HASHES_FOLDER)
     val metadataDirectory = new File(METADATA_FOLDER)
