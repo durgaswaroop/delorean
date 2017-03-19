@@ -149,6 +149,10 @@ object FileOps {
         filesAndHashMap.values.toList
     }
 
+    def getTempPitstopFile: String = {
+        filesMatchingInDir(new File(PITSTOPS_FOLDER), fileName ⇒ fileName.startsWith("_temp"))(0).getPath
+    }
+
     def getHashesOfAllFilesKnownToDelorean: Map[String, String] = {
         var currentPitstop = getCurrentPitstop
         var map: Map[String, String] = Map.empty
@@ -157,6 +161,12 @@ object FileOps {
             pitstopMap.foreach(kvPair ⇒ if (!map.contains(kvPair._1)) map = map + kvPair)
             currentPitstop = parent(currentPitstop)
         }
+
+        // Apart from looking at the pitstops, also looks at the files in _temp file.
+        // Those files shouldn't come in the untracked files too.
+        val tempFilePitstopMap = getFileAsMap(getTempPitstopFile)
+        tempFilePitstopMap.foreach(kvPair ⇒ if (!map.contains(kvPair._1)) map = map + kvPair)
+
         map
     }
 }
