@@ -2,6 +2,7 @@ import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import delorean.FileOps._
+import delorean._
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.{BeforeClass, Test}
 
@@ -11,16 +12,17 @@ object FileOpsTest {
     @BeforeClass
     def callToRide(): Unit = {
         // This will make sure it creates all the required files for the test
-        new delorean.commands.Ride
+        if (!Files.exists(Paths.get(TIME_MACHINE))) new delorean.commands.Ride
     }
 }
 
 class FileOpsTest {
-    val testFile = "src/test/resources/test"
-    val testCopyFile = "src/test/resources/test_copy"
-    val testDiffFile = "src/test/resources/test_diff"
-    val outputFile = "src/test/resources/out"
-    val travelogueFile = "src/test/resources/.tm/travelogue"
+    val resourcesFolder = "src/test/resources/"
+    val testFile = resourcesFolder + "test"
+    val testCopyFile = resourcesFolder + "test_copy"
+    val testDiffFile = resourcesFolder + "test_diff"
+    val outputFile = resourcesFolder + "out"
+    val travelogueFile = resourcesFolder + ".tm/travelogue"
 
     @Test
     def getLinesOfFileTest(): Unit = {
