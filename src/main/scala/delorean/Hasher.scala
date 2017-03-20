@@ -25,8 +25,16 @@ class Hasher {
     def computeHashOfAddedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
-        // Compute hash of each added file
-        files foreach { file ⇒ fileNameFileHashMap += (computeFileHash(file) → file) }
+        val allFilesAndHashesKnownToDelorean: Map[String, String] = getHashesOfAllFilesKnownToDelorean
+
+        // Compute hash of each added file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
+        // is not present in the allFilesAndHashesKnownToDelorean map. This way it will be added to temp file only
+        // if the file has actually changed.
+        files foreach (file ⇒ {
+            val hash = computeFileHash(file)
+            if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, file)))
+                fileNameFileHashMap += (computeFileHash(file) → file)
+        })
 
         // Once the hashes are computed, check for the presence of a "_temp" file.
         // Existence of "_temp" file means that there were a few more files added before and not committed.
