@@ -15,6 +15,7 @@ object ParseOption {
         case "--help" ⇒ Usage("full")
         case "add" ⇒ add(argsList.tail)
         case "config" ⇒ config(argsList.tail)
+        case "describe" ⇒ describe(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "ride" ⇒ ride(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
@@ -40,6 +41,11 @@ object ParseOption {
         }
         else if (configArgs.length == 2) Config(configArgs)
         else Usage("config")
+    }
+
+    private def describe(describeArgs: List[String]): Unit = {
+        if (describeArgs.isEmpty) Usage("describe")
+        else Describe(describeArgs)
     }
 
     private def pitstop(pitstopArgs: List[String]): Unit = {

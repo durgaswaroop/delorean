@@ -8,6 +8,7 @@ object Usage {
         case "full" ⇒ fullUsage()
         case "ride" ⇒ rideUsage()
         case "add" ⇒ addUsage()
+        case "describe" ⇒ describeUsage()
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
         case "version" ⇒ versionUsage()
@@ -100,6 +101,16 @@ object Usage {
               |       Output Format options:
               |       short - Displays a short pitstop hash and the rider log
               |       long  - Displays full information of the pitstop including time, rider name etc.
+            """.stripMargin)
+    }
+
+    def describeUsage(): Unit = {
+        print(
+            """
+              |Usage: delorean describe pitstop(s)
+              |                - Displays more information regarding a particular pitstop(s)
+              |
+              |For more: delorean --help
             """.stripMargin)
     }
 }

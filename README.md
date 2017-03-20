@@ -47,10 +47,11 @@ For more information, refer to the LICENSE file.
 
 ### Commands that can be tried/used right now
 * delorean ride
-* delorean add \<files\>
+* delorean add \<file(s)\>
 * delorean pitstop -rl "rider log"
 * delorean status
 * delorean config config-name config-value
 * delorean show-timeline
 * delorean show-timeline --long
+* delorean describe \<pitstop(s)\>
 
