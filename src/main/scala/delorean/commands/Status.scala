@@ -51,14 +51,17 @@ class Status {
     }
 
     val allFilesAndHashesKnownToDelorean: Map[String, String] = getHashesOfAllFilesKnownToDelorean
-    val modifiedFiles: List[String] = getModifiedFiles.filterNot(_.isEmpty)
+    val modifiedAndDeletedFiles: (List[String], List[String]) = getModifiedAndDeletedFiles
+    val modifiedFiles: List[String] = modifiedAndDeletedFiles._1.filterNot(_.isEmpty)
+    val deletedFiles: List[String] = modifiedAndDeletedFiles._2.filterNot(_.isEmpty)
 
-    if (modifiedFiles.nonEmpty) {
+    if (modifiedFiles.nonEmpty || deletedFiles.nonEmpty) {
         println(
             """Files modified since last pitstop:
               | (use "delorean add <filename>" to stage the changes for the next pitstop)
             """.stripMargin)
-        println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
+        if (modifiedFiles.nonEmpty) println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
+        if (deletedFiles.nonEmpty) println(deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
     }
 
     val untrackedFiles: List[String] = getUntrackedFiles.filterNot(_.isEmpty)
@@ -71,15 +74,21 @@ class Status {
         println(untrackedFiles.sorted.mkString("\t", "\n\t", ""))
     }
 
-    def getModifiedFiles: List[String] = {
+    // If a file is present in the 'filesKnownToDelorean' but is not currently there, it means that it is deleted.
+    def getModifiedAndDeletedFiles: (List[String], List[String]) = {
         val hasher = new Hasher
         val allFiles: Iterable[String] = allFilesAndHashesKnownToDelorean.values
-        var modifiedFiles: List[String] = List("")
-        allFiles.foreach(file ⇒ {
-            val hash = hasher.computeFileHash(file, justGetTheHash = true)
-            if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, file))) modifiedFiles = file :: modifiedFiles
+        var modifiedFiles: List[String] = List.empty
+        var deletedFiles: List[String] = List.empty
+        allFiles.foreach(fileName ⇒ {
+            if (new File(fileName).exists()) {
+                val hash = hasher.computeFileHash(fileName, justGetTheHash = true)
+                if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, fileName))) modifiedFiles = fileName :: modifiedFiles
+            } else
+                deletedFiles = fileName :: deletedFiles
+
         })
-        modifiedFiles
+        (modifiedFiles, deletedFiles)
     }
 
     def getUntrackedFiles: List[String] = {
