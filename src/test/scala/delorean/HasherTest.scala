@@ -1,4 +1,5 @@
-import delorean.Hasher
+package delorean
+
 import org.junit.Assert._
 import org.junit._
 

@@ -1,8 +1,9 @@
+package delorean
+
 import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import delorean.FileOps._
-import delorean._
 import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.{BeforeClass, Test}
 
