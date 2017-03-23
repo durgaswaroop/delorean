@@ -54,12 +54,19 @@ tasks.withType(Test) {
 
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Main-Class' : 'delorean.Delorean'
+        attributes 'Main-Class': 'delorean.Delorean'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
+task copyJars(type: Copy) {
+    outputs.upToDateWhen { false }
+    from "build/libs/Delorean-all-1.0.jar"
+    into "../delorean_test/"
+}
+
 build.finalizedBy(installDist)
 build.finalizedBy(fatJar)
+build.finalizedBy(copyJars)
