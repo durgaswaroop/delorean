@@ -3,14 +3,13 @@ package commands
 
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
-import java.util.function.Predicate
 
 import delorean.FileOps._
 
 /**
   * Class for the command 'status'
   */
-class Status {
+case class Status(fileName: String = "") {
     if (!Files.exists(Paths.get(TIME_MACHINE))) {
         println(
             """
@@ -18,6 +17,19 @@ class Status {
               |
               |For more: delorean --help
             """.stripMargin)
+        System.exit(0)
+    }
+
+    val allFilesAndHashesKnownToDelorean: Map[Path, String] = getHashesOfAllFilesKnownToDelorean
+
+    if (fileName.nonEmpty) {
+        logger.fine(s"Status requested for file $fileName")
+        val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(Paths.get(fileName))
+        val hasher = new Hasher
+        if (hasher.computeFileHash(fileName, justGetTheHash = true) == hashOfLastKnownVersionOfFile)
+            println(s"file $fileName has not been modified since the last pitstop")
+        else
+            println(s"file $fileName is different from the last pitstopped/staged version")
         System.exit(0)
     }
 
@@ -39,18 +51,20 @@ class Status {
             """.stripMargin)
     }
 
-    val tempFiles: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER), _.startsWith("_temp"))
-    var addedFileSet: List[String] = List("")
-    if (tempFiles.length > 0) {
-        addedFileSet = getFileAsMap(tempFiles.head.getPath).values.toList
+    val tempFile: String = getTempPitstopFile
+    var addedFileList: List[String] = List("")
+    if (tempFile nonEmpty) {
+        addedFileList = getFileAsMap(tempFile).keys.toList
+        val newlyAddedFiles = addedFileList diff allFilesAndHashesKnownToDelorean.keys.toList
+        val changedFiles = addedFileList diff newlyAddedFiles
         println(
             """Files ready to be added to a pitstop:
               | (use "delorean pitstop -rl <rider log>" to make a pitstop)
             """.stripMargin)
-        println(addedFileSet.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
+        if (newlyAddedFiles nonEmpty) println(newlyAddedFiles.sorted.mkString("\tNew: ", "\n\tNew: ", "\n"))
+        if (changedFiles nonEmpty) println(changedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
-    val allFilesAndHashesKnownToDelorean: Map[String, String] = getHashesOfAllFilesKnownToDelorean
     val modifiedAndDeletedFiles: (List[String], List[String]) = getModifiedAndDeletedFiles
     val modifiedFiles: List[String] = modifiedAndDeletedFiles._1.filterNot(_.isEmpty)
     val deletedFiles: List[String] = modifiedAndDeletedFiles._2.filterNot(_.isEmpty)
@@ -64,50 +78,63 @@ class Status {
         if (deletedFiles.nonEmpty) println(deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
     }
 
-    val untrackedFiles: List[String] = getUntrackedFiles.filterNot(_.isEmpty)
+    val untrackedFiles: Set[String] = getUntrackedFiles.filterNot(_.isEmpty)
 
     if (untrackedFiles.nonEmpty) {
         println(
             """Untracked files:
               | (use "delorean add <filename>" to stage the file to be added to the next pitstop)
             """.stripMargin)
-        println(untrackedFiles.sorted.mkString("\t", "\n\t", ""))
+        println(untrackedFiles.toList.sorted.mkString("\t", "\n\t", ""))
     }
 
     // If a file is present in the 'filesKnownToDelorean' but is not currently there, it means that it is deleted.
     def getModifiedAndDeletedFiles: (List[String], List[String]) = {
         val hasher = new Hasher
-        val allFiles: Iterable[String] = allFilesAndHashesKnownToDelorean.values
-        var modifiedFiles: List[String] = List.empty
-        var deletedFiles: List[String] = List.empty
-        allFiles.foreach(fileName ⇒ {
-            if (new File(fileName).exists()) {
-                val hash = hasher.computeFileHash(fileName, justGetTheHash = true)
-                if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, fileName))) modifiedFiles = fileName :: modifiedFiles
+        val allFiles: Iterable[Path] = allFilesAndHashesKnownToDelorean.keys
+        var modifiedFiles: List[Path] = List.empty
+        var deletedFiles: List[Path] = List.empty
+        allFiles.foreach(path ⇒ {
+            if (Files.exists(path)) {
+                val hash = hasher.computeFileHash(path.toString, justGetTheHash = true)
+                if (!allFilesAndHashesKnownToDelorean.exists(_ == (path, hash))) modifiedFiles = path :: modifiedFiles
             } else
-                deletedFiles = fileName :: deletedFiles
+                deletedFiles = path :: deletedFiles
 
         })
-        (modifiedFiles, deletedFiles)
+        (modifiedFiles.map(_.toString), deletedFiles.map(_.toString))
     }
 
-    def getUntrackedFiles: List[String] = {
-        val allFilesDeloreanKnows: List[String] = allFilesAndHashesKnownToDelorean.values.toList
+    def getUntrackedFiles: Set[String] = {
+        val allFilesDeloreanKnows: Set[Path] = allFilesAndHashesKnownToDelorean.keys.toSet
 
         // ".tm" directory should be ignored always
-        val biffFileContents = ".tm" :: (if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE) else List.empty[String])
-        var ignored = List[String]()
-        biffFileContents.foreach(f ⇒ if (Files.isDirectory(Paths.get(f))) ignored = ignored ::: getFilesRecursively(f))
-
-        val predicate: Predicate[Path] = {
-            p: Path ⇒
-                val pathString = p.normalize.toString
-                !allFilesDeloreanKnows.contains(pathString) && !ignored.contains(pathString)
+        val biffFileContents: Set[String] = Set(".tm") ++ {
+            if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE).toSet else Set.empty[String]
         }
 
-        val prefix = "."
-        val allFilesInDirectory: List[String] = getFilesRecursively(prefix, predicate).filterNot(new File(_).isDirectory)
-        allFilesInDirectory
+        logger.fine(s"biffFileContents : $biffFileContents")
+
+        var ignoredFiles: Set[Path] = Set.empty
+        biffFileContents.foreach {
+            path ⇒ {
+                if (Files.isDirectory(Paths.get(path))) {
+                    ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_)).toSet
+                }
+                else {
+                    ignoredFiles += Paths.get(path)
+                }
+            }
+        }
+        logger.fine(s"Ignored files: $ignoredFiles")
+
+        //        val predicate: Predicate[Path] = {
+        //            p: Path ⇒ !allFilesDeloreanKnows.contains(p) && !ignoredFiles.contains(p)
+        //        }
+        val allFilesInMainDirectory: Set[Path] = getFilesRecursively(".").map(x ⇒ Paths.get(x)).toSet
+        val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
+        logger.fine(s"Untracked files: $untrackedFiles")
+        untrackedFiles.map(_.toString)
     }
 
 }

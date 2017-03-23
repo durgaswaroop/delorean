@@ -69,10 +69,10 @@ object ParseOption {
     private def status(statusArgs: List[String]): Unit = {
         if (statusArgs.length > 1) Usage("status")
         else if (statusArgs.length == 1) {
-            if (Files.exists(Paths.get(statusArgs.head))) println("Status: Coming soon")
+            if (Files.exists(Paths.get(statusArgs.head))) Status(statusArgs.head)
             else println(s"File '${statusArgs.head}' does not exist")
         }
-        else new Status
+        else Status() //brackets are needed. DONT REMOVE
     }
 
     private def version(versionArgs: List[String]): Unit = {

@@ -3,6 +3,7 @@ package delorean
 import java.io.{File, FileWriter, FilenameFilter, PrintWriter}
 import java.nio.file._
 import java.util.function.Predicate
+import java.util.logging.Logger
 import java.util.stream.Collectors
 
 import scala.collection.JavaConverters._
@@ -13,15 +14,12 @@ import scala.io.Source
   * Created by dperla on 13-03-2017.
   */
 object FileOps {
-
-    def filesMatchingInDir(dir: File, check: String ⇒ Boolean): Array[File] = {
-        dir.listFiles(new FilenameFilter {
-            override def accept(dir: File, name: String): Boolean = check(name)
-        })
-    }
+    val logger: Logger = Logger.getLogger(this.getClass.getName)
 
     def getFilesRecursively(dir: String, condition: Predicate[Path] = _ ⇒ true): List[String] = {
+        logger.fine(s"Getting files recursively for directory $dir.")
         val files: List[Path] = Files.walk(Paths.get(dir)).filter(condition).collect(Collectors.toList()).asScala.toList
+        logger.fine(s"List returned: ${files.map(p ⇒ p.normalize.toString)}")
         files.map(p ⇒ p.normalize.toString)
     }
 
@@ -33,19 +31,25 @@ object FileOps {
       */
     def writeToFile(filePath: String, content: String): Unit = {
         createIfDoesNotExist(filePath)
+        logger.fine(s"Writing '$content' to file '$filePath'")
         scala.tools.nsc.io.File(filePath).writeAll(content)
     }
 
-    def getLinesOfFile(filePath: String): List[String] = {
-        val source = Source.fromFile(filePath, "UTF-8")
-        val lines = source.getLines().toList
-        source.close()
-        lines
+    // returns false if the file already exists
+    def createIfDoesNotExist(filePath: String): Boolean = {
+        try {
+            Files.createFile(Paths.get(filePath))
+            logger.finer(s"File $filePath does not exist before. Created it.")
+            true
+        } catch {
+            case _: FileAlreadyExistsException ⇒ logger.finer(s"File $filePath already exists."); false
+        }
     }
 
     // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
     // overwriting the existing content.
     def addHashesAndContentOfLinesToPool(hashLineMap: mutable.LinkedHashMap[String, String], stringPoolFile: String): Unit = {
+        logger.fine(s"Adding hashes & lines map, $hashLineMap to file $stringPoolFile")
         var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
 
         hashLineMap.foreach(tuple ⇒ {
@@ -53,15 +57,66 @@ object FileOps {
                 fileMap += tuple
             }
         })
+        logger.fine(s"After updating, $fileMap is now being written to $stringPoolFile")
 
         // Once the map is populated, write the map to travelogue file
         writeMapToFile(fileMap, stringPoolFile)
+    }
+
+    // Overwrites the existing content.
+    def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, append: Boolean = false): Unit = {
+        logger.fine(s"Writing $map to file $filePath with append = $append")
+        // printwriter empties the contents of a file if it exists
+        val writer: PrintWriter = new PrintWriter(new FileWriter(filePath, append))
+        map.foreach(tuple ⇒ writer.write(s"${tuple._1}:${tuple._2}\n"))
+        writer.flush()
+        writer.close()
+    }
+
+    // Overwrites the existing content.
+    def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
+        logger.fine(s"Adding lines hashes $lineHashes to hashes file $file.")
+        // printwriter empties the contents of a file if it exists
+        val writer: PrintWriter = new PrintWriter(file)
+        lineHashes.foreach(x ⇒ writer.write(s"$x\n"))
+        writer.flush()
+        writer.close()
+    }
+
+    // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
+    // overwriting the existing content.
+    def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
+        logger.fine(s"Trying to add tuple $hashNameTuple to travelogue file $TRAVELOGUE")
+        var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
+        logger.fine(s"Travelogue file before adding: $map")
+
+        // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
+        // So we add in the current key value pair which just updates the value of existing key
+        if (!map.exists(_ == (hashNameTuple._1 → hashNameTuple._2))) {
+            map += (hashNameTuple._1 → hashNameTuple._2)
+        }
+        logger.fine(s"Travelogue file after adding/updating with the tuple $hashNameTuple: $map")
+
+        // Once the map is populated, write the map to travelogue file
+        writeMapToFile(map, TRAVELOGUE)
+    }
+
+    // copies file from src to dest
+    def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest),
+        StandardCopyOption.REPLACE_EXISTING)
+
+    def getFilesInThePitstop(pitstop: String): List[String] = {
+        logger.fine(s"Trying to get the file in the pitstop $pitstop")
+        val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop)
+        logger.fine(s"Files in the pitstop $pitstop are ${filesAndHashMap.values.toList}")
+        filesAndHashMap.values.toList
     }
 
     // returns the "filename: fileHash" file as a Map of (filename -> fileHash
     // OR
     // returns the lineHash: lineContent Map
     def getFileAsMap(filePath: String): mutable.LinkedHashMap[String, String] = {
+        logger.fine(s"Trying to get $filePath as a map.")
         var filenameHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
         if (!createIfDoesNotExist(filePath)) {
             val fileLines = getLinesOfFile(filePath)
@@ -75,54 +130,40 @@ object FileOps {
                 })
             }
         }
+        logger.fine(s"Map of the file $filePath = $filenameHashMap")
         filenameHashMap
     }
 
-    // Overwrites the existing content.
-    def writeMapToFile(map: mutable.LinkedHashMap[String, String], filePath: String, append: Boolean = false): Unit = {
-        // printwriter empties the contents of a file if it exists
-        val writer: PrintWriter = new PrintWriter(new FileWriter(filePath, append))
-        map.foreach(tuple ⇒ writer.write(s"${tuple._1}:${tuple._2}\n"))
-        writer.flush()
-        writer.close()
+    def getLinesOfFile(filePath: String): List[String] = {
+        val source = Source.fromFile(filePath, "UTF-8")
+        val lines = source.getLines().toList
+        source.close()
+        lines
     }
 
-    // Overwrites the existing content.
-    def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
-        // printwriter empties the contents of a file if it exists
-        val writer: PrintWriter = new PrintWriter(file)
-        lineHashes.foreach(x ⇒ writer.write(s"$x\n"))
-        writer.flush()
-        writer.close()
-    }
-
-    // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
-    // overwriting the existing content.
-    def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
-        var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
-
-        // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
-        // So we add in the current key value pair which just updates the value of existing key
-        if (!map.exists(_ == (hashNameTuple._1 → hashNameTuple._2))) {
-            map += (hashNameTuple._1 → hashNameTuple._2)
+    // fileName -> hash, coz hashes can be same but fileNames will always be different
+    def getHashesOfAllFilesKnownToDelorean: Map[Path, String] = {
+        var currentPitstop = getCurrentPitstop
+        logger.fine(s"Current pitstop = $currentPitstop")
+        var map: Map[Path, String] = Map.empty
+        while (currentPitstop.nonEmpty) {
+            // fileName -> fileHash almost all of the places
+            val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
+            pitstopMap.foreach(kvPair ⇒ map = map + (Paths.get(kvPair._1) → kvPair._2))
+            currentPitstop = parent(currentPitstop)
         }
+        logger.fine(s"Files known from pitstops and their hashes: $map")
 
-        // Once the map is populated, write the map to travelogue file
-        writeMapToFile(map, TRAVELOGUE)
-    }
-
-    // copies file from src to dest
-    def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest),
-        StandardCopyOption.REPLACE_EXISTING)
-
-    // returns false if the file already exists
-    def createIfDoesNotExist(filePath: String): Boolean = {
-        try {
-            Files.createFile(Paths.get(filePath))
-            true
-        } catch {
-            case _: FileAlreadyExistsException ⇒ false
+        // Apart from looking at the pitstops, also looks at the files in _temp file.
+        // Those files shouldn't come in the untracked files too.
+        val tempPitstopFile = getTempPitstopFile
+        if (tempPitstopFile.nonEmpty) {
+            // fileName -> hash
+            val tempFilePitstopMap = getFileAsMap(getTempPitstopFile)
+            tempFilePitstopMap.foreach(kvPair ⇒ map = map + (Paths.get(kvPair._1) → kvPair._2))
         }
+        logger.fine(s"Updated map after looking at temp file too: $map")
+        map
     }
 
     def getCurrentPitstop: String = {
@@ -138,36 +179,19 @@ object FileOps {
     // Gets the parent pitstop of the given pitstop. Would be an empty string if no parent is present.
     def parent(pitstop: String): String = {
         val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop).filter(_.contains("Parent")).head.split(":", 2)(1)
+        logger.finer(s"Parent of $pitstop is $parent")
         parent
     }
 
-    def getFilesInThePitstop(pitstop: String): List[String] = {
-        val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop)
-        filesAndHashMap.values.toList
-    }
-
+    // sends all the path something like .tm/pitstops/_temp...
     def getTempPitstopFile: String = {
-        val tempFileArray: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER), fileName ⇒ fileName.startsWith("_temp"))
+        val tempFileArray: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER), _.startsWith("_temp"))
         if (tempFileArray.nonEmpty) tempFileArray(0).getPath else ""
     }
 
-    // hash -> fileName
-    def getHashesOfAllFilesKnownToDelorean: Map[String, String] = {
-        var currentPitstop = getCurrentPitstop
-        var map: Map[String, String] = Map.empty
-        while (currentPitstop.nonEmpty) {
-            val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
-            pitstopMap.foreach(kvPair ⇒ if (!map.contains(kvPair._1)) map = map + kvPair)
-            currentPitstop = parent(currentPitstop)
-        }
-
-        // Apart from looking at the pitstops, also looks at the files in _temp file.
-        // Those files shouldn't come in the untracked files too.
-        val tempPitstopFile = getTempPitstopFile
-        if (tempPitstopFile.nonEmpty) {
-            val tempFilePitstopMap = getFileAsMap(getTempPitstopFile)
-            tempFilePitstopMap.foreach(kvPair ⇒ if (!map.contains(kvPair._1)) map = map + kvPair)
-        }
-        map
+    def filesMatchingInDir(dir: File, check: String ⇒ Boolean): Array[File] = {
+        dir.listFiles(new FilenameFilter {
+            override def accept(dir: File, name: String): Boolean = check(name)
+        })
     }
 }

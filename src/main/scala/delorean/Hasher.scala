@@ -1,7 +1,7 @@
 package delorean
 
 import java.io.File
-import java.nio.file.{Files, Paths}
+import java.nio.file.{Files, Path, Paths}
 import java.security.MessageDigest
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -25,25 +25,33 @@ class Hasher {
     def computeHashOfAddedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
-        val allFilesAndHashesKnownToDelorean: Map[String, String] = getHashesOfAllFilesKnownToDelorean
+        val allFilesAndHashesKnownToDelorean: Map[Path, String] = getHashesOfAllFilesKnownToDelorean
 
         // Compute hash of each added file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
         // is not present in the allFilesAndHashesKnownToDelorean map. This way it will be added to temp file only
         // if the file has actually changed.
         files foreach (file ⇒ {
-            val hash = computeFileHash(file)
-            if (!allFilesAndHashesKnownToDelorean.exists(_ == (hash, file)))
-                fileNameFileHashMap += (computeFileHash(file) → file)
+            val hash: String = computeFileHash(file, justGetTheHash = true)
+            logger.fine(s"Hash computed: $hash")
+
+            // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
+            if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash)))
+                fileNameFileHashMap += (file → computeFileHash(file))
         })
 
-        // Once the hashes are computed, check for the presence of a "_temp" file.
-        // Existence of "_temp" file means that there were a few more files added before and not committed.
-        val tempFiles: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
+        // This whole thing won't be needed to be done if the map created at the beginning of this method is still empty at this point.
+        // So, checking to make sure we won't do stuff unnecessarily.
+        logger.fine(s"(+++)FileNameFileHashMap : $fileNameFileHashMap")
 
+        // Once the hashes are computed, check for the presence of a "_temp" file.
+        // Existence of "_temp" file means that there were a few more files 'added' before but not committed.
         // So, if the file exists, add information about the newly added files to that or else create a new temp file.
-        val tempPitstopFile = if (tempFiles.nonEmpty) tempFiles(0) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
+        val tempPitstopFile = if (getTempPitstopFile.nonEmpty) new File(getTempPitstopFile) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
         // write the hashes of all added files to temp pitstop file
-        writeMapToFile(fileNameFileHashMap, tempPitstopFile.getPath, append = true)
+        var existingTempFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile.getPath)
+        // Update the existing tempFileMap with the newly added files and then write it back
+        fileNameFileHashMap.foreach(existingTempFileMap += _)
+        writeMapToFile(existingTempFileMap, tempPitstopFile.getPath)
     }
 
     /**
@@ -56,20 +64,21 @@ class Hasher {
       * @return
       */
     def computeFileHash(filePath: String, justGetTheHash: Boolean = false): String = {
+        logger.fine(s"called with params: $filePath, $justGetTheHash")
         var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Get all lines of the file as a List
         val lines = getLinesOfFile(filePath)
         logger.fine(s"Lines:\n$lines\n")
 
-        // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
-        lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
-        logger.fine(s"Map:\n$hashLineMap\n")
-
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
         val fileHash: String = computeStringHash(lines.mkString("\n"), SHA256)
 
         if (!justGetTheHash) {
+            // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
+            lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
+            logger.fine(s"Map:\n$hashLineMap\n")
+
             // Add line_hash - line to the string pool file
             addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
 
