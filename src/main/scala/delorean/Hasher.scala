@@ -74,10 +74,21 @@ class Hasher {
 
         // Get all lines of the file as a List
         val lines = getLinesOfFile(filePath)
-        logger.fine(s"Lines:\n$lines\n")
 
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
         val fileHash: String = computeStringHash(lines.mkString("\n"), SHA256)
+
+        // When its a binary file, don't do all the usual line extractions and hashing.
+        // Just put the file into BINARIES_FOLDER with the filehash as the name
+        if (isBinaryFile(filePath)) {
+            copyFile(filePath, BINARIES_FOLDER + fileHash)
+
+            // Once the file hash is computed, Add it to travelogue file
+            addToTravelogueFile((filePath, fileHash))
+            return fileHash
+        }
+
+        logger.fine(s"Lines:\n$lines\n")
 
         if (!justGetTheHash) {
             // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)

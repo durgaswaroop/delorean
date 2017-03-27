@@ -13,7 +13,8 @@ import java.util.stream.Collectors
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.io.Source
+import scala.io.{BufferedSource, Source}
+import scala.util.Try
 
 /**
   * Created by dperla on 13-03-2017.
@@ -140,10 +141,22 @@ object FileOps {
     }
 
     def getLinesOfFile(filePath: String): List[String] = {
-        val source = Source.fromFile(filePath, "UTF-8")
-        val lines = source.getLines().toList
-        source.close()
-        lines
+        lazy val source: BufferedSource = Source.fromFile(filePath, "UTF-8")
+        val lines: Try[List[String]] = Try(source.getLines().toList)
+        if (lines.isSuccess) {
+            source.close()
+            lines.get
+        } else {
+            val bytes: Array[Byte] = Files.readAllBytes(Paths.get(filePath))
+            val bytesString = bytes.hashCode.toString
+            List(bytesString)
+        }
+    }
+
+    // Try fails if its not able to read the file which happens if the file is binary file.
+    // Not really the best way to do it but there doesn't seem to be any proper way to do it.
+    def isBinaryFile(filePath: String): Boolean = {
+        Try(Source.fromFile(filePath).mkString).isFailure
     }
 
     // fileName -> hash, coz hashes can be same but fileNames will always be different

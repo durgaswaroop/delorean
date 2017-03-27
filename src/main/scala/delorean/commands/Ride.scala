@@ -23,6 +23,7 @@ class Ride {
     val hashesDirectory = new File(HASHES_FOLDER)
     val metadataDirectory = new File(METADATA_FOLDER)
     val indicatorsDirectory = new File(INDICATORS_FOLDER)
+    val binariesDirectory = new File(BINARIES_FOLDER)
 
     val configFile = new File(CONFIG)
     val currentFile = new File(CURRENT_INDICATOR)
@@ -32,6 +33,7 @@ class Ride {
     hashesDirectory.mkdirs
     metadataDirectory.mkdirs
     indicatorsDirectory.mkdir
+    binariesDirectory.mkdir
     configFile.createNewFile
     currentFile.createNewFile
     defaultTimelineFile.createNewFile
