@@ -56,7 +56,7 @@ case class Status(fileName: String = "") {
             """.stripMargin)
     }
 
-    val tempFile: String = getTempPitstopFile
+    val tempFile: String = getTempPitstopFileLocation
     var stagedFileSet: List[String] = List("")
     if (tempFile nonEmpty) {
         stagedFileSet = getFileAsMap(tempFile).keys.toList

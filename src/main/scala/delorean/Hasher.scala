@@ -51,7 +51,7 @@ class Hasher {
         // Once the hashes are computed, check for the presence of a "_temp" file.
         // Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
         // So, if the file exists, add information about the newly staged files to that or else create a new temp file.
-        val tempPitstopFile = if (getTempPitstopFile.nonEmpty) new File(getTempPitstopFile) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
+        val tempPitstopFile = if (getTempPitstopFileLocation.nonEmpty) new File(getTempPitstopFileLocation) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
         // write the hashes of all staged files to temp pitstop file
         var existingTempFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile.getPath)
         // Update the existing tempFileMap with the newly staged files and then write it back

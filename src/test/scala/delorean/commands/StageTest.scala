@@ -16,11 +16,11 @@ class StageTest {
     def stageTest(): Unit = {
         val filesToStage = List("src/test/resources/")
         Stage(filesToStage)
-        val tempFile: String = getTempPitstopFile
+        val tempFile: String = getTempPitstopFileLocation
         assertTrue("_temp file should have been created in Pitstops directory", tempFile.nonEmpty)
     }
 }
 
 object StageTest {
-    @AfterClass def tearDown(): Unit = Files.delete(Paths.get(getTempPitstopFile))
+    @AfterClass def tearDown(): Unit = Files.delete(Paths.get(getTempPitstopFileLocation))
 }

@@ -161,10 +161,10 @@ object FileOps {
 
         // Apart from looking at the pitstops, also looks at the files in _temp file.
         // Those files shouldn't come in the untracked files too.
-        val tempPitstopFile = getTempPitstopFile
+        val tempPitstopFile = getTempPitstopFileLocation
         if (tempPitstopFile.nonEmpty) {
             // fileName -> hash
-            val tempFilePitstopMap = getFileAsMap(getTempPitstopFile)
+            val tempFilePitstopMap = getFileAsMap(getTempPitstopFileLocation)
             tempFilePitstopMap.foreach(kvPair ⇒ map = map + (Paths.get(kvPair._1) → kvPair._2))
         }
         logger.fine(s"Updated map after looking at temp file too: $map")
@@ -193,8 +193,8 @@ object FileOps {
         parent
     }
 
-    // sends all the path something like .tm/pitstops/_temp...
-    def getTempPitstopFile: String = {
+    // sends the full path something like .tm/pitstops/_temp...
+    def getTempPitstopFileLocation: String = {
         val tempFileArray: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER), _.startsWith("_temp"))
         if (tempFileArray.nonEmpty) tempFileArray(0).getPath else ""
     }
