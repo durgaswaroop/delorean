@@ -12,7 +12,7 @@ Keeping true to the theme of Science Fiction, Time travel, Cars and Science in g
 some of the terminology you need to know relating it to terms used in Git and other Version Control systems.
 
 * git init     -> delorean ride
-* git add      -> delorean add
+* git add      -> delorean stage
 * git commit   -> delorean pitstop
 * git branch   -> delorean create-timeline
 * git merge    -> delorean unify
@@ -47,7 +47,7 @@ For more information, refer to the LICENSE file.
 
 ### Commands that can be tried/used right now
 * delorean ride
-* delorean add \<file(s)\>
+* delorean stage \<file(s)\>
 * delorean pitstop -rl "rider log"
 * delorean status
 * delorean config config-name config-value

@@ -57,16 +57,16 @@ case class Status(fileName: String = "") {
     }
 
     val tempFile: String = getTempPitstopFile
-    var addedFileList: List[String] = List("")
+    var stagedFileSet: List[String] = List("")
     if (tempFile nonEmpty) {
-        addedFileList = getFileAsMap(tempFile).keys.toList
-        val newlyAddedFiles = addedFileList diff allFilesAndHashesKnownToDelorean.keys.toList
-        val changedFiles = addedFileList diff newlyAddedFiles
+        stagedFileSet = getFileAsMap(tempFile).keys.toList
+        val newlyStagedFiles = stagedFileSet diff allFilesAndHashesKnownToDelorean.keys.toList
+        val changedFiles = stagedFileSet diff newlyStagedFiles
         println(
             """Files ready to be added to a pitstop:
               | (use "delorean pitstop -rl <rider log>" to make a pitstop)
             """.stripMargin)
-        if (newlyAddedFiles nonEmpty) println(newlyAddedFiles.sorted.mkString("\tNew: ", "\n\tNew: ", "\n"))
+        if (newlyStagedFiles nonEmpty) println(newlyStagedFiles.sorted.mkString("\tNew: ", "\n\tNew: ", "\n"))
         if (changedFiles nonEmpty) println(changedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
@@ -77,7 +77,7 @@ case class Status(fileName: String = "") {
     if (modifiedFiles.nonEmpty || deletedFiles.nonEmpty) {
         println(
             """Files modified since last pitstop:
-              | (use "delorean add <filename>" to stage the changes for the next pitstop)
+              | (use "delorean stage <filename>" to stage the changes for the next pitstop)
             """.stripMargin)
         if (modifiedFiles.nonEmpty) println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
         if (deletedFiles.nonEmpty) println(deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
@@ -88,7 +88,7 @@ case class Status(fileName: String = "") {
     if (untrackedFiles.nonEmpty) {
         println(
             """Untracked files:
-              | (use "delorean add <filename>" to stage the file to be added to the next pitstop)
+              | (use "delorean stage <filename>" to stage the file to be added to the next pitstop)
             """.stripMargin)
         println(untrackedFiles.toList.sorted.mkString("\t", "\n\t", ""))
     }

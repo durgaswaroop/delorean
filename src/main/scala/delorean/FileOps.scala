@@ -171,12 +171,17 @@ object FileOps {
         map
     }
 
+    /**
+      * Returns either the pitstop hash of the current commit or an empty String.
+      */
     def getCurrentPitstop: String = {
         val currentPitstopOrTimeline: String = getLinesOfFile(CURRENT_INDICATOR).head
+        // If there is a timeline name in the 'current' file. We return the pitstop present in the timeline
         if (Files.exists(Paths.get(INDICATORS_FOLDER + currentPitstopOrTimeline))) {
             val lines: List[String] = getLinesOfFile(INDICATORS_FOLDER + currentPitstopOrTimeline)
             if (lines.nonEmpty) lines.head else ""
         } else {
+            // If there is a pitstop hash instead of a branch name we just return the 'pitstop' hash
             currentPitstopOrTimeline
         }
     }

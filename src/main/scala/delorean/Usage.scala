@@ -12,11 +12,11 @@ object Usage {
     def apply(command: String): Unit = command match {
         case "full" ⇒ fullUsage()
         case "ride" ⇒ rideUsage()
-        case "add" ⇒ addUsage()
         case "describe" ⇒ describeUsage()
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
         case "version" ⇒ versionUsage()
+        case "stage" ⇒ stageUsage()
         case "status" ⇒ statusUsage()
         case "show-timeline" ⇒ showTimeLineUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
@@ -29,7 +29,7 @@ object Usage {
               | These are the common Delorean commands:
               |
               | ride          Tell Delorean to initialize a new repo
-              | add           Add files to repository
+              | stage         Stage files to be added to a pitstop
               | pitstop       Record the changes to the repo
               | config        Configuration options
               | show-timeline Shows all the pitstops in the current timeline
@@ -41,15 +41,6 @@ object Usage {
             """
               |Usage: delorean ride
               |                - Initializes a new Delorean Repository
-              |
-              |For more: delorean --help
-            """.stripMargin)
-    }
-
-    def addUsage(): Unit = {
-        print(
-            """
-              |Usage: delorean add <file1> <file2> ..
               |
               |For more: delorean --help
             """.stripMargin)
@@ -83,6 +74,15 @@ object Usage {
             """
               |Usage: delorean ([--version] [-V] [-v])
               |                - Prints the current version of delorean
+            """.stripMargin)
+    }
+
+    def stageUsage(): Unit = {
+        print(
+            """
+              |Usage: delorean stage <file1> <file2> ..
+              |
+              |For more: delorean --help
             """.stripMargin)
     }
 

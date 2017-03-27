@@ -18,12 +18,12 @@ object ParseOption {
 
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
-        case "add" ⇒ add(argsList.tail)
         case "config" ⇒ config(argsList.tail)
         case "describe" ⇒ describe(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "ride" ⇒ ride(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
+        case "stage" ⇒ stage(argsList.tail)
         case "status" ⇒ status(argsList.tail)
         case "version" | "-v" | "-V" | "--version" ⇒ version(argsList.tail)
         case unknown ⇒
@@ -33,8 +33,6 @@ object ParseOption {
                 println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
             } else println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
     }
-
-    private def add(addArgs: List[String]): Unit = if (addArgs.isEmpty) Usage("add") else Add(addArgs)
 
     private def config(configArgs: List[String]): Unit = {
         if (configArgs.isEmpty) Usage("config")
@@ -70,6 +68,8 @@ object ParseOption {
         }
         else new ShowTimeLine
     }
+
+    private def stage(stageArgs: List[String]): Unit = if (stageArgs.isEmpty) Usage("stage") else Stage(stageArgs)
 
     private def status(statusArgs: List[String]): Unit = {
         if (statusArgs.length > 1) Usage("status")

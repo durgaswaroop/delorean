@@ -24,17 +24,17 @@ class Hasher {
     val MD5: String = "MD5"
     // 64 byte long
     val SHA256: String = "SHA-256"
-    // temporary pitstop file that gets created when you do 'delorean add <files>'
+    // temporary pitstop file that gets created when you do 'delorean stage <files>'
     val PITSTOPS_FOLDER_FILE: File = new File(PITSTOPS_FOLDER)
 
-    def computeHashOfAddedFiles(files: List[String]): Unit = {
+    def computeHashOfStagedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         val allFilesAndHashesKnownToDelorean: Map[Path, String] = getHashesOfAllFilesKnownToDelorean
 
-        // Compute hash of each added file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
-        // is not present in the allFilesAndHashesKnownToDelorean map. This way it will be added to temp file only
-        // if the file has actually changed.
+        // Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
+        // is not present in the allFilesAndHashesKnownToDelorean map.
+        // This way it will be added to temp file only if the file has actually changed.
         files foreach (file ⇒ {
             val hash: String = computeFileHash(file, justGetTheHash = true)
             logger.fine(s"Hash computed: $hash")
@@ -49,12 +49,12 @@ class Hasher {
         logger.fine(s"(+++)FileNameFileHashMap : $fileNameFileHashMap")
 
         // Once the hashes are computed, check for the presence of a "_temp" file.
-        // Existence of "_temp" file means that there were a few more files 'added' before but not committed.
-        // So, if the file exists, add information about the newly added files to that or else create a new temp file.
+        // Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
+        // So, if the file exists, add information about the newly staged files to that or else create a new temp file.
         val tempPitstopFile = if (getTempPitstopFile.nonEmpty) new File(getTempPitstopFile) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
-        // write the hashes of all added files to temp pitstop file
+        // write the hashes of all staged files to temp pitstop file
         var existingTempFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile.getPath)
-        // Update the existing tempFileMap with the newly added files and then write it back
+        // Update the existing tempFileMap with the newly staged files and then write it back
         fileNameFileHashMap.foreach(existingTempFileMap += _)
         writeMapToFile(existingTempFileMap, tempPitstopFile.getPath)
     }
@@ -103,9 +103,9 @@ class Hasher {
         // Generate pitstop hash as the temp file
         val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
 
-        // When temp file is not present nothing to do because no files are 'added' yet
+        // When temp file is not present nothing to do because no files are 'staged' yet
         if (files.isEmpty) {
-            println("No files added. Delorean is all charged up. No need for Pitstops.")
+            println("No files staged. Delorean is all charged up. No need for Pitstops.")
             return
         }
 
