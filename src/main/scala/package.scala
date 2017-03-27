@@ -1,3 +1,8 @@
+/*
+ * Developer: Swaroop <durgaswaroop@gmail.com>
+ * Date: March 2017
+ */
+
 /**
   * Package object to hold variables.
   */
