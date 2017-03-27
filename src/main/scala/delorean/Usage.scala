@@ -19,6 +19,7 @@ object Usage {
         case "stage" ⇒ stageUsage()
         case "status" ⇒ statusUsage()
         case "show-timeline" ⇒ showTimeLineUsage()
+        case "unstage" ⇒ unstageUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
     }
 
@@ -30,6 +31,7 @@ object Usage {
               |
               | ride          Tell Delorean to initialize a new repo
               | stage         Stage files to be added to a pitstop
+              | unstage       Unstage previously staged files
               | pitstop       Record the changes to the repo
               | config        Configuration options
               | show-timeline Shows all the pitstops in the current timeline
@@ -114,6 +116,16 @@ object Usage {
             """
               |Usage: delorean describe pitstop(s)
               |                - Displays more information regarding a particular pitstop(s)
+              |
+              |For more: delorean --help
+            """.stripMargin)
+    }
+
+    def unstageUsage(): Unit = {
+        print(
+            """
+              |Usage: delorean unstage <file(s)>
+              |                - Unstages a previously staged file
               |
               |For more: delorean --help
             """.stripMargin)

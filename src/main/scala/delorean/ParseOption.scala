@@ -25,6 +25,7 @@ object ParseOption {
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
         case "stage" ⇒ stage(argsList.tail)
         case "status" ⇒ status(argsList.tail)
+        case "unstage" ⇒ unstage(argsList.tail)
         case "version" | "-v" | "-V" | "--version" ⇒ version(argsList.tail)
         case unknown ⇒
             var command = unknown
@@ -78,6 +79,10 @@ object ParseOption {
             else println(s"File '${statusArgs.head}' does not exist")
         }
         else Status() //brackets are needed. DONT REMOVE
+    }
+
+    private def unstage(unstageArgs: List[String]): Unit = {
+        if (unstageArgs.isEmpty) Usage("unstage") else Unstage(unstageArgs)
     }
 
     private def version(versionArgs: List[String]): Unit = {

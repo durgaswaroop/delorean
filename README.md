@@ -48,6 +48,7 @@ For more information, refer to the LICENSE file.
 ### Commands that can be tried/used right now
 * delorean ride
 * delorean stage \<file(s)\>
+* delorean unstage \<file(s)\>
 * delorean pitstop -rl "rider log"
 * delorean status
 * delorean config config-name config-value
