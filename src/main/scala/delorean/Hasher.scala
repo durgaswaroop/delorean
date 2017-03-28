@@ -80,7 +80,7 @@ class Hasher {
 
         // When its a binary file, don't do all the usual line extractions and hashing.
         // Just put the file into BINARIES_FOLDER with the filehash as the name
-        if (isBinaryFile(filePath)) {
+        if (isBinaryFile(filePath) && Files.notExists(Paths.get(BINARIES_FOLDER + fileHash))) {
             copyFile(filePath, BINARIES_FOLDER + fileHash)
 
             // Once the file hash is computed, Add it to travelogue file

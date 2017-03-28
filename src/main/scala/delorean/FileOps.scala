@@ -108,8 +108,7 @@ object FileOps {
     }
 
     // copies file from src to dest
-    def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest),
-        StandardCopyOption.REPLACE_EXISTING)
+    def copyFile(src: String, dest: String): Path = Files.copy(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING)
 
     def getFilesInThePitstop(pitstop: String): List[String] = {
         logger.fine(s"Trying to get the file in the pitstop $pitstop")
@@ -148,7 +147,11 @@ object FileOps {
             lines.get
         } else {
             val bytes: Array[Byte] = Files.readAllBytes(Paths.get(filePath))
-            val bytesString = bytes.hashCode.toString
+            /*
+            Since mkString on the entire array can take a lot of time and might even give OOM errors,
+            We will take at max 100 elements in the array and create a string of that
+            */
+            val bytesString = bytes.take(100).mkString
             List(bytesString)
         }
     }

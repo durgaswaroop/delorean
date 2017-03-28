@@ -24,12 +24,23 @@ case class Stage(files: List[String]) {
     imaginaryFiles.foreach(file ⇒ println(s"delorean: File $file does not exist"))
     if (realFiles.isEmpty) System.exit(1)
 
-    var filesToStage: List[String] = realFiles
+    var filesToStage: List[String] = Nil
+    logger.fine(s"Real files = $realFiles")
 
     // If a directory is staged, get all the files of the directory
-    files.foreach(f ⇒
-        if (new File(f).isDirectory) filesToStage = filesToStage ::: getFilesRecursively(f) else filesToStage = f :: filesToStage
+    realFiles.foreach(f ⇒
+        if (new File(f).isDirectory) {
+            logger.fine(s"In if for file $f")
+            val directoryFiles: List[String] = getFilesRecursively(f)
+            filesToStage = filesToStage ++ directoryFiles
+        }
+        else {
+            logger.fine(s"In else for file $f")
+            filesToStage ::= f
+        }
     )
+    logger.fine(s"Before resolving the files to be staged are: $filesToStage")
+
     // In the list only keep the names of the files.So
     filesToStage = filesToStage.filterNot(file ⇒ new File(file).isDirectory)
     logger.fine(s"After resolving all the files to be staged (after deleting the directories) are: $filesToStage")
