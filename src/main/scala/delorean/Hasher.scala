@@ -123,10 +123,12 @@ class Hasher {
         val tempPitstopFile = files(0)
         tempPitstopFile.deleteOnExit()
         val tempPitstopFilePath = tempPitstopFile.getPath
-        val allFilesHash: String = computeFileHash(tempPitstopFile.getPath)
         val metadataAndHash: (String, String) = computeMetadataAndItsHash(riderLog)
         val metadata = metadataAndHash._1
         val metadataHash = metadataAndHash._2
+
+        // We just need the hash here. Not the other parts after that.
+        val allFilesHash: String = computeFileHash(tempPitstopFilePath, justGetTheHash = true)
 
         // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
         val pitstopHash = computeStringHash(allFilesHash + metadataHash, SHA256)
