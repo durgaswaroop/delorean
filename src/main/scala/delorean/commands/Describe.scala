@@ -25,6 +25,7 @@ case class Describe(pitstops: List[String]) {
         val correctPitstop = resolveTheCorrectPitstop(simplifiedPitstop)
         if (correctPitstop.isEmpty) return
         val metadata: Metadata = Metadata(correctPitstop)
+        // fileName -> fileHash
         val changedFilesMap = getFileAsMap(PITSTOPS_FOLDER + correctPitstop)
         println(
             s"""Pitstop ${correctPitstop take 20}
@@ -32,7 +33,7 @@ case class Describe(pitstops: List[String]) {
                |Time: ${metadata.time.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zz"))}
                |Parent(s): ${metadata.parents.mkString(", ")}
                |Rider Log: ${metadata.riderLog}
-               |Changes: ${changedFilesMap.values.mkString("\n\t", "\n\t", "")}
+               |Changes: ${changedFilesMap.keys.mkString("\n\t", "\n\t", "")}
              """.stripMargin)
     }
 
