@@ -35,7 +35,10 @@ If you are on Linux or using Cygwin on Windows, I recommend creating an alias li
 `alias delorean=$DELOREAN_HOME/build/install/Delorean/bin/Delorean`. 
 
 Do something similar if you are
-running the .bat file. With that you should be able to run and try out some of the commands mentioned above. 
+running the .bat file. With that you should be able to run and try out some of the commands mentioned above.
+
+You can also use the script files in the `scripts` directory which use the fat jar that is generated
+from the gradle task `fatJar`. 
 
 ### License
 
