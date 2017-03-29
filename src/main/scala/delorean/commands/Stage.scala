@@ -19,7 +19,7 @@ case class Stage(files: List[String]) {
     logger.fine(s"Staging list of files $files.")
     val hasher = new Hasher
 
-    val (realFiles, imaginaryFiles) = files.span(file ⇒ new File(file).exists())
+    val (realFiles, imaginaryFiles) = files.partition(file ⇒ new File(file).exists())
 
     imaginaryFiles.foreach(file ⇒ println(s"delorean: File $file does not exist"))
     if (realFiles.isEmpty) System.exit(1)
