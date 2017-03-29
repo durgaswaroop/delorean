@@ -15,7 +15,7 @@ import java.util.logging.Logger
 import delorean.FileOps._
 
 import scala.collection.mutable
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 class Hasher {
 
@@ -111,39 +111,38 @@ class Hasher {
 
     // Hash for a List of files
     def computePitStopHash(riderLog: String): Unit = {
-        // Generate pitstop hash as the temp file
-        val files: Array[File] = filesMatchingInDir(PITSTOPS_FOLDER_FILE, fileName ⇒ fileName.startsWith("_temp"))
+        val tempPitstopFile = getTempPitstopFileLocation
 
         // When temp file is not present nothing to do because no files are 'staged' yet
-        if (files.isEmpty) {
+        if (tempPitstopFile isEmpty) {
             println("No files staged. Delorean is all charged up. No need for Pitstops.")
             return
         }
 
-        val tempPitstopFile = files(0)
-        tempPitstopFile.deleteOnExit()
-        val tempPitstopFilePath = tempPitstopFile.getPath
-        val metadataAndHash: (String, String) = computeMetadataAndItsHash(riderLog)
-        val metadata = metadataAndHash._1
-        val metadataHash = metadataAndHash._2
+        val (metadata, metadataHash): (String, String) = computeMetadataAndItsHash(riderLog)
 
         // We just need the hash here. Not the other parts after that.
-        val allFilesHash: String = computeFileHash(tempPitstopFilePath, justGetTheHash = true)
+        val allFilesHash: String = computeFileHash(tempPitstopFile, justGetTheHash = true)
 
         // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
         val pitstopHash = computeStringHash(allFilesHash + metadataHash, SHA256)
 
         // Copy temp file's to that of the pitstop hash
-        copyFile(tempPitstopFilePath, PITSTOPS_FOLDER + pitstopHash)
+        copyFile(tempPitstopFile, PITSTOPS_FOLDER + pitstopHash)
         writeToFile(METADATA_FOLDER + pitstopHash, metadata)
 
         // Write the new pitstop hash into the current indicator
         val currentTimeLine = getLinesOfFile(CURRENT_INDICATOR).head
         // If the current file is pointing to an actual timeline
-        if (currentTimeLine.nonEmpty) writeToFile(INDICATORS_FOLDER + currentTimeLine, pitstopHash)
+        if (currentTimeLine nonEmpty) writeToFile(INDICATORS_FOLDER + currentTimeLine, pitstopHash)
 
         // Once the temp file is copied, we can delete it
-        Try(Files.delete(Paths.get(tempPitstopFilePath)))
+        Try(Files.delete(Paths.get(tempPitstopFile))) match {
+            case Failure(_) ⇒
+                new File(tempPitstopFile).setLastModified(System.currentTimeMillis())
+                new File(PITSTOPS_FOLDER + pitstopHash).setLastModified(System.currentTimeMillis() + 10)
+            case Success(_) ⇒
+        }
     }
 
     def computeMetadataAndItsHash(riderLog: String): (String, String) = {
