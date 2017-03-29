@@ -18,6 +18,7 @@ object Usage {
         case "version" ⇒ versionUsage()
         case "stage" ⇒ stageUsage()
         case "status" ⇒ statusUsage()
+        case "create-timeline" ⇒ createTimeLineUsage()
         case "show-timeline" ⇒ showTimeLineUsage()
         case "unstage" ⇒ unstageUsage()
         case _ ⇒ println(s"Usage information for the command $command is not available.")
@@ -29,12 +30,13 @@ object Usage {
               |
               | These are the common Delorean commands:
               |
-              | ride          Tell Delorean to initialize a new repo
-              | stage         Stage files to be added to a pitstop
-              | unstage       Unstage previously staged files
-              | pitstop       Record the changes to the repo
-              | config        Configuration options
-              | show-timeline Shows all the pitstops in the current timeline
+              | ride            Tell Delorean to initialize a new repo
+              | stage           Stage files to be added to a pitstop
+              | unstage         Unstage previously staged files
+              | pitstop         Record the changes to the repo
+              | config          Configuration options
+              | show-timeline   Shows all the pitstops in the current timeline
+              | create-timeline Creates a new timeline atop the current pitstop
             """.stripMargin)
     }
 
@@ -108,6 +110,16 @@ object Usage {
               |       Output Format options:
               |       short - Displays a short pitstop hash and the rider log
               |       long  - Displays full information of the pitstop including time, rider name etc.
+            """.stripMargin)
+    }
+
+    def createTimeLineUsage(): Unit = {
+        print(
+            """Invalid usage for 'create-timeline' command
+              |
+              |Usage: delorean create-timeline <timeline-name>
+              |                - Creates a new timeline on the current pitstop/branch
+              |
             """.stripMargin)
     }
 

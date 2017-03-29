@@ -57,5 +57,6 @@ For more information, refer to the LICENSE file.
 * delorean config config-name config-value
 * delorean show-timeline
 * delorean show-timeline --long
+* delorean create-timeline
 * delorean describe \<pitstop(s)\>
 

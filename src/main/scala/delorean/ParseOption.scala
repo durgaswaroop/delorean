@@ -19,6 +19,7 @@ object ParseOption {
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
         case "config" ⇒ config(argsList.tail)
+        case "create-timeline" | "ctl" ⇒ createTimeline(argsList.tail)
         case "describe" ⇒ describe(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "ride" ⇒ ride(argsList.tail)
@@ -45,6 +46,11 @@ object ParseOption {
         }
         else if (configArgs.length == 2) Config(configArgs)
         else Usage("config")
+    }
+
+    private def createTimeline(createTimelineArgs: List[String]): Unit = {
+        if (createTimelineArgs.length != 1) Usage("create-timeline")
+        else CreateTimeLine(createTimelineArgs.head)
     }
 
     private def describe(describeArgs: List[String]): Unit = {
