@@ -40,7 +40,8 @@ object Hasher {
             logger.fine(s"Hash computed: $hash")
 
             // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
-            if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash)))
+            if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash))
+                && !Files.exists(Paths.get(HASHES_FOLDER + hash)))
                 fileNameFileHashMap += (file → continueFullHashingProcess(file))
         })
 
