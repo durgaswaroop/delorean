@@ -13,9 +13,6 @@ import delorean.commands._
   * Parser for the command line options
   */
 object ParseOption {
-
-    val hasher: Hasher = new Hasher
-
     def apply(argsList: List[String]): Unit = argsList.head match {
         case "--help" ⇒ Usage("full")
         case "config" ⇒ config(argsList.tail)

@@ -17,7 +17,6 @@ import delorean.Hasher
 case class Stage(files: List[String]) {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
     logger.fine(s"Staging list of files $files.")
-    val hasher = new Hasher
 
     val (realFiles, imaginaryFiles) = files.partition(file ⇒ new File(file).exists())
 
@@ -44,5 +43,5 @@ case class Stage(files: List[String]) {
     // In the list only keep the names of the files.So
     filesToStage = filesToStage.filterNot(file ⇒ new File(file).isDirectory)
     logger.fine(s"After resolving all the files to be staged (after deleting the directories) are: $filesToStage")
-    hasher.computeHashOfStagedFiles(filesToStage)
+    Hasher.computeHashOfStagedFiles(filesToStage)
 }

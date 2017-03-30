@@ -17,7 +17,7 @@ import delorean.FileOps._
 import scala.collection.mutable
 import scala.util.{Failure, Success, Try}
 
-class Hasher {
+object Hasher {
 
     val logger: Logger = Logger.getLogger(this.getClass.getName)
     // 32 byte long

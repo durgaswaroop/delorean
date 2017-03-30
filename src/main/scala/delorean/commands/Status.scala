@@ -30,8 +30,7 @@ case class Status(fileName: String = "") {
     if (fileName.nonEmpty) {
         logger.fine(s"Status requested for file $fileName")
         val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(Paths.get(fileName))
-        val hasher = new Hasher
-        if (hasher.computeFileHash(fileName, justGetTheHash = true) == hashOfLastKnownVersionOfFile)
+        if (Hasher.computeFileHash(fileName, justGetTheHash = true) == hashOfLastKnownVersionOfFile)
             println(s"file $fileName has not been modified since the last pitstop")
         else
             println(s"file $fileName is different from the last pitstopped/staged version")
@@ -95,17 +94,15 @@ case class Status(fileName: String = "") {
 
     // If a file is present in the 'filesKnownToDelorean' but is not currently there, it means that it is deleted.
     def getModifiedAndDeletedFiles: (List[String], List[String]) = {
-        val hasher = new Hasher
         val allFiles: Iterable[Path] = allFilesAndHashesKnownToDelorean.keys
         var modifiedFiles: List[Path] = List.empty
         var deletedFiles: List[Path] = List.empty
         allFiles.foreach(path ⇒ {
             if (Files.exists(path)) {
-                val hash = hasher.computeFileHash(path.toString, justGetTheHash = true)
+                val hash = Hasher.computeFileHash(path.toString, justGetTheHash = true)
                 if (!allFilesAndHashesKnownToDelorean.exists(_ == (path, hash))) modifiedFiles = path :: modifiedFiles
             } else
                 deletedFiles = path :: deletedFiles
-
         })
         (modifiedFiles.map(_.toString), deletedFiles.map(_.toString))
     }
@@ -141,5 +138,4 @@ case class Status(fileName: String = "") {
         logger.fine(s"Untracked files: $untrackedFiles")
         untrackedFiles.map(_.toString)
     }
-
 }
