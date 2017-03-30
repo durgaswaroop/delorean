@@ -5,7 +5,6 @@
 
 package delorean
 
-import java.io.File
 import java.nio.file._
 import java.util.logging.{Level, Logger}
 
@@ -19,6 +18,7 @@ object Delorean {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
 
     def main(args: Array[String]): Unit = {
+        val start: Long = System.currentTimeMillis()
         configureLogger()
         logger.fine(s"Length of Arguments = ${args.length}")
 
@@ -33,6 +33,9 @@ object Delorean {
 
         if (args.length == 0) Usage("full")
         else ParseOption(args.toList)
+        val end: Long = System.currentTimeMillis()
+        val timeTaken = end - start
+        println(s"Time taken: $timeTaken ms")
     }
 
     def deleteTempFileIfNotNeeded(): Unit = {
