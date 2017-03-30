@@ -31,6 +31,15 @@ case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
         parentPitstop = parent(parentPitstop)
     }
 
+    /**
+      * Prints the timeline information in ethe given 'format'.
+      *
+      * If format is SHORT, we will just see the pitstop hash and the rider log
+      * If the format is Long, we will see that pitstop's metadata as well.
+      *
+      * @param pitstop : pitstop to print
+      * @param format  : OutputFormat. Can be SHORT or LONG
+      */
     def printTimeLine(pitstop: String, format: OutputFormat): Unit = {
         val metadata = Metadata(pitstop)
         if (format == OutputFormat.SHORT) println("* " + pitstop.take(6) + " " + metadata.riderLog.take(60))

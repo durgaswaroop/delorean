@@ -29,7 +29,7 @@ object Metadata {
       * *****
       * And using that structure, we parse the file to get the required information
       *
-      * @param pitstopHash
+      * @param pitstopHash : Pitstop for which we need Metadata
       * @return
       */
     def apply(pitstopHash: String): Metadata = {

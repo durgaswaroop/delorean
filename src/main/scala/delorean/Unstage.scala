@@ -36,9 +36,9 @@ case class Unstage(files: List[String]) {
     var filesToUnstage: List[String] = realFiles
     logger.fine(s"Files to unstage: $filesToUnstage")
 
-    val stagedFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile)
-    var newFileMap: mutable.LinkedHashMap[String, String] = stagedFileMap
-    logger.fine(s"New files after unstage: $newFileMap")
-    filesToUnstage foreach (newFileMap -= _)
-    writeMapToFile(newFileMap, tempPitstopFile)
+    val currentStagedFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile)
+    var newStagedFileMap: mutable.LinkedHashMap[String, String] = currentStagedFileMap
+    logger.fine(s"New files after unstage: $newStagedFileMap")
+    filesToUnstage foreach (newStagedFileMap -= _)
+    writeMapToFile(newStagedFileMap, tempPitstopFile)
 }

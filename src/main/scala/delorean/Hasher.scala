@@ -20,13 +20,23 @@ import scala.util.{Failure, Success, Try}
 object Hasher {
 
     val logger: Logger = Logger.getLogger(this.getClass.getName)
+
     // 32 byte long
     val MD5: String = "MD5"
+
     // 64 byte long
     val SHA256: String = "SHA-256"
-    // temporary pitstop file that gets created when you do 'delorean stage <files>'
+
     val PITSTOPS_FOLDER_FILE: File = new File(PITSTOPS_FOLDER)
 
+    /**
+      * Do the hashing process for all the staged files.
+      *
+      * Hashes of each of the staged files is computed and added into fileNameFileHashMap map.
+      * Then add them into the temp file (create it if it doesn't exist) from the Map
+      *
+      * @param files : Staged files
+      */
     def computeHashOfStagedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
@@ -42,32 +52,37 @@ object Hasher {
             // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
             if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash))
                 && !Files.exists(Paths.get(HASHES_FOLDER + hash)))
-                fileNameFileHashMap += (file → continueFullHashingProcess(file))
+                fileNameFileHashMap += (file → computeShaHash(file))
         })
-
-        // This whole thing won't be needed to be done if the map created at the beginning of this method is still empty at this point.
-        // So, checking to make sure we won't do stuff unnecessarily.
         logger.fine(s"(+++)FileNameFileHashMap : $fileNameFileHashMap")
 
-        // Once the hashes are computed, check for the presence of a "_temp" file.
-        // Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
-        // So, if the file exists, add information about the newly staged files to that or else create a new temp file.
+        // If the map is empty,there is nothing else to be done
+        if (fileNameFileHashMap.isEmpty) return
+
+        fileNameFileHashMap.keySet.foreach(continueFullHashingProcess)
+
+        /*
+           Once the hashes are computed, check for the presence of a "_temp" file.
+           Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
+           So, if the file exists, add information about the newly staged files to that or else create a new temp file.
+        */
         val tempPitstopFile = if (getTempPitstopFileLocation.nonEmpty) new File(getTempPitstopFileLocation) else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
+
         // write the hashes of all staged files to temp pitstop file
         var existingTempFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile.getPath)
+
         // Update the existing tempFileMap with the newly staged files and then write it back
         fileNameFileHashMap.foreach(existingTempFileMap += _)
         writeMapToFile(existingTempFileMap, tempPitstopFile.getPath)
     }
 
     /**
-      * Computes the hash of the given file and also does the relavant file operations such as storing the hashes to file,
+      * Computes the hash of the given file and also does the relevant file operations such as storing the hashes to file,
       * writing line contents to string pool etc.
       *
       * @param filePath : Path of the file
-      * @return
       */
-    def continueFullHashingProcess(filePath: String): String = {
+    def continueFullHashingProcess(filePath: String): Unit = {
         logger.fine(s"called with params: $filePath")
         var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
@@ -77,16 +92,17 @@ object Hasher {
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
         val fileHash: String = FileDictionary(filePath, hashNeeded = true).hash
 
-        // When its a binary file, don't do all the usual line extractions and hashing.
-        // Just put the file into BINARIES_FOLDER with the filehash as the name
+        /*
+          When its a binary file, don't do all the usual line extractions and hashing.
+          Just put the file into BINARIES_FOLDER with the filehash as the name
+        */
         if (isBinaryFile(filePath) && Files.notExists(Paths.get(BINARIES_FOLDER + fileHash))) {
             copyFile(filePath, BINARIES_FOLDER + fileHash)
 
             // Once the file hash is computed, Add it to travelogue file
             addToTravelogueFile((filePath, fileHash))
-            return fileHash
+            return
         }
-
         logger.finest(s"Lines:\n$lines\n")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
@@ -101,16 +117,20 @@ object Hasher {
 
         // Once the file hash is computed, Add it to travelogue file
         addToTravelogueFile((filePath, fileHash))
-
-        // return filHash
-        fileHash
     }
 
     def computeStringHash(str: String, hash: String): String = {
         MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 
-    // Hash for a List of files
+    /**
+      * Compute pitstop hash for the currently staged files and do the pitstopping procedure for those files.
+      *
+      * First we compute the required metadata and the metadataHash by calling the computeMetadataAndItsHash() method.
+      * Then we compute the pitstop hash as the string hash of the combined string of hash of all staged files and metadata hash.
+      *
+      * @param riderLog : Rider log given for the pitstop
+      */
     def computePitStopHash(riderLog: String): Unit = {
         val tempPitstopFile = getTempPitstopFileLocation
 
@@ -128,16 +148,25 @@ object Hasher {
         // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
         val pitstopHash = computeStringHash(allFilesHash + metadataHash, SHA256)
 
-        // Copy temp file's to that of the pitstop hash
+        // Copy temp file's to a file with the name of pitstop hash in the PITSTOPS_FOLDER
         copyFile(tempPitstopFile, PITSTOPS_FOLDER + pitstopHash)
+
+        // Write metadata to the metadata file
         writeToFile(METADATA_FOLDER + pitstopHash, metadata)
 
         // Write the new pitstop hash into the current indicator
         val currentTimeLine = getLinesOfFile(CURRENT_INDICATOR).head
+
         // If the current file is pointing to an actual timeline
         if (currentTimeLine nonEmpty) writeToFile(INDICATORS_FOLDER + currentTimeLine, pitstopHash)
 
-        // Once the temp file is copied, we can delete it
+        /*
+            Once the temp file is copied, we can delete it.
+            But because of some stream unclosed issue, it won't get deleted.
+            So, we set the last modified time of the temp File and the pitstophash file such that
+            pitstopfile's time is greater than that of the temp file.
+            Using this we will delete it the next time a delorean command is called.
+         */
         Try(Files.delete(Paths.get(tempPitstopFile))) match {
             case Failure(_) ⇒
                 new File(tempPitstopFile).setLastModified(System.currentTimeMillis())
@@ -151,8 +180,10 @@ object Hasher {
         val rider = if (Configuration("rider").nonEmpty) Configuration("rider") else System.getProperty("user.name")
         val timeAndRider = time + s"Rider:$rider\n"
 
-        // parent pitstop would be whatever is present in the current indicator file which would become the parent once
-        // the new pitstop is calculated
+        /*
+            parent pitstop would be whatever is present in the current indicator file which would become the parent once
+            the new pitstop is calculated
+        */
         val currentTimeLine: String = getLinesOfFile(CURRENT_INDICATOR).head
         var lines = List[String]("")
         if (Files.exists(Paths.get(INDICATORS_FOLDER + currentTimeLine))) lines = getLinesOfFile(INDICATORS_FOLDER + currentTimeLine)
@@ -167,6 +198,12 @@ object Hasher {
         (fullMetadata, computeStringHash(fullMetadata, SHA256))
     }
 
+    /**
+      * Compute the hash of the file by reading its bytes and using that to directly get the SHA256 hash.
+      *
+      * @param fileName : File for which we need to calculate the hash
+      * @return
+      */
     def computeShaHash(fileName: String): String = {
         val fileBytes = Files.readAllBytes(Paths.get(fileName))
         MessageDigest.getInstance(SHA256).digest(fileBytes).map("%02x".format(_)).mkString

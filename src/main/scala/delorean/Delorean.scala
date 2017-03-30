@@ -10,10 +10,6 @@ import java.util.logging.{Level, Logger}
 
 import delorean.FileOps.{getCurrentPitstop, getTempPitstopFileLocation}
 
-
-/**
-  * Delorean main class.
-  */
 object Delorean {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
 
@@ -25,10 +21,6 @@ object Delorean {
         // Call to configuration singleton to prepare the configuration map
         Configuration
 
-        // Reconstruct file "67497b776854008d38c2340e14925a64b36686230bccaa777db68f644196015f"
-
-        // Because of file stream not getting closed, the temp file which should have been deleted ideally is not getting deleted.
-        // This will make sure we will delete it based on the modified Times
         if (Files.exists(Paths.get(TIME_MACHINE))) deleteTempFileIfNotNeeded()
 
         if (args.length == 0) Usage("full")
@@ -38,6 +30,8 @@ object Delorean {
         println(s"Time taken: $timeTaken ms")
     }
 
+    // Because of file stream not getting closed, the temp file which should have been deleted ideally is not getting deleted.
+    // This will make sure we will delete it based on the modified Times
     def deleteTempFileIfNotNeeded(): Unit = {
         val lastPitstop = PITSTOPS_FOLDER + getCurrentPitstop
         val tempFile = getTempPitstopFileLocation

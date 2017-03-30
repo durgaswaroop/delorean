@@ -18,15 +18,17 @@ case class Stage(files: List[String]) {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
     logger.fine(s"Staging list of files $files.")
 
+    // realFiles exist and imaginaryFiles don't
     val (realFiles, imaginaryFiles) = files.partition(file ⇒ new File(file).exists())
 
     imaginaryFiles.foreach(file ⇒ println(s"delorean: File $file does not exist"))
-    if (realFiles.isEmpty) System.exit(1)
 
-    var filesToStage: List[String] = Nil
+    if (realFiles.isEmpty) System.exit(1)
     logger.fine(s"Real files = $realFiles")
 
-    // If a directory is staged, get all the files of the directory
+    var filesToStage: List[String] = Nil
+
+    // If a directory is staged, get all the files of that directory
     realFiles.foreach(f ⇒
         if (new File(f).isDirectory) {
             logger.fine(s"In if for file $f")
@@ -38,9 +40,8 @@ case class Stage(files: List[String]) {
             filesToStage ::= f
         }
     )
-    logger.fine(s"Before resolving the files to be staged are: $filesToStage")
 
-    // In the list only keep the names of the files.So
+    // In the list only keep the names of files and remove the directories.
     filesToStage = filesToStage.filterNot(file ⇒ new File(file).isDirectory)
     logger.fine(s"After resolving all the files to be staged (after deleting the directories) are: $filesToStage")
     Hasher.computeHashOfStagedFiles(filesToStage)

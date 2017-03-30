@@ -29,7 +29,7 @@ case class CreateTimeLine(newTimeLine: String) {
         System.exit(1)
     }
 
-    // If the timeline doesn't already exist, create a file with the name of the new timeline in the Indicators folder
+    // If the timeline doesn't already exist, create a file with the name of the timeline in the Indicators folder
     Files.createFile(Paths.get(newTimeLineFileLocation))
 
     // Then, copy the current pitstop hash (the contents of the indicator file) to the current timeline file

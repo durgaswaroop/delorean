@@ -25,6 +25,7 @@ case class Describe(pitstops: List[String]) {
         val correctPitstop = resolveTheCorrectPitstop(simplifiedPitstop)
         if (correctPitstop.isEmpty) return
         val metadata: Metadata = Metadata(correctPitstop)
+
         // fileName -> fileHash
         val changedFilesMap = getFileAsMap(PITSTOPS_FOLDER + correctPitstop)
         println(

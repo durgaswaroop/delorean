@@ -39,7 +39,8 @@ case class Status(fileName: String = "") {
 
     // Gets the name of the current timeline. Default timeline is "present"
     val currentTimeline: String = getLinesOfFile(CURRENT_INDICATOR).head
-    // If the 'current' file is pointing to a timeline
+
+    // If the 'current' indicator file is pointing to a timeline
     if (Files.exists(Paths.get(INDICATORS_FOLDER + currentTimeline))) {
         println(s"On timeline '$currentTimeline'\n")
     } else {
@@ -55,8 +56,10 @@ case class Status(fileName: String = "") {
             """.stripMargin)
     }
 
+    // SHOW STAGED FILES
     val tempFile: String = getTempPitstopFileLocation
     var stagedFileSet: List[String] = List("")
+
     if (tempFile nonEmpty) {
         stagedFileSet = getFileAsMap(tempFile).keys.toList
         val newlyStagedFiles = stagedFileSet diff allFilesAndHashesKnownToDelorean.keys.toList
@@ -69,6 +72,7 @@ case class Status(fileName: String = "") {
         if (changedFiles nonEmpty) println(changedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     }
 
+    // SHOW MODIFIED AND DELETED FILES SINCE LAST PITSTOP OR STAGE
     val modifiedAndDeletedFiles: (List[String], List[String]) = getModifiedAndDeletedFiles
     val modifiedFiles: List[String] = modifiedAndDeletedFiles._1.filterNot(_.isEmpty)
     val deletedFiles: List[String] = modifiedAndDeletedFiles._2.filterNot(_.isEmpty)
@@ -82,6 +86,7 @@ case class Status(fileName: String = "") {
         if (deletedFiles.nonEmpty) println(deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
     }
 
+    // SHOW UNTRACKED FILES THAT ARE NOT PART OF THE REPOSITORY
     val untrackedFiles: Set[String] = getUntrackedFiles.filterNot(_.isEmpty)
 
     if (untrackedFiles.nonEmpty) {
@@ -92,7 +97,13 @@ case class Status(fileName: String = "") {
         println(untrackedFiles.toList.sorted.mkString("\t", "\n\t", ""))
     }
 
-    // If a file is present in the 'filesKnownToDelorean' but is not currently there, it means that it is deleted.
+    /**
+      * Get the modifed and deleted files since last pitstop or stage.
+      *
+      * If a file is present in the 'filesKnownToDelorean' but is not currently there, it means that it is deleted.
+      *
+      * @return : A Tuple pair of modified and Deleted files
+      */
     def getModifiedAndDeletedFiles: (List[String], List[String]) = {
         val allFiles: Iterable[Path] = allFilesAndHashesKnownToDelorean.keys
         var modifiedFiles: List[Path] = List.empty
@@ -107,6 +118,11 @@ case class Status(fileName: String = "") {
         (modifiedFiles.map(_.toString), deletedFiles.map(_.toString))
     }
 
+    /**
+      * Get files that are not part of the repository.
+      *
+      * @return : A Set of untracked file names
+      */
     def getUntrackedFiles: Set[String] = {
         val allFilesDeloreanKnows: Set[Path] = allFilesAndHashesKnownToDelorean.keys.toSet
 
@@ -114,7 +130,6 @@ case class Status(fileName: String = "") {
         val biffFileContents: Set[String] = Set(".tm") ++ {
             if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE).toSet else Set.empty[String]
         }
-
         logger.fine(s"biffFileContents : $biffFileContents")
 
         var ignoredFiles: Set[Path] = Set.empty
@@ -130,9 +145,6 @@ case class Status(fileName: String = "") {
         }
         logger.fine(s"Ignored files: $ignoredFiles")
 
-        //        val predicate: Predicate[Path] = {
-        //            p: Path ⇒ !allFilesDeloreanKnows.contains(p) && !ignoredFiles.contains(p)
-        //        }
         val allFilesInMainDirectory: Set[Path] = getFilesRecursively(".").map(x ⇒ Paths.get(x)).toSet
         val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
         logger.fine(s"Untracked files: $untrackedFiles")

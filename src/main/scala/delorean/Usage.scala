@@ -78,6 +78,8 @@ object Usage {
             """
               |Usage: delorean ([--version] [-V] [-v])
               |                - Prints the current version of delorean
+              |
+              |For more: delorean --help
             """.stripMargin)
     }
 
@@ -98,6 +100,8 @@ object Usage {
               |       delorean status <filename>
               |                - Displays the status of the file
               |                - Only one file is supported now
+              |
+              |For more: delorean --help
             """.stripMargin)
     }
 
@@ -110,6 +114,8 @@ object Usage {
               |       Output Format options:
               |       short - Displays a short pitstop hash and the rider log
               |       long  - Displays full information of the pitstop including time, rider name etc.
+              |
+              |For more: delorean --help
             """.stripMargin)
     }
 
@@ -120,6 +126,7 @@ object Usage {
               |Usage: delorean create-timeline <timeline-name>
               |                - Creates a new timeline on the current pitstop/branch
               |
+              |For more: delorean --help
             """.stripMargin)
     }
 
