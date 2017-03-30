@@ -24,6 +24,10 @@ dependencies {
     testCompile "junit:junit:$junitVersion"
 }
 
+compileScala { // or: tasks.withType(ScalaCompile)
+    scalaCompileOptions.additionalParameters = ["-feature", "-language:postfixOps"]
+}
+
 tasks.withType(Test) {
     testLogging {
         // set options for log level LIFECYCLE
