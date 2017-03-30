@@ -36,12 +36,12 @@ object Hasher {
         // is not present in the allFilesAndHashesKnownToDelorean map.
         // This way it will be added to temp file only if the file has actually changed.
         files foreach (file ⇒ {
-            val hash: String = computeFileHash(file, justGetTheHash = true)
+            val hash: String = FileDictionary(file, hashNeeded = true).hash
             logger.fine(s"Hash computed: $hash")
 
             // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
             if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash)))
-                fileNameFileHashMap += (file → computeFileHash(file))
+                fileNameFileHashMap += (file → continueFullHashingProcess(file))
         })
 
         // This whole thing won't be needed to be done if the map created at the beginning of this method is still empty at this point.
@@ -62,21 +62,19 @@ object Hasher {
     /**
       * Computes the hash of the given file and also does the relavant file operations such as storing the hashes to file,
       * writing line contents to string pool etc.
-      * But if 'justGetTheHash' is true, we'll just calculate the file hash without writing anything to files.
       *
-      * @param filePath       : Path of the file
-      * @param justGetTheHash : Just want to get the hash without doing the full computing process.
+      * @param filePath : Path of the file
       * @return
       */
-    def computeFileHash(filePath: String, justGetTheHash: Boolean = false): String = {
-        logger.fine(s"called with params: $filePath, $justGetTheHash")
+    def continueFullHashingProcess(filePath: String): String = {
+        logger.fine(s"called with params: $filePath")
         var hashLineMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
         // Get all lines of the file as a List
-        val lines = getLinesOfFile(filePath)
+        val lines = FileDictionary(filePath, linesNeeded = true).lines
 
         // Compute SHA-256 Hash of all lines of a file combined to get the file hash
-        val fileHash: String = computeStringHash(lines.mkString("\n"), SHA256)
+        val fileHash: String = FileDictionary(filePath, hashNeeded = true).hash
 
         // When its a binary file, don't do all the usual line extractions and hashing.
         // Just put the file into BINARIES_FOLDER with the filehash as the name
@@ -88,25 +86,27 @@ object Hasher {
             return fileHash
         }
 
-        logger.fine(s"Lines:\n$lines\n")
+        logger.finest(s"Lines:\n$lines\n")
 
-        if (!justGetTheHash) {
-            // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
-            lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
-            logger.fine(s"Map:\n$hashLineMap\n")
+        // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
+        lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
+        logger.finest(s"Map:\n$hashLineMap\n")
 
-            // Add line_hash - line to the string pool file
-            addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
+        // Add line_hash - line to the string pool file
+        addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
 
-            // Add line hashes to hashes file
-            addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
+        // Add line hashes to hashes file
+        addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
 
-            // Once the file hash is computed, Add it to travelogue file
-            addToTravelogueFile((filePath, fileHash))
-        }
+        // Once the file hash is computed, Add it to travelogue file
+        addToTravelogueFile((filePath, fileHash))
 
         // return filHash
         fileHash
+    }
+
+    def computeStringHash(str: String, hash: String): String = {
+        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 
     // Hash for a List of files
@@ -122,7 +122,7 @@ object Hasher {
         val (metadata, metadataHash): (String, String) = computeMetadataAndItsHash(riderLog)
 
         // We just need the hash here. Not the other parts after that.
-        val allFilesHash: String = computeFileHash(tempPitstopFile, justGetTheHash = true)
+        val allFilesHash: String = FileDictionary(tempPitstopFile, hashNeeded = true).hash
 
         // Pitstop hash will be computed as the hash for the combined string of allFilesHash and metadataHash
         val pitstopHash = computeStringHash(allFilesHash + metadataHash, SHA256)
@@ -166,7 +166,8 @@ object Hasher {
         (fullMetadata, computeStringHash(fullMetadata, SHA256))
     }
 
-    def computeStringHash(str: String, hash: String): String = {
-        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
+    def computeShaHash(fileName: String): String = {
+        val fileBytes = Files.readAllBytes(Paths.get(fileName))
+        MessageDigest.getInstance(SHA256).digest(fileBytes).map("%02x".format(_)).mkString
     }
 }

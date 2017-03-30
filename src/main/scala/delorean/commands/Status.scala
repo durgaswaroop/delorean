@@ -30,7 +30,7 @@ case class Status(fileName: String = "") {
     if (fileName.nonEmpty) {
         logger.fine(s"Status requested for file $fileName")
         val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(Paths.get(fileName))
-        if (Hasher.computeFileHash(fileName, justGetTheHash = true) == hashOfLastKnownVersionOfFile)
+        if (FileDictionary(fileName, hashNeeded = true).hash == hashOfLastKnownVersionOfFile)
             println(s"file $fileName has not been modified since the last pitstop")
         else
             println(s"file $fileName is different from the last pitstopped/staged version")
@@ -99,7 +99,7 @@ case class Status(fileName: String = "") {
         var deletedFiles: List[Path] = List.empty
         allFiles.foreach(path ⇒ {
             if (Files.exists(path)) {
-                val hash = Hasher.computeFileHash(path.toString, justGetTheHash = true)
+                val hash = FileDictionary(path.toString, hashNeeded = true).hash
                 if (!allFilesAndHashesKnownToDelorean.exists(_ == (path, hash))) modifiedFiles = path :: modifiedFiles
             } else
                 deletedFiles = path :: deletedFiles
