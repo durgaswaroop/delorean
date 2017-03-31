@@ -36,7 +36,7 @@ case class Stage(files: List[String]) {
             filesToStage = filesToStage ++ directoryFiles
         }
         else {
-            logger.fine(s"In else for file $f")
+            logger.fine(s"File $f is not a directory. Entered else.")
             filesToStage ::= f
         }
     )

@@ -58,5 +58,6 @@ For more information, refer to the LICENSE file.
 * delorean show-timeline
 * delorean show-timeline --long
 * delorean create-timeline
+* delorean goto \<timeline or pitstop\>
 * delorean describe \<pitstop(s)\>
 
