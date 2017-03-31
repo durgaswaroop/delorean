@@ -40,19 +40,36 @@ object Hasher {
     def computeHashOfStagedFiles(files: List[String]): Unit = {
         var fileNameFileHashMap: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
 
+        /*
+            This is for cases when you don't want to continue the hashing process for a file,
+            But still want to add it to the temp file
+        */
+        var nameHashMapToAddToTempFile: mutable.LinkedHashMap[String, String] = mutable.LinkedHashMap.empty
+
         val allFilesAndHashesKnownToDelorean: Map[Path, String] = getHashesOfAllFilesKnownToDelorean
 
-        // Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
-        // is not present in the allFilesAndHashesKnownToDelorean map.
-        // This way it will be added to temp file only if the file has actually changed.
+        /*
+            Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
+            is not present in the allFilesAndHashesKnownToDelorean map.
+            This way it will be added to temp file only if the file has actually changed.
+        */
         files foreach (file ⇒ {
             val hash: String = FileDictionary(file, hashNeeded = true).hash
             logger.fine(s"Hash computed: $hash")
 
             // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
-            if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash))
-                && !Files.exists(Paths.get(HASHES_FOLDER + hash)))
-                fileNameFileHashMap += (file → computeShaHash(file))
+            if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) → hash))) {
+
+                /*
+                    If the hash file already exists, but the current hash is not known to Delorean (happens when the file was previously
+                    staged and then unstaged afterwards. In that case we don't want to continue the hashing process again but
+                    still want the file to be added to the _temp file as it was asked for.
+                */
+                if (Files.exists(Paths.get(HASHES_FOLDER + hash))) nameHashMapToAddToTempFile += (file → hash)
+
+                // This should be done regardless of above condition
+                fileNameFileHashMap += (file → hash)
+            }
         })
         logger.fine(s"(+++)FileNameFileHashMap : $fileNameFileHashMap")
 
@@ -73,6 +90,7 @@ object Hasher {
 
         // Update the existing tempFileMap with the newly staged files and then write it back
         fileNameFileHashMap.foreach(existingTempFileMap += _)
+        nameHashMapToAddToTempFile.foreach(existingTempFileMap += _)
         writeMapToFile(existingTempFileMap, tempPitstopFile.getPath)
     }
 
