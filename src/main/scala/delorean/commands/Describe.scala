@@ -5,7 +5,6 @@
 
 package delorean.commands
 
-import java.io.File
 import java.time.format.DateTimeFormatter
 
 import delorean.FileOps._
@@ -36,21 +35,5 @@ case class Describe(pitstops: List[String]) {
                |Rider Log: ${metadata.riderLog}
                |Changes: ${changedFilesMap.keys.mkString("\n\t", "\n\t", "")}
              """.stripMargin)
-    }
-
-    // Gets the full pitstop hash from the first few characters given
-    def resolveTheCorrectPitstop(simplifiedPitstop: String): String = {
-        val files: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER), _ startsWith simplifiedPitstop)
-        if (files.length > 1) {
-            println(
-                s"""Ambiguous pitstop hash $simplifiedPitstop
-                   |Found multiple pitstops matching this hash.
-                """.stripMargin)
-            "" // return empty string if more than one hash is found starting with the given characters
-        } else if (files.length == 0) {
-            println(s"Pitstop $simplifiedPitstop not found in the current repository")
-            "" // return empty string if no hashes are found
-        }
-        else files.head.getName
     }
 }
