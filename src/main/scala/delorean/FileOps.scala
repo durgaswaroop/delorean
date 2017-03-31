@@ -170,7 +170,7 @@ object FileOps {
         while (currentPitstop.nonEmpty) {
             // fileName -> fileHash almost all of the places
             val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
-            pitstopMap.foreach(kvPair ⇒ map = map + (Paths.get(kvPair._1) → kvPair._2))
+            pitstopMap.foreach(kvPair ⇒ if (!map.contains(Paths.get(kvPair._1))) map = map + (Paths.get(kvPair._1) → kvPair._2))
             currentPitstop = parent(currentPitstop)
         }
         logger.fine(s"Files known from pitstops and their hashes: $map")
