@@ -13,6 +13,7 @@ object Usage {
         case "full" ⇒ fullUsage()
         case "ride" ⇒ rideUsage()
         case "describe" ⇒ describeUsage()
+        case "goto" ⇒ goToUsage()
         case "pitstop" ⇒ pitstopUsage()
         case "config" ⇒ configUsage()
         case "version" ⇒ versionUsage()
@@ -37,6 +38,7 @@ object Usage {
               | config          Configuration options
               | show-timeline   Shows all the pitstops in the current timeline
               | create-timeline Creates a new timeline atop the current pitstop
+              | goto            Switch the repository to the given pitstop or timeline
             """.stripMargin)
     }
 
@@ -87,6 +89,15 @@ object Usage {
         print(
             """
               |Usage: delorean stage <file1> <file2> ..
+              |
+              |For more: delorean --help
+            """.stripMargin)
+    }
+
+    def goToUsage(): Unit = {
+        print(
+            """
+              |Usage: delorean goto (timeline | pitstop)
               |
               |For more: delorean --help
             """.stripMargin)

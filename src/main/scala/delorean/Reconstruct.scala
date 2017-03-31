@@ -5,6 +5,8 @@
 
 package delorean
 
+import java.util.logging.Logger
+
 import delorean.FileOps.{getFileAsMap, getLinesOfFile, writeToFile}
 
 import scala.collection.mutable
@@ -24,10 +26,17 @@ object Reconstruct {
       * @param fileHash hash of the file
       */
     def file(fileName: String, fileHash: String): Unit = {
+        val logger = Logger.getLogger(this.getClass.getName)
+        logger.fine(s"filename: $fileName, fileHash: $fileHash")
+
         val lineHashesOfFile: List[String] = getLinesOfFile(s"$HASHES_FOLDER$fileHash")
+        logger.fine(s"Line hashes: $lineHashesOfFile")
+
         val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(STRING_POOL)
+
         var reconstructedLines: String = ""
         lineHashesOfFile.foreach(lineHash ⇒ reconstructedLines += stringPoolMap(lineHash) + "\n")
+        logger.finest(reconstructedLines)
 
         // Store it in to the fileName given. Overwrite existing content
         writeToFile(fileName, reconstructedLines)

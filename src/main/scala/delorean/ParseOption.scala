@@ -18,6 +18,7 @@ object ParseOption {
         case "config" ⇒ config(argsList.tail)
         case "create-timeline" | "ctl" ⇒ createTimeline(argsList.tail)
         case "describe" ⇒ describe(argsList.tail)
+        case "goto" ⇒ goto(argsList.tail)
         case "pitstop" ⇒ pitstop(argsList.tail)
         case "ride" ⇒ ride(argsList.tail)
         case "show-timeline" ⇒ showTimeLine(argsList.tail)
@@ -53,6 +54,11 @@ object ParseOption {
     private def describe(describeArgs: List[String]): Unit = {
         if (describeArgs.isEmpty) Usage("describe")
         else Describe(describeArgs)
+    }
+
+    private def goto(goToArgs: List[String]): Unit = {
+        if (goToArgs.isEmpty || goToArgs.length > 1) Usage("goto")
+        else GoTo(goToArgs.head)
     }
 
     private def pitstop(pitstopArgs: List[String]): Unit = {
