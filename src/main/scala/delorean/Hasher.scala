@@ -202,9 +202,11 @@ object Hasher {
       * Compute the hash of the file by reading its bytes and using that to directly get the SHA256 hash.
       *
       * @param fileName : File for which we need to calculate the hash
-      * @return
+      * @return : Hash of the file if it exists or an empty string if it doesn't
       */
     def computeShaHash(fileName: String): String = {
+        val filePath = Paths.get(fileName)
+        if (!filePath.toFile.exists()) return ""
         val fileBytes = Files.readAllBytes(Paths.get(fileName))
         MessageDigest.getInstance(SHA256).digest(fileBytes).map("%02x".format(_)).mkString
     }
