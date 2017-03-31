@@ -7,6 +7,8 @@ package delorean
 
 import delorean.FileOps.{getFileAsMap, getLinesOfFile, writeToFile}
 
+import scala.collection.mutable
+
 /**
   * Class to reconstruct the files based on the hashes.
   */
@@ -21,15 +23,13 @@ object Reconstruct {
       *
       * @param fileHash hash of the file
       */
-    def file(fileHash: String): Unit = {
+    def file(fileName: String, fileHash: String): Unit = {
         val lineHashesOfFile: List[String] = getLinesOfFile(s"$HASHES_FOLDER$fileHash")
-        val stringPoolMap = getFileAsMap(STRING_POOL)
+        val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(STRING_POOL)
         var reconstructedLines: String = ""
         lineHashesOfFile.foreach(lineHash ⇒ reconstructedLines += stringPoolMap(lineHash) + "\n")
-        // Store it in to the appropriate file from the file name in the travelogue file
-        // Travelogue file gets updated with every pitstop. So, the hash for a particular hash might not even
-        // exist in it. Instead we should get the filename from the pitstop to which we are trying to reset to.
-        val fileName: String = getFileAsMap(TRAVELOGUE).filter(e ⇒ e._2 == fileHash).keys.head
+
+        // Store it in to the fileName given. Overwrite existing content
         writeToFile(fileName, reconstructedLines)
     }
 }
