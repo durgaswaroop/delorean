@@ -1,11 +1,11 @@
-import java.io.File
-
-import delorean.FileOps.filesMatchingInDir
-
 /*
  * Developer: Swaroop <durgaswaroop@gmail.com>
  * Date: March 2017
  */
+
+import java.io.File
+
+import delorean.FileOps.filesMatchingInDir
 
 /**
   * Package object to hold variables.
@@ -46,5 +46,17 @@ package object delorean {
             "" // return empty string if no hashes are found
         }
         else files.head.getName
+    }
+
+    /**
+      * Gets the pitstop hash of the given timeline
+      *
+      * @param timeLine : timeline to get the hash for
+      * @return : Pitstop hash of the timeline if it exists or else an empty string
+      */
+    def resolveTheHashOfTimeline(timeLine: String): String = {
+        val timeLineFile = new File(INDICATORS_FOLDER + timeLine)
+        if (timeLineFile.exists()) FileDictionary(INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
+        else ""
     }
 }
