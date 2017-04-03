@@ -9,16 +9,23 @@ import java.io.{File, PrintWriter}
 import java.nio.file.{Files, Paths}
 
 import delorean.FileOps._
+import org.apache.commons.io.FileUtils
 import org.junit.Assert.{assertEquals, assertTrue}
-import org.junit.{BeforeClass, Test}
+import org.junit.{AfterClass, BeforeClass, Test}
 
 import scala.collection.mutable
+import scala.util.Try
 
 object FileOpsTest {
     @BeforeClass
     def callToRide(): Unit = {
         // This will make sure it creates all the required files for the test
         if (!Files.exists(Paths.get(TIME_MACHINE))) new delorean.commands.Ride
+    }
+
+    @AfterClass def tearDown(): Unit = {
+        Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
+        Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
     }
 }
 

@@ -10,7 +10,6 @@ import delorean.FileOps._
 import org.junit.Assert._
 
 class CreateTimelineTest {
-
     // @Test
     def createTimelineTest(): Unit = {
         // Saving the timeline that was there before the test is run
@@ -21,5 +20,4 @@ class CreateTimelineTest {
 
         writeToFile(CURRENT_INDICATOR, currentTimeline)
     }
-
 }

@@ -5,12 +5,16 @@
 
 package delorean.commands
 
+import java.io.File
 import java.nio.file.{Files, Paths}
 
-import delorean.CURRENT_INDICATOR
 import delorean.FileOps._
+import delorean._
+import org.apache.commons.io.FileUtils
 import org.junit.Assert._
 import org.junit.{AfterClass, BeforeClass, Test}
+
+import scala.util.Try
 
 class StageTest {
     @Test
@@ -30,5 +34,8 @@ object StageTest {
         if (!Files.exists(Paths.get(CURRENT_INDICATOR))) new delorean.commands.Ride
     }
 
-    @AfterClass def tearDown(): Unit = Files.delete(Paths.get(getTempPitstopFileLocation))
+    @AfterClass def tearDown(): Unit = {
+        Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
+        Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
+    }
 }

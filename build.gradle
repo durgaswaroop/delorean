@@ -21,7 +21,8 @@ dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
 
-    testCompile "junit:junit:$junitVersion"
+    testCompile("junit:junit:$junitVersion")
+    testCompile("commons-io:commons-io:2.5")
 }
 
 compileScala { // or: tasks.withType(ScalaCompile)
