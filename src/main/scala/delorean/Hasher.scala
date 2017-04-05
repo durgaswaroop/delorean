@@ -12,6 +12,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.logging.Logger
 
+import com.freblogg.hashing.FNV
 import delorean.FileOps._
 
 import scala.collection.mutable
@@ -21,8 +22,8 @@ object Hasher {
 
     val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-    // 32 byte long
-    val MD5: String = "MD5"
+    // 16 byte long
+    val FNV1A64: String = "FNV1a64"
 
     // 64 byte long
     val SHA256: String = "SHA-256"
@@ -127,7 +128,7 @@ object Hasher {
         logger.finest(s"Lines:\n$lines\n")
 
         // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
-        lines.foreach(x => hashLineMap += (computeStringHash(x, MD5) → x))
+        lines.foreach(x => hashLineMap += (computeStringHash(x, FNV1A64) → x))
         logger.finest(s"Map:\n$hashLineMap\n")
 
         // Add line_hash - line to the string pool file
@@ -141,7 +142,8 @@ object Hasher {
     }
 
     def computeStringHash(str: String, hash: String): String = {
-        MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
+        if (hash == FNV1A64) FNV.fnv1a64(str)
+        else MessageDigest.getInstance(hash).digest(str.getBytes).map("%02x".format(_)).mkString
     }
 
     /**

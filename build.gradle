@@ -20,6 +20,7 @@ ext {
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
+    compile files("fnv-hashing-1.0.jar")
 
     testCompile("junit:junit:$junitVersion")
     testCompile("commons-io:commons-io:2.5")
