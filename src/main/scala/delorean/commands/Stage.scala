@@ -3,13 +3,13 @@
  * Date: March 2017
  */
 
-package delorean.commands
+package delorean
+package commands
 
 import java.io.File
 import java.util.logging.Logger
 
 import delorean.FileOps._
-import delorean.Hasher
 
 /**
   * For the command 'stage'.

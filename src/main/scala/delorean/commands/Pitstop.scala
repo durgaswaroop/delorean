@@ -3,9 +3,8 @@
  * Date: March 2017
  */
 
-package delorean.commands
-
-import delorean.Hasher
+package delorean
+package commands
 
 /**
   * Class for the command 'pitstop'.

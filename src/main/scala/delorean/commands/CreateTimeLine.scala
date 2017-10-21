@@ -3,7 +3,8 @@
  * Date: March 2017
  */
 
-package delorean.commands
+package delorean
+package commands
 
 import java.nio.file.{Files, Paths}
 import java.util.logging.Logger

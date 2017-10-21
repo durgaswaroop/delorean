@@ -3,7 +3,8 @@
  * Date: March 2017
  */
 
-package delorean.commands
+package delorean
+package commands
 
 /**
   * Defines the current version of Delorean.
