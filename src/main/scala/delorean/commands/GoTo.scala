@@ -56,5 +56,9 @@ case class GoTo(timeLine: String) {
         Once everything is done, we need to update the 'current' indicator.
         Whether its called with a timeline or a pitstop hash, once we 'goto' that, we will add that in the current file.
      */
-    writeToFile(CURRENT_INDICATOR, timeLine)
+    if (isPitstop) { // Write the full hash to the file
+        writeToFile(CURRENT_INDICATOR, pitstopToGoTo)
+    } else { // Write the timeline name directly
+        writeToFile(CURRENT_INDICATOR, timeLine)
+    }
 }
