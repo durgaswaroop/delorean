@@ -118,36 +118,4 @@ case class Status(fileName: String = "") {
         (modifiedFiles.map(_.toString), deletedFiles.map(_.toString))
     }
 
-    /**
-      * Get files that are not part of the repository.
-      *
-      * @return : A Set of untracked file names
-      */
-    def getUntrackedFiles: Set[String] = {
-        val allFilesDeloreanKnows: Set[Path] = allFilesAndHashesKnownToDelorean.keys.toSet
-
-        // ".tm" directory should be ignored always
-        val biffFileContents: Set[String] = Set(".tm") ++ {
-            if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE).toSet else Set.empty[String]
-        }
-        logger.fine(s"biffFileContents : $biffFileContents")
-
-        var ignoredFiles: Set[Path] = Set.empty
-        biffFileContents.foreach {
-            path ⇒ {
-                if (Files.isDirectory(Paths.get(path))) {
-                    ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_)).toSet
-                }
-                else {
-                    ignoredFiles += Paths.get(path)
-                }
-            }
-        }
-        logger.fine(s"Ignored files: $ignoredFiles")
-
-        val allFilesInMainDirectory: Set[Path] = getFilesRecursively(".").map(x ⇒ Paths.get(x)).toSet
-        val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
-        logger.fine(s"Untracked files: $untrackedFiles")
-        untrackedFiles.map(_.toString)
-    }
 }
