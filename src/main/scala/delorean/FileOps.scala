@@ -166,7 +166,17 @@ object FileOps {
     def getHashesOfAllFilesKnownToDelorean: Map[Path, String] = {
         var currentPitstop = getCurrentPitstop
         logger.fine(s"Current pitstop = $currentPitstop")
+        getHashesOfAllFilesKnownToDelorean(currentPitstop)
+    }
+
+    /**
+      * Gets all the files known to delorean at a pitstop
+      *
+      * Bascially it is the state of the repository at that particular pitstop
+      */
+    def getHashesOfAllFilesKnownToDelorean(pitStop: String): Map[Path, String] = {
         var map: Map[Path, String] = Map.empty
+        var currentPitstop = pitStop
         while (currentPitstop.nonEmpty) {
             // fileName -> fileHash almost all of the places
             val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
@@ -220,4 +230,7 @@ object FileOps {
             override def accept(dir: File, name: String): Boolean = check(name)
         })
     }
+
+    def getAllDeloreanTrackedFiles: List[String] = getFileAsMap(TRAVELOGUE).keys.toList
+
 }
