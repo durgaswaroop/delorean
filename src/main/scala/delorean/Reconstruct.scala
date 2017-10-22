@@ -5,6 +5,7 @@
 
 package delorean
 
+import java.nio.file.{CopyOption, Files, Paths, StandardCopyOption}
 import java.util.logging.Logger
 
 import delorean.FileOps.{getFileAsMap, getLinesOfFile, writeToFile}
@@ -29,16 +30,27 @@ object Reconstruct {
         val logger = Logger.getLogger(this.getClass.getName)
         logger.fine(s"filename: $fileName, fileHash: $fileHash")
 
-        val lineHashesOfFile: List[String] = getLinesOfFile(s"$HASHES_FOLDER$fileHash")
-        logger.fine(s"Line hashes: $lineHashesOfFile")
+        // TODO: DO a check for if the file is binary here
+        val isBinaryFile = Files.exists(Paths.get(s"$BINARIES_FOLDER$fileHash"))
 
-        val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(STRING_POOL)
+        // If the file is not a binary file its lines will be available in the String pool and using that we
+        // can reconstruct the file
+        if (!isBinaryFile) {
+            val lineHashesOfFile: List[String] = getLinesOfFile(s"$HASHES_FOLDER$fileHash")
+            logger.fine(s"Line hashes: $lineHashesOfFile")
 
-        var reconstructedLines: String = ""
-        lineHashesOfFile.foreach(lineHash ⇒ reconstructedLines += stringPoolMap(lineHash) + "\n")
-        logger.finest(reconstructedLines)
+            val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(STRING_POOL)
 
-        // Store it in to the fileName given. Overwrite existing content
-        writeToFile(fileName, reconstructedLines)
+            var reconstructedLines: String = ""
+            lineHashesOfFile.foreach(lineHash ⇒ reconstructedLines += stringPoolMap(lineHash) + "\n")
+            logger.finest(reconstructedLines)
+
+            // Store it in to the fileName given. Overwrite existing content
+            writeToFile(fileName, reconstructedLines)
+        } else { // If the file is binary file, then just copy that file to the destination
+            val binaryFilePath = Paths.get(BINARIES_FOLDER + fileHash)
+            val destinationFilePath = Paths.get(fileName)
+            Files.copy(binaryFilePath, destinationFilePath, StandardCopyOption.REPLACE_EXISTING)
+        }
     }
 }
