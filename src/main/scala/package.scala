@@ -99,6 +99,7 @@ package object delorean {
             }
         }
         logger.fine(s"Ignored files: $ignoredFiles")
-        ignoredFiles
+        // TODO: For some reason this also returns an empty path. For now putting a filter like this. Have to take a look
+        ignoredFiles.filter(_.toString.nonEmpty)
     }
 }
