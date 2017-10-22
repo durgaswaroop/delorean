@@ -67,8 +67,20 @@ package object delorean {
       * @return : A Set of untracked file names
       */
     def getUntrackedFiles: Set[String] = {
+        val ignoredFiles: Set[Path] = getIgnoredFiles
         val allFilesDeloreanKnows: Set[Path] = FileOps.getHashesOfAllFilesKnownToDelorean.keys.toSet
+        val allFilesInMainDirectory: Set[Path] = getFilesRecursively(".").map(x ⇒ Paths.get(x)).toSet
+        val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
+        logger.fine(s"Untracked files: $untrackedFiles")
+        untrackedFiles.map(_.toString)
+    }
 
+    /**
+      * Get files that are ignored.
+      *
+      * @return : A Set of ignored file names
+      */
+    def getIgnoredFiles: Set[Path] = {
         // ".tm" directory should be ignored always
         val biffFileContents: Set[String] = Set(".tm") ++ {
             if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE).toSet else Set.empty[String]
@@ -87,10 +99,6 @@ package object delorean {
             }
         }
         logger.fine(s"Ignored files: $ignoredFiles")
-
-        val allFilesInMainDirectory: Set[Path] = getFilesRecursively(".").map(x ⇒ Paths.get(x)).toSet
-        val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
-        logger.fine(s"Untracked files: $untrackedFiles")
-        untrackedFiles.map(_.toString)
+        ignoredFiles
     }
 }
