@@ -47,7 +47,7 @@ case class Status(fileName: String = "") {
         //If its not a timeline it will be a pitstop
         println(
             s"""
-               |On pitstop '$currentTimeline'
+               |On pitstop '${currentTimeline.take(6)}'
                |
                |You are not on any timeline now. To goto an existing timeline, run
                |    delorean goto <timeline>
