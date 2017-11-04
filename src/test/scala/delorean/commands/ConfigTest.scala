@@ -5,10 +5,11 @@
 
 package delorean.commands
 
-import java.io.{ByteArrayOutputStream, PrintStream}
+import java.io.{ByteArrayOutputStream, File, PrintStream}
 import java.nio.file._
 
 import delorean._
+import org.apache.commons.io.FileUtils
 import org.junit.Assert._
 import org.junit._
 
@@ -16,44 +17,31 @@ import scala.util.Try
 
 class ConfigTest {
 
-    val outContent = new ByteArrayOutputStream()
-
-    /**
-      * This will redirect the output stream into outContent and we can access the print output from it.
-      */
-    @Before
-    def setUpStreams(): Unit = System.setOut(new PrintStream(outContent))
-
-    /**
-      * Resetting the stream to null.
-      */
-    @After
-    def cleanUpStreams(): Unit = System.setOut(null)
-
     @Test
     def configTest(): Unit = {
         // Adding a new key value pair to configuration
         Config(List("Marty", "McFly"))
+        Config(List("Doc", "Brown"))
+        Config(List("Time", "Machine"))
 
-        // Calling list to display the current configuration
-        Config(List("--list"))
-        assertEquals("Marty = McFly", outContent.toString.trim)
+        val configLines: List[String] = FileOps.getLinesOfFile(CONFIG)
+
+        assertEquals("Marty:McFly", configLines(0))
+        assertEquals("Doc:Brown", configLines(1))
+        assertEquals("Time:Machine", configLines(2))
     }
 }
 
 object ConfigTest {
-    // Create CONFIG file. We also create TIME_MACHINE as we need the parent directory to be present
     @BeforeClass
     def setUp(): Unit = {
-        Try(Files.createDirectory(Paths.get(TIME_MACHINE)))
-        Try(Files.createFile(Paths.get(CONFIG)))
+        // This will make sure it creates all the required files for the test. We are checking for CURRENT_INDICATOR
+        // instead of TIME_MACHINE because .tm could be created by config test
+        if (!Files.exists(Paths.get(CURRENT_INDICATOR))) new delorean.commands.Ride
     }
 
-    // Delete CONFIG file and the parent directory.
     @AfterClass
     def tearDown(): Unit = {
-        Try(Files.delete(Paths.get(CONFIG)))
-        Try(Files.delete(Paths.get(TIME_MACHINE)))
+        Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
     }
-
 }
