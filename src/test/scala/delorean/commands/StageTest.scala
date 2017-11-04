@@ -17,12 +17,16 @@ import org.junit.{AfterClass, BeforeClass, Test}
 import scala.util.Try
 
 class StageTest {
+    /**
+      * Stages the files under resources folder and checks if the temporary pitstop file got generated.
+      */
     @Test
     def stageTest(): Unit = {
         val filesToStage = List("src/test/resources/")
         Stage(filesToStage)
         val tempFile: String = getTempPitstopFileLocation
-        assertTrue("_temp file should have been created in Pitstops directory", tempFile.nonEmpty)
+        assertTrue("_temp pitstop file should have been created in Pitstops directory", tempFile.nonEmpty)
+        assertTrue("_temp pitstop file should not be empty", Files.size(Paths.get(tempFile)) > 0)
     }
 }
 
@@ -34,7 +38,9 @@ object StageTest {
         if (!Files.exists(Paths.get(CURRENT_INDICATOR))) new delorean.commands.Ride
     }
 
-    @AfterClass def tearDown(): Unit = {
+    @AfterClass
+    def tearDown(): Unit = {
+        println("Tearing Down '.tm/' directory created for StageTest")
         Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
         Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
     }
