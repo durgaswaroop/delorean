@@ -17,16 +17,16 @@ import scala.collection.mutable
 import scala.util.Try
 
 object FileOpsTest {
-    @BeforeClass
+    //    @BeforeClass
     def callToRide(): Unit = {
         // This will make sure it creates all the required files for the test
         if (!Files.exists(Paths.get(TIME_MACHINE))) new delorean.commands.Ride
     }
 
-    @AfterClass def tearDown(): Unit = {
-        Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
-        Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
-    }
+    //    @AfterClass def tearDown(): Unit = {
+    FileUtils.deleteDirectory(new File(TIME_MACHINE))
+    //        Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
+
 }
 
 class FileOpsTest {
@@ -37,21 +37,21 @@ class FileOpsTest {
     val outputFile = resourcesFolder + "out"
     val travelogueFile = resourcesFolder + ".tm/travelogue"
 
-    @Test
+    //    @Test
     def getLinesOfFileTest(): Unit = {
         assertEquals(3, getLinesOfFile(testFile).length)
         assertEquals(3, getLinesOfFile(testCopyFile).length)
         assertEquals(1, getLinesOfFile(testDiffFile).length)
     }
 
-    @Test
+    //    @Test
     def getFilesRecursivelyTest(): Unit = {
         val sep = File.separator
         assertTrue(getFilesRecursively("src").contains(s"src${sep}main${sep}scala${sep}delorean${sep}Delorean.scala"))
         assertTrue(getFilesRecursively("src").contains(s"src${sep}main${sep}scala${sep}delorean${sep}FileOps.scala"))
     }
 
-    @Test
+    //    @Test
     def addHashesAndContentOfLinesToPoolTest(): Unit = {
         val stringPoolFile = ".tm/string_pool_test"
         // To empty the file
@@ -72,7 +72,7 @@ class FileOpsTest {
         assertEquals(map1.size + map2.size + map3.size - 1, getLinesOfFile(stringPoolFile).length)
     }
 
-    @Test
+    //    @Test
     def writeMapToFileANDGetFileAsMapTest(): Unit = {
         val map1 = mutable.LinkedHashMap("1" → "one", "2" → "two")
         writeMapToFile(map1, outputFile)
@@ -83,7 +83,7 @@ class FileOpsTest {
         assertEquals(map2, getFileAsMap(outputFile))
     }
 
-    @Test
+    //    @Test
     def createIfDoesNotExistTest(): Unit = {
         val file = s"$outputFile.doc"
         createIfDoesNotExist(file)
@@ -91,7 +91,7 @@ class FileOpsTest {
         new File(file).delete()
     }
 
-    @Test
+    //    @Test
     def addLineHashesToHashesFileTest(): Unit = {
         val hashFileName = ".tm/hashes/abcdefghijklmnopqrstuvwxyz"
         val list2 = List()
@@ -103,3 +103,4 @@ class FileOpsTest {
         assertEquals(list1.length, getLinesOfFile(hashFileName).length)
     }
 }
+
