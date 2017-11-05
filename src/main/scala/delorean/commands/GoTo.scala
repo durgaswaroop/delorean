@@ -23,20 +23,17 @@ import scala.collection.mutable
 case class GoTo(timeLine: String) {
     val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-    val isTimeLine = new File(INDICATORS_FOLDER + timeLine).exists
-    val isPitstop = resolveTheCorrectPitstop(timeLine).nonEmpty
-
-    (isTimeLine, isPitstop) match {
-        case (true, false) => goToTimeline(timeLine)
-        case (false, true) => goToPitstop(resolveTheCorrectPitstop(timeLine))
-        case _ =>
-    }
+    // If it is indeed a timeline
+    if (Files.exists(Paths.get(INDICATORS_FOLDER + timeLine))) goToTimeline(timeLine)
+    // If it is a pitstop
+    else if (resolveTheCorrectPitstop(timeLine).nonEmpty) goToPitstop(resolveTheCorrectPitstop(timeLine))
+    else {} // If it is neither, do nothing
 
     def goToTimeline(timeLine: String): Unit = {
         /*
-       If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
-       which we get by resolving the full pitstop
-   */
+           If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
+           which we get by resolving the full pitstop
+       */
         val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine)
         goToPitstop(pitstopToGoTo)
         // Update the current indicator
