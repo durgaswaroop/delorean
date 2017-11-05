@@ -13,25 +13,39 @@ import delorean.commands._
   * Parser for the command line options
   */
 object ParseOption {
-    def apply(argsList: List[String]): Unit = argsList.head match {
-        case "--help" ⇒ Usage("full")
-        case "config" ⇒ config(argsList.tail)
-        case "create-timeline" | "ctl" ⇒ createTimeline(argsList.tail)
-        case "describe" ⇒ describe(argsList.tail)
-        case "goto" ⇒ goto(argsList.tail)
-        case "pitstop" ⇒ pitstop(argsList.tail)
-        case "ride" ⇒ ride(argsList.tail)
-        case "show-timeline" ⇒ showTimeLine(argsList.tail)
-        case "stage" ⇒ stage(argsList.tail)
-        case "status" ⇒ status(argsList.tail)
-        case "unstage" ⇒ unstage(argsList.tail)
-        case "version" | "-v" | "-V" | "--version" ⇒ version(argsList.tail)
-        case unknown ⇒
-            var command = unknown
-            if (unknown.startsWith("-")) {
-                command = unknown.dropWhile(c ⇒ c == '-')
-                println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
-            } else println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
+    def apply(argsList: List[String]): Unit = {
+        if (!isDeloreanRepo) {
+            if (argsList.nonEmpty && argsList.head != "--help" && argsList.head != "ride" && argsList.head != "version") {
+                println(
+                    """
+                      |delorean: There is no repository in this directory. Check your current directory and try again.
+                      |
+                      |For more: delorean --help
+                    """.stripMargin)
+                return
+            }
+        }
+
+        argsList.head match {
+            case "--help" ⇒ Usage("full")
+            case "config" ⇒ config(argsList.tail)
+            case "create-timeline" | "ctl" ⇒ createTimeline(argsList.tail)
+            case "describe" ⇒ describe(argsList.tail)
+            case "goto" ⇒ goto(argsList.tail)
+            case "pitstop" ⇒ pitstop(argsList.tail)
+            case "ride" ⇒ ride(argsList.tail)
+            case "show-timeline" ⇒ showTimeLine(argsList.tail)
+            case "stage" ⇒ stage(argsList.tail)
+            case "status" ⇒ status(argsList.tail)
+            case "unstage" ⇒ unstage(argsList.tail)
+            case "version" | "-v" | "-V" | "--version" ⇒ version(argsList.tail)
+            case unknown ⇒
+                var command = unknown
+                if (unknown.startsWith("-")) {
+                    command = unknown.dropWhile(c ⇒ c == '-')
+                    println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
+                } else println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
+        }
     }
 
     private def config(configArgs: List[String]): Unit = {

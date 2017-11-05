@@ -21,7 +21,7 @@ object Delorean {
         // Call to configuration singleton to prepare the configuration map
         Configuration
 
-        if (Files.exists(Paths.get(TIME_MACHINE))) deleteTempFileIfNotNeeded()
+        if (isDeloreanRepo) deleteTempFileIfNotNeeded()
 
         if (args.length == 0) Usage("full")
         else ParseOption(args.toList)
@@ -56,4 +56,5 @@ object Delorean {
             case _ ⇒ rootLogger.setLevel(Level.SEVERE)
         }
     }
+
 }

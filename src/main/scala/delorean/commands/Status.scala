@@ -15,16 +15,6 @@ import delorean.FileOps._
   * Class for the command 'status'
   */
 case class Status(fileName: String = "") {
-    if (!Files.exists(Paths.get(TIME_MACHINE))) {
-        println(
-            """
-              |delorean: There is no repository in this directory. Check your current directory and try again.
-              |
-              |For more: delorean --help
-            """.stripMargin)
-        System.exit(0)
-    }
-
     val allFilesAndHashesKnownToDelorean: Map[Path, String] = getHashesOfAllFilesKnownToDelorean
 
     if (fileName.nonEmpty) {

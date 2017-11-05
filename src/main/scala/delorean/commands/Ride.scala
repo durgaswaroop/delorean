@@ -9,9 +9,7 @@ package commands
 import java.io.File
 
 class Ride {
-    val deloreanDirectory = new File(TIME_MACHINE)
-
-    if (deloreanDirectory.exists()) {
+    if (isDeloreanRepo) {
         print(
             """delorean: Current directory is already part of a delorean repository.
               |Nothing else to be done.

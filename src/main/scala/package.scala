@@ -102,4 +102,16 @@ package object delorean {
         // TODO: For some reason this also returns an empty path. For now putting a filter like this. Have to take a look
         ignoredFiles.filter(_.toString.nonEmpty)
     }
+
+    def isDeloreanRepo: Boolean = {
+        Files.exists(Paths.get(TIME_MACHINE)) &&
+                Files.exists(Paths.get(PITSTOPS_FOLDER)) &&
+                Files.exists(Paths.get(HASHES_FOLDER)) &&
+                Files.exists(Paths.get(METADATA_FOLDER)) &&
+                Files.exists(Paths.get(INDICATORS_FOLDER)) &&
+                Files.exists(Paths.get(BINARIES_FOLDER)) &&
+                Files.exists(Paths.get(CONFIG)) &&
+                Files.exists(Paths.get(CURRENT_INDICATOR)) &&
+                Files.exists(Paths.get(DEFAULT_TIMELINE))
+    }
 }
