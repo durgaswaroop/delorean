@@ -24,7 +24,7 @@ object Delorean {
     if (isDeloreanRepo) deleteTempFileIfNotNeeded()
 
     if (args.length == 0) Usage("full")
-    else ParseOption(args.toList)
+    else ParseCmdOptions(args.toList)
     val end: Long = System.currentTimeMillis()
     val timeTaken = end - start
     println(s"Time taken: $timeTaken ms")

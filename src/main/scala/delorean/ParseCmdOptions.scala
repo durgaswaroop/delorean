@@ -12,7 +12,7 @@ import delorean.commands._
 /**
   * Parser for the command line options
   */
-object ParseOption {
+object ParseCmdOptions {
   def apply(argsList: List[String]): Unit = {
     if (!isDeloreanRepo) {
       if (argsList.nonEmpty && argsList.head != "--help" && argsList.head != "ride" && argsList.head != "version") {
@@ -34,7 +34,7 @@ object ParseOption {
       case "goto"                                => goto(argsList.tail)
       case "pitstop"                             => pitstop(argsList.tail)
       case "ride"                                => ride(argsList.tail)
-      case "show-timeline"                       => showTimeLine(argsList.tail)
+      case "show-timeline" | "stl"               => showTimeLine(argsList.tail)
       case "stage"                               => stage(argsList.tail)
       case "status"                              => status(argsList.tail)
       case "unstage"                             => unstage(argsList.tail)
