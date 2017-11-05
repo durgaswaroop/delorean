@@ -6,47 +6,44 @@
 package delorean
 package commands
 
-import java.io.File
 import java.nio.file.{Files, Path, Paths}
 import java.util.logging.Logger
 
 import delorean.FileOps._
 import delorean.Hasher.computeShaHash
-import delorean._
-
-import scala.collection.mutable
 
 /**
   * Class for the goto command.
   * The input can be a timeline or a pitstop
   */
 case class GoTo(timeLine: String) {
-    val logger: Logger = Logger.getLogger(this.getClass.getName)
+  val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-    // If it is indeed a timeline
-    if (Files.exists(Paths.get(INDICATORS_FOLDER + timeLine))) goToTimeline(timeLine)
-    // If it is a pitstop
-    else if (resolveTheCorrectPitstop(timeLine).nonEmpty) goToPitstop(resolveTheCorrectPitstop(timeLine))
-    else {} // If it is neither, do nothing
+  // If it is indeed a timeline
+  if (Files.exists(Paths.get(INDICATORS_FOLDER + timeLine)))
+    goToTimeline(timeLine)
+  // If it is a pitstop
+  else if (resolveTheCorrectPitstop(timeLine).nonEmpty)
+    goToPitstop(resolveTheCorrectPitstop(timeLine))
+  else {} // If it is neither, do nothing
 
-    def goToTimeline(timeLine: String): Unit = {
-        /*
-           If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
-           which we get by resolving the full pitstop
-       */
-        val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine)
-        updateRepoToCommit(pitstopToGoTo)
-        // Update the current indicator
-        writeToFile(CURRENT_INDICATOR, timeLine)
-        println(s"Moved to timeline '$timeLine'")
-    }
+  def goToTimeline(timeLine: String): Unit = {
+    /*
+                   If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
+                   which we get by resolving the full pitstop
+     */
+    val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine)
+    updateRepoToCommit(pitstopToGoTo)
+    // Update the current indicator
+    writeToFile(CURRENT_INDICATOR, timeLine)
+    println(s"Moved to timeline '$timeLine'")
+  }
 
-    def goToPitstop(pitstopToGoTo: String): Unit = {
-        updateRepoToCommit(pitstopToGoTo)
-        // Update the current indicator
-        writeToFile(CURRENT_INDICATOR, pitstopToGoTo)
-        println(
-            s"""|Moved to pistop '${pitstopToGoTo.take(6)}'.
+  def goToPitstop(pitstopToGoTo: String): Unit = {
+    updateRepoToCommit(pitstopToGoTo)
+    // Update the current indicator
+    writeToFile(CURRENT_INDICATOR, pitstopToGoTo)
+    println(s"""|Moved to pistop '${pitstopToGoTo.take(6)}'.
                 |Currently not on any timeline.
                 |
                 |NOTE: Not on any timeline now. To goto an existing timeline, run
@@ -55,59 +52,62 @@ case class GoTo(timeLine: String) {
                 |To create a new timeline at this pitstop:
                 |    delorean create-timeline <timeline>
             """.stripMargin)
-    }
+  }
 
-    /**
-      * Updates the repository to the same state as it was at the given pitstop.
-      */
-    def updateRepoToCommit(pitstopToGoTo: String): Unit = {
-        logger.info(s"Pitstop to goto: $pitstopToGoTo")
+  /**
+    * Updates the repository to the same state as it was at the given pitstop.
+    */
+  def updateRepoToCommit(pitstopToGoTo: String): Unit = {
+    logger.info(s"Pitstop to goto: $pitstopToGoTo")
 
-        val allDirectoryFiles: List[String] = getFilesRecursively(".")
-        logger.info(s"\nAll directory files $allDirectoryFiles")
+    val allDirectoryFiles: List[String] = getFilesRecursively(".")
+    logger.info(s"\nAll directory files $allDirectoryFiles")
 
-        // Names and hashes of all the files in the repo at the pitstop
-        val pitstopFileMap: Map[Path, String] = getHashesOfAllFilesKnownToDelorean(pitstopToGoTo)
-        val pitstopFiles = pitstopFileMap.keys.map(_.toString).toList
-        logger.info(s"\nPitstop file map: $pitstopFileMap")
-        logger.info(s"\nPitstop Files: $pitstopFiles")
+    // Names and hashes of all the files in the repo at the pitstop
+    val pitstopFileMap: Map[Path, String] = getHashesOfAllFilesKnownToDelorean(
+      pitstopToGoTo)
+    val pitstopFiles = pitstopFileMap.keys.map(_.toString).toList
+    logger.info(s"\nPitstop file map: $pitstopFileMap")
+    logger.info(s"\nPitstop Files: $pitstopFiles")
 
-        val ignoredFiles: List[String] = getIgnoredFiles.toList.map(_.toString)
-        logger.info(s"\nIgnored files: $ignoredFiles")
+    val ignoredFiles: List[String] = getIgnoredFiles.toList.map(_.toString)
+    logger.info(s"\nIgnored files: $ignoredFiles")
 
-        val untrackedFiles: List[String] = getUntrackedFiles.toList.filter(_.nonEmpty)
-        logger.info(s"Untracked files: $untrackedFiles")
+    val untrackedFiles: List[String] =
+      getUntrackedFiles.toList.filter(_.nonEmpty)
+    logger.info(s"Untracked files: $untrackedFiles")
 
-        // 1. Delete all the delorean tracked files that are in the current directory but not in the 'goto'
-        // destination pitstop
-        val filesToDelete: List[String] =
-        (allDirectoryFiles diff ignoredFiles diff untrackedFiles diff pitstopFiles).filter(_.nonEmpty)
-        logger.info(s"\nFiles to delete: $filesToDelete")
-        filesToDelete foreach (file => {
-            logger.info(s"Deleting file '$file'")
-            Files.delete(Paths.get(file))
-        })
+    // 1. Delete all the delorean tracked files that are in the current directory but not in the 'goto'
+    // destination pitstop
+    val filesToDelete: List[String] =
+      (allDirectoryFiles diff ignoredFiles diff untrackedFiles diff pitstopFiles)
+        .filter(_.nonEmpty)
+    logger.info(s"\nFiles to delete: $filesToDelete")
+    filesToDelete foreach (file => {
+      logger.info(s"Deleting file '$file'")
+      Files.delete(Paths.get(file))
+    })
 
-        // 2. Rest all files that are present in the current directory and in the 'goto' pitstop to their state at that
-        //  pitstop
-        pitstopFileMap foreach (kv ⇒ {
-            val (fileKnown, hashKnown) = kv
-            logger.fine(s"(${kv._1}, ${kv._2})")
+    // 2. Rest all files that are present in the current directory and in the 'goto' pitstop to their state at that
+    //  pitstop
+    pitstopFileMap foreach (kv => {
+      val (fileKnown, hashKnown) = kv
+      logger.fine(s"(${kv._1}, ${kv._2})")
 
-            // If file exists we check if the current hash is same as the hash we have saved
-            if (Files.exists(fileKnown)) {
-                val hashComputed = computeShaHash(fileKnown.toString)
-                logger.fine(s"computed hash = $hashComputed")
+      // If file exists we check if the current hash is same as the hash we have saved
+      if (Files.exists(fileKnown)) {
+        val hashComputed = computeShaHash(fileKnown.toString)
+        logger.fine(s"computed hash = $hashComputed")
 
-                // If the hashes are not same, we replace the existing file with the file from the pitstop we are 'going to'
-                if (hashComputed != hashKnown) Reconstruct.file(fileKnown.toString, hashKnown)
-            }
-            else {
-                logger.fine(s"File $fileKnown does not exist in the current repository")
-                Files.createFile(fileKnown)
-                Reconstruct.file(fileKnown.toString, hashKnown)
-            }
-        })
-    }
+        // If the hashes are not same, we replace the existing file with the file from the pitstop we are 'going to'
+        if (hashComputed != hashKnown)
+          Reconstruct.file(fileKnown.toString, hashKnown)
+      } else {
+        logger.fine(s"File $fileKnown does not exist in the current repository")
+        Files.createFile(fileKnown)
+        Reconstruct.file(fileKnown.toString, hashKnown)
+      }
+    })
+  }
 
 }

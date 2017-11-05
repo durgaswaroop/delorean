@@ -1,6 +1,16 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'cz.alenkacz:gradle-scalafmt:1.5.1'
+    }
+}
+
 // plugins
 apply plugin: 'scala'
 apply plugin: 'application'
+apply plugin: 'scalafmt'
 
 version = '1.0'
 
@@ -13,7 +23,6 @@ repositories {
 
 ext {
     scalaVersion = '2.12.1'
-
     junitVersion = '4.12'
 }
 
@@ -68,3 +77,4 @@ task fatJar(type: Jar) {
 }
 
 build.finalizedBy(installDist)
+build.finalizedBy(scalafmtAll)

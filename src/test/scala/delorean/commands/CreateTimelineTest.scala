@@ -17,31 +17,32 @@ import org.junit.{AfterClass, BeforeClass, Test}
 import scala.util.Try
 
 class CreateTimelineTest {
-    /**
-      * Checks timeline creation flow by creating a new timeline and  checking if the
-      * current indicator is pointing to the new timeline
-      */
-    @Test
-    def createTimelineTest(): Unit = {
-        CreateTimeLine("master")
-        assertEquals("master", getLinesOfFile(CURRENT_INDICATOR).head)
 
-        CreateTimeLine("develop")
-        assertEquals("develop", getLinesOfFile(CURRENT_INDICATOR).head)
-    }
+  /**
+    * Checks timeline creation flow by creating a new timeline and  checking if the
+    * current indicator is pointing to the new timeline
+    */
+  @Test
+  def createTimelineTest(): Unit = {
+    CreateTimeLine("master")
+    assertEquals("master", getLinesOfFile(CURRENT_INDICATOR).head)
+
+    CreateTimeLine("develop")
+    assertEquals("develop", getLinesOfFile(CURRENT_INDICATOR).head)
+  }
 }
 
 object CreateTimelineTest {
-    @BeforeClass
-    def callToRide(): Unit = {
-        // This will make sure it creates all the required files for the test. We are checking for CURRENT_INDICATOR
-        // instead of TIME_MACHINE because .tm could be created by config test
-        if (!Files.exists(Paths.get(CURRENT_INDICATOR))) new delorean.commands.Ride
-    }
+  @BeforeClass
+  def callToRide(): Unit = {
+    // This will make sure it creates all the required files for the test. We are checking for CURRENT_INDICATOR
+    // instead of TIME_MACHINE because .tm could be created by config test
+    if (!Files.exists(Paths.get(CURRENT_INDICATOR))) new delorean.commands.Ride
+  }
 
-    @AfterClass
-    def tearDown(): Unit = {
-        println("Tearing Down '.tm/' directory created for StageTest")
-        Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
-    }
+  @AfterClass
+  def tearDown(): Unit = {
+    println("Tearing Down '.tm/' directory created for StageTest")
+    Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
+  }
 }
