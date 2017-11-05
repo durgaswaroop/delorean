@@ -68,14 +68,20 @@ case class GoTo(timeLine: String) {
 
         // Names and hashes of all the files in the repo at the pitstop
         val pitstopFileMap: Map[Path, String] = getHashesOfAllFilesKnownToDelorean(pitstopToGoTo)
+        val pitstopFiles = pitstopFileMap.keys.map(_.toString).toList
         logger.info(s"\nPitstop file map: $pitstopFileMap")
+        logger.info(s"\nPitstop Files: $pitstopFiles")
 
         val ignoredFiles: List[String] = getIgnoredFiles.toList.map(_.toString)
         logger.info(s"\nIgnored files: $ignoredFiles")
 
+        val untrackedFiles: List[String] = getUntrackedFiles.toList.filter(_.nonEmpty)
+        logger.info(s"Untracked files: $untrackedFiles")
+
         // 1. Delete all the delorean tracked files that are in the current directory but not in the 'goto'
         // destination pitstop
-        val filesToDelete: List[String] = (allDirectoryFiles diff ignoredFiles diff pitstopFileMap.keys.toList).filter(_.nonEmpty)
+        val filesToDelete: List[String] =
+        (allDirectoryFiles diff ignoredFiles diff untrackedFiles diff pitstopFiles).filter(_.nonEmpty)
         logger.info(s"\nFiles to delete: $filesToDelete")
         filesToDelete foreach (file => {
             logger.info(s"Deleting file '$file'")
