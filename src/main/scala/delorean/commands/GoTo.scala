@@ -35,12 +35,32 @@ case class GoTo(timeLine: String) {
            which we get by resolving the full pitstop
        */
         val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine)
-        goToPitstop(pitstopToGoTo)
+        updateRepoToCommit(pitstopToGoTo)
         // Update the current indicator
         writeToFile(CURRENT_INDICATOR, timeLine)
+        println(s"Moved to timeline '$timeLine'")
     }
 
     def goToPitstop(pitstopToGoTo: String): Unit = {
+        updateRepoToCommit(pitstopToGoTo)
+        // Update the current indicator
+        writeToFile(CURRENT_INDICATOR, pitstopToGoTo)
+        println(
+            s"""|Moved to pistop '${pitstopToGoTo.take(6)}'.
+                |Currently not on any timeline.
+                |
+                |NOTE: Not on any timeline now. To goto an existing timeline, run
+                |    delorean goto <timeline>
+                |
+                |To create a new timeline at this pitstop:
+                |    delorean create-timeline <timeline>
+            """.stripMargin)
+    }
+
+    /**
+      * Updates the repository to the same state as it was at the given pitstop.
+      */
+    def updateRepoToCommit(pitstopToGoTo: String): Unit = {
         logger.info(s"Pitstop to goto: $pitstopToGoTo")
 
         val allDirectoryFiles: List[String] = getFilesRecursively(".")
@@ -82,8 +102,6 @@ case class GoTo(timeLine: String) {
                 Reconstruct.file(fileKnown.toString, hashKnown)
             }
         })
-        // Update the current indicator
-        writeToFile(CURRENT_INDICATOR, pitstopToGoTo)
     }
 
 }
