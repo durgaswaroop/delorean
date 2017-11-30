@@ -2,7 +2,7 @@
 
 <img src="delorean.jpeg" align="center">
 
-### Features coming in the Future
+### Features coming
 * Keep track of file changes
 * Ability to quickly go back to any indexed version
 * Keep it Simple
@@ -49,6 +49,7 @@ In short, you can do whatever you want with this project as long as you include 
 For more information, refer to the LICENSE file.
 
 ### Commands that can be tried/used right now
+(`delorean` will also be accessible as `de` in future)
 * delorean ride
 * delorean stage \<file(s)\>
 * delorean unstage \<file(s)\>
