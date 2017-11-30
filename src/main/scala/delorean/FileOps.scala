@@ -171,8 +171,8 @@ object FileOps {
     } else {
       val bytes: Array[Byte] = Files.readAllBytes(Paths.get(filePath))
       /*
-            Since mkString on the entire array can take a lot of time and might even give OOM errors,
-            We will take at max 100 elements in the array and create a string of that
+                  Since mkString on the entire array can take a lot of time and might even give OOM errors,
+                  We will take at max 100 elements in the array and create a string of that
        */
       val bytesString = bytes.take(100).mkString
       List(bytesString)

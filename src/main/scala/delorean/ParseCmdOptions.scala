@@ -18,10 +18,10 @@ object ParseCmdOptions {
       if (argsList.nonEmpty && argsList.head != "--help" && argsList.head != "ride" && argsList.head != "version") {
         println(
           """
-                      |delorean: There is no repository in this directory. Check your current directory and try again.
-                      |
-                      |For more: delorean --help
-                    """.stripMargin)
+                |delorean: There is no repository in this directory. Check your current directory and try again.
+                |
+                |For more: delorean --help
+              """.stripMargin)
         return
       }
     }

@@ -45,9 +45,9 @@ case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
     if (format == OutputFormat.SHORT)
       println("* " + pitstop.take(6) + " " + metadata.riderLog.take(60))
     else println(s"""pitstop ${pitstop.take(25)}
-                    |Rider: ${metadata.rider}
-                    |Time:  ${metadata.time}
-                    |
+               |Rider: ${metadata.rider}
+               |Time:  ${metadata.time}
+               |
                     |Rider log: ${metadata.riderLog}
                 """.stripMargin)
   }

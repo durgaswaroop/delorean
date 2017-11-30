@@ -42,21 +42,17 @@ object Hasher {
     var fileNameFileHashMap: mutable.LinkedHashMap[String, String] =
       mutable.LinkedHashMap.empty
 
-    /*
-                    This is for cases when you don't want to continue the hashing process for a file,
-                    But still want to add it to the temp file
-     */
+    /* This is for cases when you don't want to continue the hashing process for a file,
+     * But still want to add it to the temp file */
     var nameHashMapToAddToTempFile: mutable.LinkedHashMap[String, String] =
       mutable.LinkedHashMap.empty
 
     val allFilesAndHashesKnownToDelorean: Map[Path, String] =
       getHashesOfAllFilesKnownToDelorean
 
-    /*
-                    Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
-                    is not present in the allFilesAndHashesKnownToDelorean map.
-                    This way it will be added to temp file only if the file has actually changed.
-     */
+    /* Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
+     * is not present in the allFilesAndHashesKnownToDelorean map.
+     * This way it will be added to temp file only if the file has actually changed.*/
     files foreach (file => {
       val hash: String = FileDictionary(file, hashNeeded = true).hash
       logger.fine(s"Hash computed: $hash")
@@ -65,11 +61,9 @@ object Hasher {
       if (!allFilesAndHashesKnownToDelorean.exists(
             _ == (Paths.get(file) -> hash))) {
 
-        /*
-                                    If the hash file already exists, but the current hash is not known to Delorean (happens when the file was previously
-                                    staged and then unstaged afterwards. In that case we don't want to continue the hashing process again but
-                                    still want the file to be added to the _temp file as it was asked for.
-         */
+        /* If the hash file already exists, but the current hash is not known to Delorean (happens when the file was previously
+         * staged and then unstaged afterwards. In that case we don't want to continue the hashing process again but
+         * still want the file to be added to the _temp file as it was asked for. */
         if (Files.exists(Paths.get(HASHES_FOLDER + hash)))
           nameHashMapToAddToTempFile += (file -> hash)
 
@@ -84,11 +78,9 @@ object Hasher {
 
     fileNameFileHashMap.keySet.foreach(continueFullHashingProcess)
 
-    /*
-                   Once the hashes are computed, check for the presence of a "_temp" file.
-                   Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
-                   So, if the file exists, add information about the newly staged files to that or else create a new temp file.
-     */
+    /* Once the hashes are computed, check for the presence of a "_temp" file.
+     * Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
+     *So, if the file exists, add information about the newly staged files to that or else create a new temp file. */
     val tempPitstopFile = {
       if (getTempPitstopFileLocation.nonEmpty)
         new File(getTempPitstopFileLocation)
@@ -122,10 +114,8 @@ object Hasher {
     // Compute SHA-256 Hash of all lines of a file combined to get the file hash
     val fileHash: String = FileDictionary(filePath, hashNeeded = true).hash
 
-    /*
-                  When its a binary file, don't do all the usual line extractions and hashing.
-                  Just put the file into BINARIES_FOLDER with the filehash as the name
-     */
+    /* When its a binary file, don't do all the usual line extractions and hashing.
+     * Just put the file into BINARIES_FOLDER with the filehash as the name */
     if (isBinaryFile(filePath) && Files.notExists(
           Paths.get(BINARIES_FOLDER + fileHash))) {
       copyFile(filePath, BINARIES_FOLDER + fileHash)
@@ -201,13 +191,11 @@ object Hasher {
     if (currentTimeLine nonEmpty)
       writeToFile(INDICATORS_FOLDER + currentTimeLine, pitstopHash)
 
-    /*
-                    Once the temp file is copied, we can delete it.
-                    But because of some stream unclosed issue, it won't get deleted.
-                    So, we set the last modified time of the temp File and the pitstophash file such that
-                    pitstopfile's time is greater than that of the temp file.
-                    Using this we will delete it the next time a delorean command is called.
-     */
+    /* Once the temp file is copied, we can delete it.
+     * But because of some stream unclosed issue, it won't get deleted.
+     * So, we set the last modified time of the temp File and the pitstophash file such that
+     * pitstopfile's time is greater than that of the temp file.
+     * Using this we will delete it the next time a delorean command is called. */
     Try(Files.delete(Paths.get(tempPitstopFile))) match {
       case Failure(_) =>
         new File(tempPitstopFile).setLastModified(System.currentTimeMillis())
@@ -225,10 +213,8 @@ object Hasher {
       else System.getProperty("user.name")
     val timeAndRider = time + s"Rider:$rider\n"
 
-    /*
-                    parent pitstop would be whatever is present in the current indicator file which would become the parent once
-                    the new pitstop is calculated
-     */
+    /* parent pitstop would be whatever is present in the current indicator file which would become the parent once
+     *the new pitstop is calculated */
     val currentTimeLine: String = getLinesOfFile(CURRENT_INDICATOR).head
     var lines = List[String]("")
     if (Files.exists(Paths.get(INDICATORS_FOLDER + currentTimeLine)))

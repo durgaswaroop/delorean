@@ -29,8 +29,8 @@ case class GoTo(timeLine: String) {
 
   def goToTimeline(timeLine: String): Unit = {
     /*
-                   If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
-                   which we get by resolving the full pitstop
+                       If 'timeline' is in-fact a timeline we get the pitstop that timeline is pointing to or else timeline is a pitstop hash
+                       which we get by resolving the full pitstop
      */
     val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine)
     updateRepoToCommit(pitstopToGoTo)
