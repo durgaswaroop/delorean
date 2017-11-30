@@ -76,7 +76,10 @@ package object delorean {
     val allFilesDeloreanKnows: Set[Path] =
       FileOps.getHashesOfAllFilesKnownToDelorean.keys.toSet
     val allFilesInMainDirectory: Set[Path] =
-      getFilesRecursively(".").map(x => Paths.get(x)).toSet
+      getFilesRecursively(".")
+        .map(x => Paths.get(x))
+        .filterNot(p => p.toFile.isDirectory)
+        .toSet
     val untrackedFiles
       : Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
     logger.fine(s"Untracked files: $untrackedFiles")
