@@ -1,5 +1,7 @@
 ## DeLorean - The Time Machine for your Marty McFiles [![CircleCI](https://circleci.com/gh/durgaswaroop/delorean/tree/master.svg?style=svg)](https://circleci.com/gh/durgaswaroop/delorean/tree/master)
 
+[![Join the chat at https://gitter.im/delorean-vcs/Lobby](https://badges.gitter.im/delorean-vcs/Lobby.svg)](https://gitter.im/delorean-vcs/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 <img src="delorean.jpeg" align="center">
 
 ### Features coming
