@@ -123,6 +123,8 @@ package object delorean {
     Files.exists(Paths.get(BINARIES_FOLDER)) &&
     Files.exists(Paths.get(CONFIG)) &&
     Files.exists(Paths.get(CURRENT_INDICATOR)) &&
-    Files.exists(Paths.get(DEFAULT_TIMELINE))
+    Files.exists(Paths.get(DEFAULT_TIMELINE)) &&
+    Files.exists(Paths.get(STRING_POOL)) &&
+    Files.exists(Paths.get(TRAVELOGUE))
   }
 }

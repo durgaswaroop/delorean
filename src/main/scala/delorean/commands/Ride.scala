@@ -24,6 +24,8 @@ class Ride {
   val binariesDirectory = new File(BINARIES_FOLDER)
 
   val configFile = new File(CONFIG)
+  val stringPoolFile = new File(STRING_POOL)
+  val travelogueFile = new File(TRAVELOGUE)
   val currentFile = new File(CURRENT_INDICATOR)
   val defaultTimelineFile = new File(DEFAULT_TIMELINE)
 
@@ -33,6 +35,8 @@ class Ride {
   indicatorsDirectory.mkdir
   binariesDirectory.mkdir
   configFile.createNewFile
+  stringPoolFile.createNewFile
+  travelogueFile.createNewFile
   currentFile.createNewFile
   defaultTimelineFile.createNewFile
 
