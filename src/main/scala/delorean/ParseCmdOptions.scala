@@ -15,7 +15,12 @@ import delorean.commands._
 object ParseCmdOptions {
   def apply(argsList: List[String]): Unit = {
     if (!isDeloreanRepo) {
-      if (argsList.nonEmpty && argsList.head != "--help" && argsList.head != "ride" && argsList.head != "version") {
+      // These commands don't need the current directory to be a delorean repo
+      if (argsList.nonEmpty &&
+          argsList.head != "--help" &&
+          argsList.head != "serve" &&
+          argsList.head != "ride" &&
+          argsList.head != "version") {
         println(
           """
                 |delorean: There is no repository in this directory. Check your current directory and try again.
@@ -34,6 +39,7 @@ object ParseCmdOptions {
       case "goto"                                => goto(argsList.tail)
       case "pitstop"                             => pitstop(argsList.tail)
       case "ride"                                => ride(argsList.tail)
+      case "serve"                               => serve(argsList.tail)
       case "show-timeline" | "stl"               => showTimeLine(argsList.tail)
       case "stage"                               => stage(argsList.tail)
       case "status"                              => status(argsList.tail)
@@ -85,6 +91,10 @@ object ParseCmdOptions {
 
   private def ride(rideArgs: List[String]): Unit =
     if (rideArgs.nonEmpty) Usage("ride") else new Ride
+
+  private def serve(serveArgs: List[String]): Unit = {
+    if (serveArgs.size != 1) Usage("serve") else new Serve(serveArgs.head)
+  }
 
   private def showTimeLine(showTimeLineArgs: List[String]): Unit = {
     if (showTimeLineArgs.size >= 2) Usage("show-timeline")

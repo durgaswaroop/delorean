@@ -17,6 +17,7 @@ object Usage {
     case "pitstop"         => pitstopUsage()
     case "config"          => configUsage()
     case "version"         => versionUsage()
+    case "serve"           => serveUsage()
     case "stage"           => stageUsage()
     case "status"          => statusUsage()
     case "create-timeline" => createTimeLineUsage()
@@ -33,6 +34,7 @@ object Usage {
               | These are the common Delorean commands:
               |
               | ride            Tell Delorean to initialize a new repo
+              | serve           Initializes a new repo and starts a server
               | stage           Stage files to be added to a pitstop
               | unstage         Unstage previously staged files
               | pitstop         Record the changes to the repo
@@ -93,6 +95,18 @@ object Usage {
   def goToUsage(): Unit = {
     print("""
               |Usage: delorean goto (timeline | pitstop)
+              |
+              |For more: delorean --help
+            """.stripMargin)
+  }
+
+  def serveUsage(): Unit = {
+    print(
+      """
+              |Usage: delorean serve
+              |                - Creates a repository with a server that can be used to push and pull changes
+              |
+              |Example: delorean server my-awesome-repo.delorean
               |
               |For more: delorean --help
             """.stripMargin)
