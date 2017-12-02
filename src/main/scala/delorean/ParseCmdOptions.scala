@@ -5,7 +5,8 @@
 
 package delorean
 
-import java.nio.file.{Files, Paths}
+import java.io.FileNotFoundException
+import java.nio.file.{FileAlreadyExistsException, Files, Paths}
 
 import delorean.commands._
 
@@ -93,7 +94,17 @@ object ParseCmdOptions {
     if (rideArgs.nonEmpty) Usage("ride") else new Ride
 
   private def serve(serveArgs: List[String]): Unit = {
-    if (serveArgs.size != 1) Usage("serve") else new Serve(serveArgs.head)
+    if (serveArgs.size != 1) Usage("serve")
+    else
+      try {
+        new Serve(serveArgs.head)
+      } catch {
+        case _: FileAlreadyExistsException =>
+          println(s"""
+                |Directory ${serveArgs.head} already exists. 
+                |Either delete the existing directory or use a different name.
+              """.stripMargin)
+      }
   }
 
   private def showTimeLine(showTimeLineArgs: List[String]): Unit = {

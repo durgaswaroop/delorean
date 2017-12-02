@@ -1,7 +1,8 @@
 package delorean
 package commands
 
-import java.nio.file.{Files, Path, Paths}
+import java.io.File
+import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths}
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletResponse
 
@@ -13,13 +14,19 @@ import scala.util.{Failure, Success, Try}
 class Serve(val repoName: String) {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-  // Create the repo directory
   val repoPath: Path = Paths.get(".").resolve(repoName)
-  logger.fine(s"repopath: $repoPath")
 
-  if (!repoPath.toFile.exists())
-    Files.createDirectories(repoPath)
+  // If the directory already exists, throw an exception
+  if (repoPath.toFile.exists())
+    throw new FileAlreadyExistsException(repoPath.toString)
 
+  // Create the repo directory
+  Files.createDirectories(repoPath)
+
+  // Initialize an empty repository in that directory
+  new Ride(repoPath.toString + File.separator)
+
+  // Set location from where static files would be served
   staticFiles.location(repoPath.toString)
   logger.fine(s"Serving static files from: ${repoPath.toString}")
 
