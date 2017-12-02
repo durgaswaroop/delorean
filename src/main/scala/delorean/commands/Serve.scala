@@ -2,6 +2,7 @@ package delorean
 package commands
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths}
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletResponse
@@ -50,6 +51,34 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/metadata/:hash",
       (req, res) => serveMetadata(req.params(":hash"), res))
+
+  get(s"/$repoName/file/:hash",
+      (req, res) => serveHashFile(req.params(":hash"), res))
+
+  // Sends back the latest pitstop hash of the given timeline
+  def serveHashFile(hash: String, res: Response): HttpServletResponse = {
+
+    // If the hash if a binary file
+    if (repoPath.resolve(BINARIES_FOLDER).resolve(hash).toFile.exists()) {
+      res.header("binary", "true")
+      getFileStreamResponse(
+        res,
+        repoPath.resolve(BINARIES_FOLDER).resolve(hash)) match {
+        case Success(binary_file) => binary_file
+        case Failure(exception) =>
+          exception.printStackTrace()
+          null
+      }
+    } else { // If it is not binary file
+      res.header("binary", "false")
+      getFileStreamResponse(res, repoPath.resolve(HASHES_FOLDER).resolve(hash)) match {
+        case Success(normal_file) => normal_file
+        case Failure(exception) =>
+          exception.printStackTrace()
+          null
+      }
+    }
+  }
 
   // Sends back the latest pitstop hash of the given timeline
   def serveTimelineHash(timeline: String,
