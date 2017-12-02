@@ -30,8 +30,7 @@ case class Describe(pitstops: List[String]) {
     val changedFilesMap = getFileAsMap(PITSTOPS_FOLDER + correctPitstop)
     println(s"""Pitstop $correctPitstop
                |Rider: ${metadata.rider}
-               |Time: ${metadata.time.format(
-                 DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zz"))}
+               |Time: ${metadata.time.format(DateTimeFormatter.ofPattern("MMM dd yyyy hh:mm a zz"))}
                |Parent(s): ${metadata.parents.mkString(", ")}
                |Rider Log: ${metadata.riderLog}
                |Changes: ${changedFilesMap.keys.mkString("\n\t", "\n\t", "")}

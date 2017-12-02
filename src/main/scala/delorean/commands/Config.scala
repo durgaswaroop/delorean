@@ -24,8 +24,6 @@ case class Config(configArgs: List[String]) {
     val configMap = getFileAsMap(CONFIG)
     configMap.foreach(kv => println(s"${kv._1} = ${kv._2}"))
   } else { // When a key value pair is provided
-    writeMapToFile(mutable.LinkedHashMap(configArgs.head -> configArgs(1)),
-                   CONFIG,
-                   append = true)
+    writeMapToFile(mutable.LinkedHashMap(configArgs.head -> configArgs(1)), CONFIG, append = true)
   }
 }

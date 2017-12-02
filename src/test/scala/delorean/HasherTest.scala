@@ -20,10 +20,14 @@ class HasherTest {
   def computeHashTest(): Unit = {
     val string1 = "Hello"
     val string2 = "world"
-    assertNotEquals(Hasher.computeStringHash(string1, "SHA-256"),
-                    Hasher.computeStringHash(string2, "SHA-256"))
-    assertEquals(Hasher.computeStringHash(string1, "SHA-256"),
-                 Hasher.computeStringHash(string1, "SHA-256"))
+    assertNotEquals(
+      Hasher.computeStringHash(string1, "SHA-256"),
+      Hasher.computeStringHash(string2, "SHA-256")
+    )
+    assertEquals(
+      Hasher.computeStringHash(string1, "SHA-256"),
+      Hasher.computeStringHash(string1, "SHA-256")
+    )
   }
 
 }

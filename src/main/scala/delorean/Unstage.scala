@@ -28,8 +28,7 @@ case class Unstage(files: List[String]) {
 
   // real files exist and imaginary files don't.
   val (realFiles, imaginaryFiles) = files.span(file => new File(file).exists())
-  imaginaryFiles.foreach(file =>
-    println(s"delorean: File $file does not exist"))
+  imaginaryFiles.foreach(file => println(s"delorean: File $file does not exist"))
   if (realFiles.isEmpty) System.exit(1)
 
   var filesToUnstage: List[String] = realFiles

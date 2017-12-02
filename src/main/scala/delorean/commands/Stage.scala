@@ -22,8 +22,7 @@ case class Stage(files: List[String]) {
   val (realFiles, imaginaryFiles) =
     files.partition(file => new File(file).exists())
 
-  imaginaryFiles.foreach(file =>
-    println(s"delorean: File $file does not exist"))
+  imaginaryFiles.foreach(file => println(s"delorean: File $file does not exist"))
 
   if (realFiles.isEmpty) System.exit(1)
   logger.fine(s"Real files = $realFiles")
@@ -44,6 +43,7 @@ case class Stage(files: List[String]) {
   // In the list only keep the names of files and remove the directories.
   filesToStage = filesToStage.filterNot(file => new File(file).isDirectory)
   logger.fine(
-    s"After resolving all the files to be staged (after deleting the directories) are: $filesToStage")
+    s"After resolving all the files to be staged (after deleting the directories) are: $filesToStage"
+  )
   Hasher.computeHashOfStagedFiles(filesToStage)
 }

@@ -2,7 +2,6 @@ package delorean
 package commands
 
 import java.io.File
-import java.nio.charset.StandardCharsets
 import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths}
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletResponse
@@ -43,27 +42,20 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/travelogue", (req, res) => serveTravelogue(res))
 
-  get(s"/$repoName/:timeline",
-      (req, res) => serveTimelineHash(req.params(":timeline"), res))
+  get(s"/$repoName/:timeline", (req, res) => serveTimelineHash(req.params(":timeline"), res))
 
-  get(s"/$repoName/pitstop/:hash",
-      (req, res) => servePitstop(req.params(":hash"), res))
+  get(s"/$repoName/pitstop/:hash", (req, res) => servePitstop(req.params(":hash"), res))
 
-  get(s"/$repoName/metadata/:hash",
-      (req, res) => serveMetadata(req.params(":hash"), res))
+  get(s"/$repoName/metadata/:hash", (req, res) => serveMetadata(req.params(":hash"), res))
 
-  get(s"/$repoName/file/:hash",
-      (req, res) => serveHashFile(req.params(":hash"), res))
+  get(s"/$repoName/file/:hash", (req, res) => serveHashFile(req.params(":hash"), res))
 
   // Sends back the latest pitstop hash of the given timeline
   def serveHashFile(hash: String, res: Response): HttpServletResponse = {
-
     // If the hash if a binary file
     if (repoPath.resolve(BINARIES_FOLDER).resolve(hash).toFile.exists()) {
       res.header("binary", "true")
-      getFileStreamResponse(
-        res,
-        repoPath.resolve(BINARIES_FOLDER).resolve(hash)) match {
+      getFileStreamResponse(res, repoPath.resolve(BINARIES_FOLDER).resolve(hash)) match {
         case Success(binary_file) => binary_file
         case Failure(exception) =>
           exception.printStackTrace()
@@ -81,11 +73,8 @@ class Serve(val repoName: String) {
   }
 
   // Sends back the latest pitstop hash of the given timeline
-  def serveTimelineHash(timeline: String,
-                        res: Response): HttpServletResponse = {
-    getFileStreamResponse(
-      res,
-      repoPath.resolve(INDICATORS_FOLDER + "/" + timeline)) match {
+  def serveTimelineHash(timeline: String, res: Response): HttpServletResponse = {
+    getFileStreamResponse(res, repoPath.resolve(INDICATORS_FOLDER + "/" + timeline)) match {
       case Success(current) => current
       case Failure(exception) =>
         exception.printStackTrace()
@@ -95,9 +84,7 @@ class Serve(val repoName: String) {
 
   // Sends back the metadata file associated with the given pitstop hash
   def serveMetadata(pitstopHash: String, res: Response): HttpServletResponse = {
-    getFileStreamResponse(
-      res,
-      repoPath.resolve(METADATA_FOLDER + "/" + pitstopHash)) match {
+    getFileStreamResponse(res, repoPath.resolve(METADATA_FOLDER + "/" + pitstopHash)) match {
       case Success(metadata) => metadata
       case Failure(exception) =>
         exception.printStackTrace()
@@ -107,9 +94,7 @@ class Serve(val repoName: String) {
 
   // Sends back the pitstop file associated with the given pitstop hash
   def servePitstop(pitstopHash: String, res: Response): HttpServletResponse = {
-    getFileStreamResponse(
-      res,
-      repoPath.resolve(PITSTOPS_FOLDER + "/" + pitstopHash)) match {
+    getFileStreamResponse(res, repoPath.resolve(PITSTOPS_FOLDER + "/" + pitstopHash)) match {
       case Success(pitstop) => pitstop
       case Failure(exception) =>
         exception.printStackTrace()
@@ -138,9 +123,7 @@ class Serve(val repoName: String) {
   }
 
   // Reads the contents of the file and puts it in the response stream to be returned back to the client
-  private def getFileStreamResponse(
-      res: Response,
-      filePath: Path): Try[HttpServletResponse] = {
+  private def getFileStreamResponse(res: Response, filePath: Path): Try[HttpServletResponse] = {
     Try {
       val raw = res.raw()
       raw.getOutputStream.write(Files.readAllBytes(filePath))

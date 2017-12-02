@@ -22,9 +22,7 @@ import scala.util.Try
 object FileOps {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-  def getFilesRecursively(
-      dir: String,
-      condition: Predicate[Path] = _ => true): List[String] = {
+  def getFilesRecursively(dir: String, condition: Predicate[Path] = _ => true): List[String] = {
     logger.fine(s"Getting files recursively for directory $dir.")
     val files: List[Path] = Files
       .walk(Paths.get(dir))
@@ -62,21 +60,17 @@ object FileOps {
 
   // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
   // overwriting the existing content.
-  def addHashesAndContentOfLinesToPool(
-      hashLineMap: mutable.LinkedHashMap[String, String],
-      stringPoolFile: String): Unit = {
-    logger.fine(
-      s"Adding hashes & lines map, $hashLineMap to file $stringPoolFile")
-    var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(
-      stringPoolFile)
+  def addHashesAndContentOfLinesToPool(hashLineMap: mutable.LinkedHashMap[String, String],
+                                       stringPoolFile: String): Unit = {
+    logger.fine(s"Adding hashes & lines map, $hashLineMap to file $stringPoolFile")
+    var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
 
     hashLineMap.foreach(tuple => {
       if (!fileMap.contains(tuple._1)) {
         fileMap += tuple
       }
     })
-    logger.fine(
-      s"After updating, $fileMap is now being written to $stringPoolFile")
+    logger.fine(s"After updating, $fileMap is now being written to $stringPoolFile")
 
     // Once the map is populated, write the map to travelogue file
     writeMapToFile(fileMap, stringPoolFile)
@@ -95,8 +89,7 @@ object FileOps {
   }
 
   // Overwrites the existing content.
-  def addLineHashesToHashesFile(lineHashes: List[String],
-                                file: String): Unit = {
+  def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
     logger.fine(s"Adding lines hashes $lineHashes to hashes file $file.")
     // printwriter empties the contents of a file if it exists
     val writer: PrintWriter = new PrintWriter(file)
@@ -108,8 +101,7 @@ object FileOps {
   // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
   // overwriting the existing content.
   def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
-    logger.fine(
-      s"Trying to add tuple $hashNameTuple to travelogue file $TRAVELOGUE")
+    logger.fine(s"Trying to add tuple $hashNameTuple to travelogue file $TRAVELOGUE")
     var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
     logger.fine(s"Travelogue file before adding: $map")
 
@@ -118,8 +110,7 @@ object FileOps {
     if (!map.exists(_ == (hashNameTuple._1 -> hashNameTuple._2))) {
       map += (hashNameTuple._1 -> hashNameTuple._2)
     }
-    logger.fine(
-      s"Travelogue file after adding/updating with the tuple $hashNameTuple: $map")
+    logger.fine(s"Travelogue file after adding/updating with the tuple $hashNameTuple: $map")
 
     // Once the map is populated, write the map to travelogue file
     writeMapToFile(map, TRAVELOGUE)
@@ -127,15 +118,12 @@ object FileOps {
 
   // copies file from src to dest
   def copyFile(src: String, dest: String): Path =
-    Files.copy(Paths.get(src),
-               Paths.get(dest),
-               StandardCopyOption.REPLACE_EXISTING)
+    Files.copy(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING)
 
   def getFilesInThePitstop(pitstop: String): List[String] = {
     logger.fine(s"Trying to get the file in the pitstop $pitstop")
     val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop)
-    logger.fine(
-      s"Files in the pitstop $pitstop are ${filesAndHashMap.values.toList}")
+    logger.fine(s"Files in the pitstop $pitstop are ${filesAndHashMap.values.toList}")
     filesAndHashMap.values.toList
   }
 
@@ -171,8 +159,8 @@ object FileOps {
     } else {
       val bytes: Array[Byte] = Files.readAllBytes(Paths.get(filePath))
       /*
-                  Since mkString on the entire array can take a lot of time and might even give OOM errors,
-                  We will take at max 100 elements in the array and create a string of that
+       * Since mkString on the entire array can take a lot of time and might even give OOM errors,
+       * We will take at max 100 elements in the array and create a string of that
        */
       val bytesString = bytes.take(100).mkString
       List(bytesString)
@@ -206,7 +194,8 @@ object FileOps {
       pitstopMap.foreach(
         kvPair =>
           if (!map.contains(Paths.get(kvPair._1)))
-            map = map + (Paths.get(kvPair._1) -> kvPair._2))
+            map = map + (Paths.get(kvPair._1) -> kvPair._2)
+      )
       currentPitstop = parent(currentPitstop)
     }
     logger.fine(s"Files known from pitstops and their hashes: $map")
@@ -217,8 +206,7 @@ object FileOps {
     if (tempPitstopFile.nonEmpty) {
       // fileName -> hash
       val tempFilePitstopMap = getFileAsMap(getTempPitstopFileLocation)
-      tempFilePitstopMap.foreach(kvPair =>
-        map = map + (Paths.get(kvPair._1) -> kvPair._2))
+      tempFilePitstopMap.foreach(kvPair => map = map + (Paths.get(kvPair._1) -> kvPair._2))
     }
     logger.fine(s"Updated map after looking at temp file too: $map")
     map
@@ -228,12 +216,10 @@ object FileOps {
     * Returns either the pitstop hash of the current commit or an empty String.
     */
   def getCurrentPitstop: String = {
-    val currentPitstopOrTimeline
-      : String = getLinesOfFile(CURRENT_INDICATOR).head
+    val currentPitstopOrTimeline: String = getLinesOfFile(CURRENT_INDICATOR).head
     // If there is a timeline name in the 'current' file. We return the pitstop present in the timeline
     if (Files.exists(Paths.get(INDICATORS_FOLDER + currentPitstopOrTimeline))) {
-      val lines: List[String] = getLinesOfFile(
-        INDICATORS_FOLDER + currentPitstopOrTimeline)
+      val lines: List[String] = getLinesOfFile(INDICATORS_FOLDER + currentPitstopOrTimeline)
       if (lines.nonEmpty) lines.head else ""
     } else {
       // If there is a pitstop hash instead of a branch name we just return the 'pitstop' hash

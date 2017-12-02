@@ -20,13 +20,11 @@ case class Status(fileName: String = "") {
 
   if (fileName.nonEmpty) {
     logger.fine(s"Status requested for file $fileName")
-    val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(
-      Paths.get(fileName))
+    val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(Paths.get(fileName))
     if (FileDictionary(fileName, hashNeeded = true).hash == hashOfLastKnownVersionOfFile)
       println(s"file $fileName has not been modified since the last pitstop")
     else
-      println(
-        s"file $fileName is different from the last pitstopped/staged version")
+      println(s"file $fileName is different from the last pitstopped/staged version")
     System.exit(0)
   }
 
@@ -62,8 +60,7 @@ case class Status(fileName: String = "") {
     if (newlyStagedFiles nonEmpty)
       println(newlyStagedFiles.sorted.mkString("\tNew: ", "\n\tNew: ", "\n"))
     if (changedFiles nonEmpty)
-      println(
-        changedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
+      println(changedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
   }
 
   // SHOW MODIFIED AND DELETED FILES SINCE LAST PITSTOP OR STAGE
@@ -75,24 +72,20 @@ case class Status(fileName: String = "") {
     modifiedAndDeletedFiles._2.filterNot(_.isEmpty)
 
   if (modifiedFiles.nonEmpty || deletedFiles.nonEmpty) {
-    println(
-      """Files modified since last pitstop:
+    println("""Files modified since last pitstop:
               | (use "delorean stage <filename>" to stage the changes for the next pitstop)
             """.stripMargin)
     if (modifiedFiles.nonEmpty)
-      println(
-        modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
+      println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     if (deletedFiles.nonEmpty)
-      println(
-        deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
+      println(deletedFiles.sorted.mkString("\tDeleted: ", "\n\tDeleted: ", "\n"))
   }
 
   // SHOW UNTRACKED FILES THAT ARE NOT PART OF THE REPOSITORY
   val untrackedFiles: Set[String] = getUntrackedFiles.filterNot(_.isEmpty)
 
   if (untrackedFiles.nonEmpty) {
-    println(
-      """Untracked files:
+    println("""Untracked files:
               | (use "delorean stage <filename>" to stage the file to be added to the next pitstop)
             """.stripMargin)
     println(untrackedFiles.toList.sorted.mkString("\t", "\n\t", ""))

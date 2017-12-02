@@ -6,12 +6,7 @@
 import java.io.File
 import java.nio.file.{Files, Path, Paths}
 
-import delorean.FileOps.{
-  filesMatchingInDir,
-  getFilesRecursively,
-  getLinesOfFile,
-  logger
-}
+import delorean.FileOps.{filesMatchingInDir, getFilesRecursively, getLinesOfFile, logger}
 
 /**
   * Package object to hold variables.
@@ -42,8 +37,8 @@ package object delorean {
     * @return : Full pitstop hash if its present or else an empty string
     */
   def resolveTheCorrectPitstop(simplifiedPitstop: String): String = {
-    val files: Array[File] = filesMatchingInDir(new File(PITSTOPS_FOLDER),
-                                                _ startsWith simplifiedPitstop)
+    val files: Array[File] =
+      filesMatchingInDir(new File(PITSTOPS_FOLDER), _ startsWith simplifiedPitstop)
     if (files.length > 1) {
       println(s"""Ambiguous pitstop hash $simplifiedPitstop
                    |Found multiple pitstops matching this hash.
@@ -82,8 +77,7 @@ package object delorean {
         .map(x => Paths.get(x))
         .filterNot(p => p.toFile.isDirectory)
         .toSet
-    val untrackedFiles
-      : Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
+    val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
     logger.fine(s"Untracked files: $untrackedFiles")
     untrackedFiles.map(_.toString)
   }

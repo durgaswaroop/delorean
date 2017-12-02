@@ -17,15 +17,15 @@ class GoToTest {
   def goToTest(): Unit = {
     // Going to an invalid timeline
     GoTo("future")
-    assertEquals("Current timeline should be present",
-                 "present",
-                 getLinesOfFile(CURRENT_INDICATOR).head)
+    assertEquals(
+      "Current timeline should be present",
+      "present",
+      getLinesOfFile(CURRENT_INDICATOR).head
+    )
 
     // Going to an existing timeline
     CreateTimeLine("past")
-    assertEquals("Current timeline should be past",
-                 "past",
-                 getLinesOfFile(CURRENT_INDICATOR).head)
+    assertEquals("Current timeline should be past", "past", getLinesOfFile(CURRENT_INDICATOR).head)
   }
 }
 

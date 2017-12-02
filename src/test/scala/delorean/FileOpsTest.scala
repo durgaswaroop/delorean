@@ -48,11 +48,13 @@ class FileOpsTest {
   def getFilesRecursivelyTest(): Unit = {
     val sep = File.separator
     assertTrue(
-      getFilesRecursively("src").contains(
-        s"src${sep}main${sep}scala${sep}delorean${sep}Delorean.scala"))
+      getFilesRecursively("src")
+        .contains(s"src${sep}main${sep}scala${sep}delorean${sep}Delorean.scala")
+    )
     assertTrue(
-      getFilesRecursively("src").contains(
-        s"src${sep}main${sep}scala${sep}delorean${sep}FileOps.scala"))
+      getFilesRecursively("src")
+        .contains(s"src${sep}main${sep}scala${sep}delorean${sep}FileOps.scala")
+    )
   }
 
   //    @Test
@@ -74,8 +76,7 @@ class FileOpsTest {
     val map3 = mutable
       .LinkedHashMap[String, String]("81anf0" -> "doc", "aw3edc" -> "hello")
     addHashesAndContentOfLinesToPool(map3, stringPoolFile)
-    assertEquals(map1.size + map2.size + map3.size - 1,
-                 getLinesOfFile(stringPoolFile).length)
+    assertEquals(map1.size + map2.size + map3.size - 1, getLinesOfFile(stringPoolFile).length)
   }
 
   //    @Test

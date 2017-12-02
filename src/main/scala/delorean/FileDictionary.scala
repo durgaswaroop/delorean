@@ -49,8 +49,7 @@ object FileDictionary {
           val lines =
             if (linesNeeded) FileOps.getLinesOfFile(file)
             else List.empty[String]
-          getInstance().file_Lines_Hash_Map += (file -> DeloreanFile(lines,
-                                                                     hash))
+          getInstance().file_Lines_Hash_Map += (file -> DeloreanFile(lines, hash))
           DeloreanFile(lines, hash)
         }
       case None =>

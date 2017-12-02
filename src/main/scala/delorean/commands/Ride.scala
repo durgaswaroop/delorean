@@ -10,8 +10,7 @@ import java.io.File
 
 class Ride(directory: String = "") {
   if (isDeloreanRepo) {
-    print(
-      """delorean: Current directory is already part of a delorean repository.
+    print("""delorean: Current directory is already part of a delorean repository.
         |Nothing else to be done.
             """.stripMargin)
     System.exit(0)

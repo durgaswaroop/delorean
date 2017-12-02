@@ -58,8 +58,7 @@ object Hasher {
       logger.fine(s"Hash computed: $hash")
 
       // If the exact  file -> hash pair exists, we don't have to do anything for that file anymore
-      if (!allFilesAndHashesKnownToDelorean.exists(
-            _ == (Paths.get(file) -> hash))) {
+      if (!allFilesAndHashesKnownToDelorean.exists(_ == (Paths.get(file) -> hash))) {
 
         /* If the hash file already exists, but the current hash is not known to Delorean (happens when the file was previously
          * staged and then unstaged afterwards. In that case we don't want to continue the hashing process again but
@@ -116,8 +115,7 @@ object Hasher {
 
     /* When its a binary file, don't do all the usual line extractions and hashing.
      * Just put the file into BINARIES_FOLDER with the filehash as the name */
-    if (isBinaryFile(filePath) && Files.notExists(
-          Paths.get(BINARIES_FOLDER + fileHash))) {
+    if (isBinaryFile(filePath) && Files.notExists(Paths.get(BINARIES_FOLDER + fileHash))) {
       copyFile(filePath, BINARIES_FOLDER + fileHash)
 
       // Once the file hash is computed, Add it to travelogue file
@@ -163,13 +161,11 @@ object Hasher {
 
     // When temp file is not present nothing to do because no files are 'staged' yet
     if (tempPitstopFile isEmpty) {
-      println(
-        "No files staged. Delorean is all charged up. No need for Pitstops.")
+      println("No files staged. Delorean is all charged up. No need for Pitstops.")
       return
     }
 
-    val (metadata, metadataHash): (String, String) = computeMetadataAndItsHash(
-      riderLog)
+    val (metadata, metadataHash): (String, String) = computeMetadataAndItsHash(riderLog)
 
     // We just need the hash here. Not the other parts after that.
     val allFilesHash: String =

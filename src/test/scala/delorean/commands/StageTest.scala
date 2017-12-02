@@ -28,9 +28,9 @@ class StageTest {
     val tempFile: String = getTempPitstopFileLocation
     assertTrue(
       "_temp pitstop file should have been created in Pitstops directory",
-      tempFile.nonEmpty)
-    assertTrue("_temp pitstop file should not be empty",
-               Files.size(Paths.get(tempFile)) > 0)
+      tempFile.nonEmpty
+    )
+    assertTrue("_temp pitstop file should not be empty", Files.size(Paths.get(tempFile)) > 0)
   }
 }
 

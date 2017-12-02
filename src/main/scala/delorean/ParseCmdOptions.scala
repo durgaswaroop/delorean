@@ -24,10 +24,11 @@ object ParseCmdOptions {
           argsList.head != "version") {
         println(
           """
-                |delorean: There is no repository in this directory. Check your current directory and try again.
-                |
-                |For more: delorean --help
-              """.stripMargin)
+                      |delorean: There is no repository in this directory. Check your current directory and try again.
+                      |
+                      |For more: delorean --help
+                    """.stripMargin
+        )
         return
       }
     }
@@ -50,11 +51,9 @@ object ParseCmdOptions {
         var command = unknown
         if (unknown.startsWith("-")) {
           command = unknown.dropWhile(_ == '-')
-          println(
-            s"delorean: '$command' is not a valid option. See 'delorean --help'")
+          println(s"delorean: '$command' is not a valid option. See 'delorean --help'")
         } else
-          println(
-            s"delorean: '$command' is not a valid command. See 'delorean --help'")
+          println(s"delorean: '$command' is not a valid command. See 'delorean --help'")
     }
   }
 

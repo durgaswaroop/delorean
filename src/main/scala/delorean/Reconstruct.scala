@@ -36,16 +36,13 @@ object Reconstruct {
     // If the file is not a binary file its lines will be available in the String pool and using that we
     // can reconstruct the file
     if (!isBinaryFile) {
-      val lineHashesOfFile: List[String] = getLinesOfFile(
-        s"$HASHES_FOLDER$fileHash")
+      val lineHashesOfFile: List[String] = getLinesOfFile(s"$HASHES_FOLDER$fileHash")
       logger.fine(s"Line hashes: $lineHashesOfFile")
 
-      val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(
-        STRING_POOL)
+      val stringPoolMap: mutable.LinkedHashMap[String, String] = getFileAsMap(STRING_POOL)
 
       var reconstructedLines: String = ""
-      lineHashesOfFile.foreach(lineHash =>
-        reconstructedLines += stringPoolMap(lineHash) + "\n")
+      lineHashesOfFile.foreach(lineHash => reconstructedLines += stringPoolMap(lineHash) + "\n")
       logger.finest(reconstructedLines)
 
       // Store it in to the fileName given. Overwrite existing content
@@ -53,9 +50,7 @@ object Reconstruct {
     } else { // If the file is binary file, then just copy that file to the destination
       val binaryFilePath = Paths.get(BINARIES_FOLDER + fileHash)
       val destinationFilePath = Paths.get(fileName)
-      Files.copy(binaryFilePath,
-                 destinationFilePath,
-                 StandardCopyOption.REPLACE_EXISTING)
+      Files.copy(binaryFilePath, destinationFilePath, StandardCopyOption.REPLACE_EXISTING)
     }
   }
 }

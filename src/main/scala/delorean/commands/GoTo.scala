@@ -64,8 +64,7 @@ case class GoTo(timeLine: String) {
     logger.info(s"\nAll directory files $allDirectoryFiles")
 
     // Names and hashes of all the files in the repo at the pitstop
-    val pitstopFileMap: Map[Path, String] = getHashesOfAllFilesKnownToDelorean(
-      pitstopToGoTo)
+    val pitstopFileMap: Map[Path, String] = getHashesOfAllFilesKnownToDelorean(pitstopToGoTo)
     val pitstopFiles = pitstopFileMap.keys.map(_.toString).toList
     logger.info(s"\nPitstop file map: $pitstopFileMap")
     logger.info(s"\nPitstop Files: $pitstopFiles")

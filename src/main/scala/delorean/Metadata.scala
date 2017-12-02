@@ -46,8 +46,10 @@ object Metadata {
     }
     val metadataFileContent: Seq[String] = getLinesOfFile(metadataFile)
     val time: ZonedDateTime = {
-      ZonedDateTime.parse(metadataFileContent.head.split(":", 2)(1),
-                          ofPattern("MMM dd yyyy hh:mm a zzzz"))
+      ZonedDateTime.parse(
+        metadataFileContent.head.split(":", 2)(1),
+        ofPattern("MMM dd yyyy hh:mm a zzzz")
+      )
     }
     val rider: String = metadataFileContent(1).split(":", 2)(1)
     // parents hashes will be separated by ':'. So, split will split across all those :'s and tail gives us

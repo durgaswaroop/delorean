@@ -28,8 +28,7 @@ object Usage {
   }
 
   def fullUsage(): Unit = {
-    print(
-      """usage: delorean <command> [<args>] [--version] [--help]
+    print("""usage: delorean <command> [<args>] [--version] [--help]
               |
               | These are the common Delorean commands:
               |
@@ -109,7 +108,8 @@ object Usage {
               |Example: delorean server my-awesome-repo.delorean
               |
               |For more: delorean --help
-            """.stripMargin)
+            """.stripMargin
+    )
   }
 
   def statusUsage(): Unit = {
@@ -135,12 +135,12 @@ object Usage {
               |       long  - Displays full information of the pitstop including time, rider name etc.
               |
               |For more: delorean --help
-            """.stripMargin)
+            """.stripMargin
+    )
   }
 
   def createTimeLineUsage(): Unit = {
-    print(
-      """Invalid usage for 'create-timeline' command
+    print("""Invalid usage for 'create-timeline' command
               |
               |Usage: delorean create-timeline <timeline-name>
               |                - Creates a new timeline on the current pitstop/branch
@@ -150,8 +150,7 @@ object Usage {
   }
 
   def describeUsage(): Unit = {
-    print(
-      """
+    print("""
               |Usage: delorean describe pitstop(s)
               |                - Displays more information regarding a particular pitstop(s)
               |
