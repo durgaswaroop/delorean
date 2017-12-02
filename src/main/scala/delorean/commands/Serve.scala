@@ -2,10 +2,12 @@ package delorean
 package commands
 
 import java.io.File
+import java.nio.charset.StandardCharsets
 import java.nio.file.{FileAlreadyExistsException, Files, Path, Paths}
 import java.util.logging.Logger
 import javax.servlet.http.HttpServletResponse
 
+import com.google.gson.Gson
 import spark.Response
 import spark.Spark._
 
@@ -42,13 +44,36 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/travelogue", (req, res) => serveTravelogue(res))
 
-  get(s"/$repoName/:timeline", (req, res) => serveTimelineHash(req.params(":timeline"), res))
+  get(s"/$repoName/timeline/:timeline",
+      (req, res) => serveTimelineHash(req.params(":timeline"), res))
 
   get(s"/$repoName/pitstop/:hash", (req, res) => servePitstop(req.params(":hash"), res))
 
   get(s"/$repoName/metadata/:hash", (req, res) => serveMetadata(req.params(":hash"), res))
 
   get(s"/$repoName/file/:hash", (req, res) => serveHashFile(req.params(":hash"), res))
+
+  get(s"/$repoName/indicators", (req, res) => serveIndicators(res))
+
+  // Sends back the list of all available indicators
+  def serveIndicators(res: Response): HttpServletResponse = {
+    val indicatorsAndHashes: Array[IndicatorAndHash] =
+      new File(repoPath.resolve(INDICATORS_FOLDER).toString)
+        .listFiles()
+        .map(IndicatorAndHash(_))
+
+    indicatorsAndHashes.foreach(ih => logger.fine(ih.indicator + ":" + ih.hash))
+
+    val jsonString = new Gson().toJson(indicatorsAndHashes)
+    logger.fine(jsonString)
+
+    getByteStreamResponse(res, jsonString.getBytes(StandardCharsets.UTF_8)) match {
+      case Success(jsonResponse) => jsonResponse
+      case Failure(exception) =>
+        exception.printStackTrace()
+        null
+    }
+  }
 
   // Sends back the latest pitstop hash of the given timeline
   def serveHashFile(hash: String, res: Response): HttpServletResponse = {
@@ -124,9 +149,15 @@ class Serve(val repoName: String) {
 
   // Reads the contents of the file and puts it in the response stream to be returned back to the client
   private def getFileStreamResponse(res: Response, filePath: Path): Try[HttpServletResponse] = {
+    val fileBytes = Files.readAllBytes(filePath)
+    getByteStreamResponse(res, fileBytes)
+  }
+
+  // Constructs the response stream to be returned back to the client from the bytes given
+  private def getByteStreamResponse(res: Response, bytes: Array[Byte]): Try[HttpServletResponse] = {
     Try {
       val raw = res.raw()
-      raw.getOutputStream.write(Files.readAllBytes(filePath))
+      raw.getOutputStream.write(bytes)
       raw.getOutputStream.flush()
       raw.getOutputStream.close()
       logger.info("Raw response constructed")
@@ -134,4 +165,15 @@ class Serve(val repoName: String) {
       raw
     }
   }
+
+  // class created to group the indicator and its hash so that we can put it in a json as Gson doesn't work
+  // with classes defined inside methods
+  private object IndicatorAndHash {
+    def apply(file: File): IndicatorAndHash = {
+      val lines = Files.readAllLines(Paths.get(file.getAbsolutePath))
+      val hash = if (lines.isEmpty) "" else lines.get(0)
+      new IndicatorAndHash(file.getName, hash)
+    }
+  }
+  private case class IndicatorAndHash(indicator: String, hash: String)
 }
