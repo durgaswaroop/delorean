@@ -77,5 +77,5 @@ task fatJar(type: Jar) {
     with jar
 }
 
+compileScala.dependsOn(scalafmtAll)
 build.finalizedBy(installDist)
-build.finalizedBy(scalafmtAll)
