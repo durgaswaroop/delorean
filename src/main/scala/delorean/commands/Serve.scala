@@ -30,6 +30,9 @@ class Serve(val repoName: String) {
   staticFiles.location(repoPath.toString)
   logger.fine(s"Serving static files from: ${repoPath.toString}")
 
+  // Set the port
+  port(GIT_SERVER_PORT)
+
   //Start the server
   init()
   logger.fine(s"Git Server started for repo $repoPath")
