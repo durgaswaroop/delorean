@@ -33,7 +33,7 @@ class Serve(val repoName: String) {
   logger.fine(s"Serving static files from: ${repoPath.toString}")
 
   // Set the port
-  port(GIT_SERVER_PORT)
+  port(DELOREAN_SERVER_PORT)
 
   //Start the server
   init()

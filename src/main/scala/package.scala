@@ -28,7 +28,7 @@ package object delorean {
 
   val IGNORE_FILE: String = ".biff"
 
-  val GIT_SERVER_PORT: Int = 18987
+  val DELOREAN_SERVER_PORT: Int = 18987
 
   /**
     * Gets the full pitstop hash from the first few characters given
