@@ -8,7 +8,7 @@ package commands
 
 import java.io.File
 
-class Ride {
+class Ride(directory: String = "") {
   if (isDeloreanRepo) {
     print(
       """delorean: Current directory is already part of a delorean repository.
@@ -17,17 +17,17 @@ class Ride {
     System.exit(0)
   }
 
-  val pitstopDirectory = new File(PITSTOPS_FOLDER)
-  val hashesDirectory = new File(HASHES_FOLDER)
-  val metadataDirectory = new File(METADATA_FOLDER)
-  val indicatorsDirectory = new File(INDICATORS_FOLDER)
-  val binariesDirectory = new File(BINARIES_FOLDER)
+  val pitstopDirectory = new File(directory + PITSTOPS_FOLDER)
+  val hashesDirectory = new File(directory + HASHES_FOLDER)
+  val metadataDirectory = new File(directory + METADATA_FOLDER)
+  val indicatorsDirectory = new File(directory + INDICATORS_FOLDER)
+  val binariesDirectory = new File(directory + BINARIES_FOLDER)
 
-  val configFile = new File(CONFIG)
-  val stringPoolFile = new File(STRING_POOL)
-  val travelogueFile = new File(TRAVELOGUE)
-  val currentFile = new File(CURRENT_INDICATOR)
-  val defaultTimelineFile = new File(DEFAULT_TIMELINE)
+  val configFile = new File(directory + CONFIG)
+  val stringPoolFile = new File(directory + STRING_POOL)
+  val travelogueFile = new File(directory + TRAVELOGUE)
+  val currentFile = new File(directory + CURRENT_INDICATOR)
+  val defaultTimelineFile = new File(directory + DEFAULT_TIMELINE)
 
   pitstopDirectory.mkdirs
   hashesDirectory.mkdirs
