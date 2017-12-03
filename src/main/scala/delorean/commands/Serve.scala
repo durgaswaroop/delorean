@@ -51,7 +51,9 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/metadata/:hash", (req, res) => serveMetadata(req.params(":hash"), res))
 
-  get(s"/$repoName/files/:hash", (req, res) => serveHashFile(req.params(":hash"), res))
+  get(s"/$repoName/normal-files/:hash", (req, res) => serveNormalHashFile(req.params(":hash"), res))
+
+  get(s"/$repoName/binary-files/:hash", (req, res) => serveBinaryHashFile(req.params(":hash"), res))
 
   get(s"/$repoName/indicators", (req, res) => serveIndicators(res))
 
@@ -118,25 +120,23 @@ class Serve(val repoName: String) {
     }
   }
 
-  // Sends back the latest pitstop hash of the given timeline
-  def serveHashFile(hash: String, res: Response): HttpServletResponse = {
-    // If the hash if a binary file
-    if (repoPath.resolve(BINARIES_FOLDER).resolve(hash).toFile.exists()) {
-      res.header("binary", "true")
-      getFileStreamResponse(res, repoPath.resolve(BINARIES_FOLDER).resolve(hash)) match {
-        case Success(binary_file) => binary_file
-        case Failure(exception) =>
-          exception.printStackTrace()
-          null
-      }
-    } else { // If it is not binary file
-      res.header("binary", "false")
-      getFileStreamResponse(res, repoPath.resolve(HASHES_FOLDER).resolve(hash)) match {
-        case Success(normal_file) => normal_file
-        case Failure(exception) =>
-          exception.printStackTrace()
-          null
-      }
+  // Sends back the pitstop hash of a normal file
+  def serveNormalHashFile(hash: String, res: Response): HttpServletResponse = {
+    getFileStreamResponse(res, repoPath.resolve(HASHES_FOLDER).resolve(hash)) match {
+      case Success(normal_file) => normal_file
+      case Failure(exception) =>
+        exception.printStackTrace()
+        null
+    }
+  }
+
+  // Sends back the pitstop hash of a binary file
+  def serveBinaryHashFile(hash: String, res: Response): HttpServletResponse = {
+    getFileStreamResponse(res, repoPath.resolve(BINARIES_FOLDER).resolve(hash)) match {
+      case Success(binary_file) => binary_file
+      case Failure(exception) =>
+        exception.printStackTrace()
+        null
     }
   }
 
