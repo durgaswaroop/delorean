@@ -58,10 +58,7 @@ package object delorean {
     * @return : Pitstop hash of the timeline if it exists or else an empty string
     */
   def resolveTheHashOfTimeline(timeLine: String, baseDirectory: String = ""): String = {
-    val timeLineFile = new File(baseDirectory + INDICATORS_FOLDER + timeLine)
-    if (timeLineFile.exists())
-      FileDictionary(baseDirectory + INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
-    else ""
+    FileDictionary(baseDirectory + INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
   }
 
   /**
