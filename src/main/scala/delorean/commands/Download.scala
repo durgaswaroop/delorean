@@ -52,17 +52,24 @@ case class Download(remoteRepo: String) {
     Files.write(indicatorPath, ih.hash.getBytes(StandardCharsets.UTF_8))
   })
 
-  // Download pitstops
+  // Download pitstops and associated metadata
   val pitstopsUrl: String = remoteRepoServerUrl + "pitstops"
+  val metadataUrl: String = remoteRepoServerUrl + "metadata"
   val pitstopsJson: String = fromURL(pitstopsUrl).mkString
   val pitstops: Array[String] = new Gson().fromJson(pitstopsJson, classOf[Array[String]])
   pitstops.foreach(pitstop => {
-    // For each pitstop hash query the endpoint for that pitstop content
+    // For each pitstop hash, query the endpoints for pitstop content and the associated metadata
     val pitstopPath = Paths.get(reponame).resolve(PITSTOPS_FOLDER).resolve(pitstop)
+    val metadataPath = Paths.get(reponame).resolve(METADATA_FOLDER).resolve(pitstop)
     pitstopPath.toFile.createNewFile()
+    metadataPath.toFile.createNewFile()
     val pitstopBytes =
       fromURL(pitstopsUrl + "/" + pitstop).mkString.getBytes(StandardCharsets.UTF_8)
+    val metadataBytes =
+      fromURL(metadataUrl + "/" + pitstop).mkString.getBytes(StandardCharsets.UTF_8)
+
     Files.write(pitstopPath, pitstopBytes)
+    Files.write(metadataPath, metadataBytes)
   })
 
   def getRemoteRepoServerUrl(remoteRepo: String): (String, String) = {
