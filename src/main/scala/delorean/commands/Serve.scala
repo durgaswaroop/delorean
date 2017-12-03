@@ -55,6 +55,30 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/indicators", (req, res) => serveIndicators(res))
 
+  get(s"/$repoName/pitstops", (req, res) => servePitstops(res))
+
+  // Sends back the list of all available pitstops
+  def servePitstops(res: Response): HttpServletResponse = {
+    var hashesListJsonString: String = "["
+
+    // Add all the hashes into a comma separated string
+    hashesListJsonString += new File(repoPath.resolve(PITSTOPS_FOLDER).toString)
+      .listFiles()
+      .map(_.getName)
+      .mkString(",")
+
+    hashesListJsonString += "]"
+
+    logger.fine(hashesListJsonString)
+
+    getByteStreamResponse(res, hashesListJsonString.getBytes(StandardCharsets.UTF_8)) match {
+      case Success(jsonResponse) => jsonResponse
+      case Failure(exception) =>
+        exception.printStackTrace()
+        null
+    }
+  }
+
   // Sends back the list of all available indicators
   def serveIndicators(res: Response): HttpServletResponse = {
     val indicatorsAndHashes: Array[IndicatorAndHash] =
