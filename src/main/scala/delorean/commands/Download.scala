@@ -88,9 +88,12 @@ case class Download(remoteRepo: String) {
   // Download all the binary files
   fileHashes.binaryFiles foreach (hash => {
     val fileHashPath = Paths.get(reponame).resolve(BINARIES_FOLDER).resolve(hash)
-    val fileBytes = fromURL(binaryFilesUrl + hash).mkString.getBytes(UTF_8)
+    val fileBytes = fromURL(binaryFilesUrl + hash).mkString.getBytes(ISO_8859_1)
     Files.write(fileHashPath, fileBytes)
   })
+
+  // Once everything is download, GoTo the latest commit on 'present' branch
+  GoTo("present")
 
   def getRemoteRepoServerUrl(remoteRepo: String): (String, String) = {
     val pattern = "(https?://.*)/(.*)".r
