@@ -5,10 +5,10 @@
 
 package delorean
 
-import java.io.FileNotFoundException
 import java.nio.file.{FileAlreadyExistsException, Files, Paths}
 
 import delorean.commands._
+import delorean.exceptions.InvalidRepositoryUrlException
 
 /**
   * Parser for the command line options
@@ -19,14 +19,15 @@ object ParseCmdOptions {
       // These commands don't need the current directory to be a delorean repo
       if (argsList.nonEmpty &&
           argsList.head != "--help" &&
+          argsList.head != "download" &&
+          argsList.head != "dl" &&
           argsList.head != "serve" &&
           argsList.head != "ride" &&
           argsList.head != "version") {
         println(
-          """
-                      |delorean: There is no repository in this directory. Check your current directory and try again.
-                      |
-                      |For more: delorean --help
+          """ |delorean: There is no repository in this directory. Check your current directory and try again.
+              |
+              |For more: delorean --help
                     """.stripMargin
         )
         return
@@ -38,6 +39,7 @@ object ParseCmdOptions {
       case "config"                              => config(argsList.tail)
       case "create-timeline" | "ctl"             => createTimeline(argsList.tail)
       case "describe"                            => describe(argsList.tail)
+      case "download" | "dl"                     => download(argsList.tail)
       case "goto"                                => goto(argsList.tail)
       case "pitstop"                             => pitstop(argsList.tail)
       case "ride"                                => ride(argsList.tail)
@@ -76,6 +78,21 @@ object ParseCmdOptions {
   private def describe(describeArgs: List[String]): Unit = {
     if (describeArgs.isEmpty) Usage("describe")
     else Describe(describeArgs)
+  }
+
+  private def download(downloadArgs: List[String]): Unit = {
+    if (downloadArgs.length != 1) Usage("download")
+    else
+      try {
+        Download(downloadArgs.head)
+      } catch {
+        case _: InvalidRepositoryUrlException =>
+          println(s"""
+                      | Repository Url ${downloadArgs.head} is invalid. 
+                      | Expected format - http(s)://hostname/reponame
+                      | Please check the Url and try again.
+                    """.stripMargin)
+      }
   }
 
   private def goto(goToArgs: List[String]): Unit = {

@@ -13,6 +13,7 @@ object Usage {
     case "full"            => fullUsage()
     case "ride"            => rideUsage()
     case "describe"        => describeUsage()
+    case "download"        => downloadUsage()
     case "goto"            => goToUsage()
     case "pitstop"         => pitstopUsage()
     case "config"          => configUsage()
@@ -156,6 +157,17 @@ object Usage {
               |
               |For more: delorean --help
             """.stripMargin)
+  }
+
+  def downloadUsage(): Unit = {
+    print(""" |Usage: delorean download <repo-location>
+              |                - Downloads a remote repository to local disk
+              |
+              |Example:
+              | delorean download http://example.com/my-awesome-repo.delorean
+              |
+              |For more: delorean --help
+              """.stripMargin)
   }
 
   def unstageUsage(): Unit = {
