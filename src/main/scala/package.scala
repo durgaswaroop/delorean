@@ -55,10 +55,12 @@ package object delorean {
     *
     * @param timeLine      : timeline to get the hash for
     * @param baseDirectory : Directory to start the search in
-    * @return : Pitstop hash of the timeline if it exists or else an empty string
+    * @return : Pitstop hash of the timeline if it is non-empty or else an empty string
     */
   def resolveTheHashOfTimeline(timeLine: String, baseDirectory: String = ""): String = {
-    FileDictionary(baseDirectory + INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
+    val fileLines =
+      FileDictionary(baseDirectory + INDICATORS_FOLDER + timeLine, linesNeeded = true).lines
+    if (fileLines.nonEmpty) fileLines.head else ""
   }
 
   /**

@@ -35,6 +35,11 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
      *which we get by resolving the full pitstop
      */
     val pitstopToGoTo: String = resolveTheHashOfTimeline(timeLine, baseDirectory)
+
+    if (pitstopToGoTo isEmpty) {
+      println("delorean: Timeline 'present' does not have any commits yet")
+      return
+    }
     updateRepoToCommit(pitstopToGoTo)
     // Update the current indicator
     writeToFile(CURRENT_INDICATOR, timeLine)
