@@ -3,6 +3,7 @@ package commands
 
 import java.io.File
 import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets._
 import java.nio.file.{Files, Paths}
 import java.util.logging.Logger
 
@@ -29,13 +30,13 @@ case class Download(remoteRepo: String) {
   // Download string_pool
   val stringPoolUrl: String = remoteRepoServerUrl + "string_pool"
   val stringPoolBytes: Array[Byte] =
-    fromURL(stringPoolUrl).mkString.getBytes(StandardCharsets.UTF_8)
+    fromURL(stringPoolUrl).mkString.getBytes(UTF_8)
   Files.write(Paths.get(reponame).resolve(STRING_POOL), stringPoolBytes)
 
   // Download travelogue
   val travelogueUrl: String = remoteRepoServerUrl + "travelogue"
   val travelogueBytes: Array[Byte] =
-    fromURL(travelogueUrl).mkString.getBytes(StandardCharsets.UTF_8)
+    fromURL(travelogueUrl).mkString.getBytes(UTF_8)
   Files.write(Paths.get(reponame).resolve(TRAVELOGUE), travelogueBytes)
 
   // Download indicators
@@ -49,7 +50,7 @@ case class Download(remoteRepo: String) {
       Files.createFile(indicatorPath)
     }
     // Write the hash to the file
-    Files.write(indicatorPath, ih.hash.getBytes(StandardCharsets.UTF_8))
+    Files.write(indicatorPath, ih.hash.getBytes(UTF_8))
   })
 
   // Download pitstops and associated metadata
@@ -64,12 +65,31 @@ case class Download(remoteRepo: String) {
     pitstopPath.toFile.createNewFile()
     metadataPath.toFile.createNewFile()
     val pitstopBytes =
-      fromURL(pitstopsUrl + "/" + pitstop).mkString.getBytes(StandardCharsets.UTF_8)
+      fromURL(pitstopsUrl + "/" + pitstop).mkString.getBytes(UTF_8)
     val metadataBytes =
-      fromURL(metadataUrl + "/" + pitstop).mkString.getBytes(StandardCharsets.UTF_8)
+      fromURL(metadataUrl + "/" + pitstop).mkString.getBytes(UTF_8)
 
     Files.write(pitstopPath, pitstopBytes)
     Files.write(metadataPath, metadataBytes)
+  })
+
+  // Download file hashes of binary and normal files
+  val fileHashesUrl: String = remoteRepoServerUrl + "file-hashes"
+  val normalFilesUrl: String = remoteRepoServerUrl + "normal-files/"
+  val binaryFilesUrl: String = remoteRepoServerUrl + "binary-files/"
+  val fileHashesJson: String = fromURL(fileHashesUrl).mkString
+  val fileHashes: FileHashesPOJO = new Gson().fromJson(fileHashesJson, classOf[FileHashesPOJO])
+  // Download all the non-binary files
+  fileHashes.normalFiles.foreach(hash => {
+    val fileHashPath = Paths.get(reponame).resolve(HASHES_FOLDER).resolve(hash)
+    val fileBytes = fromURL(normalFilesUrl + hash).mkString.getBytes(UTF_8)
+    Files.write(fileHashPath, fileBytes)
+  })
+  // Download all the binary files
+  fileHashes.binaryFiles foreach (hash => {
+    val fileHashPath = Paths.get(reponame).resolve(BINARIES_FOLDER).resolve(hash)
+    val fileBytes = fromURL(binaryFilesUrl + hash).mkString.getBytes(UTF_8)
+    Files.write(fileHashPath, fileBytes)
   })
 
   def getRemoteRepoServerUrl(remoteRepo: String): (String, String) = {
