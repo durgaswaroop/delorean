@@ -119,7 +119,6 @@ object Hasher {
      * Just put the file into BINARIES_FOLDER with the filehash as the name */
     if (isBinaryFile(baseDirectory + filePath)
         && Files.notExists(Paths.get(baseDirectory + BINARIES_FOLDER + fileHash))) {
-      Paths.get(filePath).getParent.toFile.list().foreach(logger.fine)
       logger.fine(s"File $filePath is a binary file")
       copyFile(filePath, baseDirectory + BINARIES_FOLDER + fileHash)
 

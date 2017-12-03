@@ -18,6 +18,7 @@ import delorean.Hasher.computeShaHash
   */
 case class GoTo(timeLine: String, baseDirectory: String = "") {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
+  println(s"Timeline: $timeLine, Base direc: $baseDirectory")
 
   logger.fine(baseDirectory + INDICATORS_FOLDER + timeLine)
 
@@ -67,9 +68,10 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
   def updateRepoToCommit(pitstopToGoTo: String): Unit = {
     logger.info(s"Pitstop to goto: $pitstopToGoTo")
 
+    val directory = if (baseDirectory.isEmpty) "." else baseDirectory
     // Get files in the current directory if no base directory is given else get it from that directory
-    val allDirectoryFiles: List[String] = getFilesRecursively(
-      if (baseDirectory.isEmpty) "." else baseDirectory)
+    val allDirectoryFiles: List[String] = getFilesRecursively(directory).filterNot(_ == directory)
+
     logger.info(s"\nAll directory files $allDirectoryFiles")
 
     // Names and hashes of all the files in the repo at the pitstop
@@ -90,6 +92,7 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
     // destination pitstop
     val filesToDelete: List[String] =
       (allDirectoryFiles diff ignoredFiles diff untrackedFiles diff pitstopFiles)
+        .filterNot(_ == baseDirectory)
         .filter(_.nonEmpty)
     logger.info(s"\nFiles to delete: $filesToDelete")
     filesToDelete foreach (file => {

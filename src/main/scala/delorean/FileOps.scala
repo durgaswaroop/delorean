@@ -24,12 +24,14 @@ object FileOps {
 
   def getFilesRecursively(dir: String, condition: Predicate[Path] = _ => true): List[String] = {
     logger.fine(s"Getting files recursively for directory $dir.")
+    val path = Paths.get(dir)
     val files: List[Path] = Files
-      .walk(Paths.get(dir))
+      .walk(path)
       .filter(condition)
       .collect(Collectors.toList())
       .asScala
       .toList
+
     logger.fine(s"List returned: ${files.map(p => p.normalize.toString)}")
     files.map(p => p.normalize.toString)
   }
@@ -156,6 +158,7 @@ object FileOps {
   }
 
   def getLinesOfFile(filePath: String, baseDirectory: String = ""): List[String] = {
+//    println(s"Filepath: $filePath, Base dire: $baseDirectory")
     lazy val source: BufferedSource = Source.fromFile(baseDirectory + filePath, "UTF-8")
     val lines: Try[List[String]] = Try(source.getLines().toList)
     if (lines.isSuccess) {
@@ -189,10 +192,11 @@ object FileOps {
   /**
     * Gets all the files known to delorean at a pitstop
     *
-    * Bascially it is the state of the repository at that particular pitstop
+    * Basically it is the state of the repository at that particular pitstop
     */
   def getHashesOfAllFilesKnownToDelorean(pitStop: String,
                                          baseDirectory: String): Map[Path, String] = {
+    println(s"Pitstop: $pitStop, base directory: $baseDirectory")
     var map: Map[Path, String] = Map.empty
     var currentPitstop = pitStop
     while (currentPitstop.nonEmpty) {
@@ -203,7 +207,7 @@ object FileOps {
           if (!map.contains(Paths.get(kvPair._1)))
             map = map + (Paths.get(kvPair._1) -> kvPair._2)
       )
-      currentPitstop = parent(currentPitstop)
+      currentPitstop = parent(currentPitstop, baseDirectory)
     }
     logger.fine(s"Files known from pitstops and their hashes: $map")
 
@@ -237,7 +241,7 @@ object FileOps {
 
   // Gets the parent pitstop of the given pitstop. Would be an empty string if no parent is present.
   def parent(pitstop: String, baseDirectory: String = ""): String = {
-    val parent: String = getLinesOfFile(baseDirectory + METADATA_FOLDER + pitstop)
+    val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop, baseDirectory)
       .filter(_.contains("Parent"))
       .head
       .split(":", 2)(1)
