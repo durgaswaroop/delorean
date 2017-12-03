@@ -57,6 +57,25 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/pitstops", (req, res) => servePitstops(res))
 
+  get(s"/$repoName/file-hashes", (req, res) => serveFileHashes(res))
+
+  // Sends back the list of all available file hashes
+  def serveFileHashes(res: Response): HttpServletResponse = {
+
+    val fileHashesPOJO = FileHashesPOJO(new File(repoPath.resolve(HASHES_FOLDER).toString).list(),
+                                        new File(repoPath.resolve(BINARIES_FOLDER).toString).list())
+    val jsonString = new Gson().toJson(fileHashesPOJO)
+
+    logger.fine(jsonString)
+
+    getByteStreamResponse(res, jsonString.getBytes(StandardCharsets.UTF_8)) match {
+      case Success(jsonResponse) => jsonResponse
+      case Failure(exception) =>
+        exception.printStackTrace()
+        null
+    }
+  }
+
   // Sends back the list of all available pitstops
   def servePitstops(res: Response): HttpServletResponse = {
     var hashesListJsonString: String = "["
