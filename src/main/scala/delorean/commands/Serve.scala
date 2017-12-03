@@ -44,14 +44,14 @@ class Serve(val repoName: String) {
 
   get(s"/$repoName/travelogue", (req, res) => serveTravelogue(res))
 
-  get(s"/$repoName/timeline/:timeline",
+  get(s"/$repoName/timelines/:timeline",
       (req, res) => serveTimelineHash(req.params(":timeline"), res))
 
-  get(s"/$repoName/pitstop/:hash", (req, res) => servePitstop(req.params(":hash"), res))
+  get(s"/$repoName/pitstops/:hash", (req, res) => servePitstop(req.params(":hash"), res))
 
   get(s"/$repoName/metadata/:hash", (req, res) => serveMetadata(req.params(":hash"), res))
 
-  get(s"/$repoName/file/:hash", (req, res) => serveHashFile(req.params(":hash"), res))
+  get(s"/$repoName/files/:hash", (req, res) => serveHashFile(req.params(":hash"), res))
 
   get(s"/$repoName/indicators", (req, res) => serveIndicators(res))
 
