@@ -16,7 +16,7 @@ import delorean.commands.OutputFormat.OutputFormat
 case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
 
   // Either the pitstop hash or an empty string
-  val currentPitstop: String = getCurrentPitstop
+  val currentPitstop: String = getCurrentPitstop()
 
   // If current pitstop is empty it means there are no pitstops shown yet.
   if (currentPitstop.isEmpty) {
@@ -55,6 +55,6 @@ case class ShowTimeLine(outputFormat: OutputFormat = OutputFormat.SHORT) {
 
 object OutputFormat extends Enumeration {
   type OutputFormat = Value
-  val SHORT = Value(0)
-  val LONG = Value(1)
+  val SHORT: commands.OutputFormat.Value = Value(0)
+  val LONG: commands.OutputFormat.Value = Value(1)
 }

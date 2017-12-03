@@ -33,15 +33,15 @@ object Delorean {
   // Because of file stream not getting closed, the temp file which should have been deleted ideally is not getting deleted.
   // This will make sure we will delete it based on the modified Times
   def deleteTempFileIfNotNeeded(): Unit = {
-    val lastPitstop = PITSTOPS_FOLDER + getCurrentPitstop
-    val tempFile = getTempPitstopFileLocation
+    val lastPitstop = PITSTOPS_FOLDER + getCurrentPitstop()
+    val tempFile = getTempPitstopFileLocation()
 
     if (lastPitstop.nonEmpty && tempFile.nonEmpty) {
       val lastPitstopTime = Files.getLastModifiedTime(Paths.get(lastPitstop))
       val tempFileTime = Files.getLastModifiedTime(Paths.get(tempFile))
 
       lastPitstopTime compareTo tempFileTime match {
-        case 1 => Files.delete(Paths.get(getTempPitstopFileLocation))
+        case 1 => Files.delete(Paths.get(getTempPitstopFileLocation()))
         case _ =>
       }
     }
@@ -51,9 +51,10 @@ object Delorean {
     val rootLogger: Logger = Logger.getLogger("")
     rootLogger.getHandlers.foreach(handler => handler.setLevel(Level.FINEST))
     System.getenv("DELOREAN_LOG_LEVEL") match {
-      case "INFO" => rootLogger.setLevel(Level.INFO)
-      case "FINE" => rootLogger.setLevel(Level.FINE)
-      case _      => rootLogger.setLevel(Level.SEVERE)
+      case "INFO"   => rootLogger.setLevel(Level.INFO)
+      case "FINE"   => rootLogger.setLevel(Level.FINE)
+      case "FINEST" => rootLogger.setLevel(Level.FINEST)
+      case _        => rootLogger.setLevel(Level.SEVERE)
     }
   }
 

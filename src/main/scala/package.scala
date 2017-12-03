@@ -53,13 +53,14 @@ package object delorean {
   /**
     * Gets the pitstop hash of the given timeline
     *
-    * @param timeLine : timeline to get the hash for
+    * @param timeLine      : timeline to get the hash for
+    * @param baseDirectory : Directory to start the search in
     * @return : Pitstop hash of the timeline if it exists or else an empty string
     */
-  def resolveTheHashOfTimeline(timeLine: String): String = {
-    val timeLineFile = new File(INDICATORS_FOLDER + timeLine)
+  def resolveTheHashOfTimeline(timeLine: String, baseDirectory: String = ""): String = {
+    val timeLineFile = new File(baseDirectory + INDICATORS_FOLDER + timeLine)
     if (timeLineFile.exists())
-      FileDictionary(INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
+      FileDictionary(baseDirectory + INDICATORS_FOLDER + timeLine, linesNeeded = true).lines.head
     else ""
   }
 
@@ -68,12 +69,12 @@ package object delorean {
     *
     * @return : A Set of untracked file names
     */
-  def getUntrackedFiles: Set[String] = {
-    val ignoredFiles: Set[Path] = getIgnoredFiles
+  def getUntrackedFiles(baseDirectory: String = ""): Set[String] = {
+    val ignoredFiles: Set[Path] = getIgnoredFiles(baseDirectory)
     val allFilesDeloreanKnows: Set[Path] =
-      FileOps.getHashesOfAllFilesKnownToDelorean.keys.toSet
+      FileOps.getHashesOfAllFilesKnownToDelorean(baseDirectory).keys.toSet
     val allFilesInMainDirectory: Set[Path] =
-      getFilesRecursively(".")
+      getFilesRecursively(if (baseDirectory.isEmpty) "." else baseDirectory)
         .map(x => Paths.get(x))
         .filterNot(p => p.toFile.isDirectory)
         .toSet
@@ -87,10 +88,11 @@ package object delorean {
     *
     * @return : A Set of ignored file names
     */
-  def getIgnoredFiles: Set[Path] = {
+  def getIgnoredFiles(baseDirectory: String = ""): Set[Path] = {
     // ".tm" directory should be ignored always
-    val biffFileContents: Set[String] = Set(".tm") ++ {
-      if (new File(IGNORE_FILE).exists()) getLinesOfFile(IGNORE_FILE).toSet
+    val biffFileContents: Set[String] = Set(baseDirectory + TIME_MACHINE) ++ {
+      if (new File(baseDirectory + IGNORE_FILE).exists())
+        getLinesOfFile(baseDirectory + IGNORE_FILE).toSet
       else Set.empty[String]
     }
     logger.fine(s"biffFileContents : $biffFileContents")

@@ -26,12 +26,12 @@ object Reconstruct {
     *
     * @param fileHash hash of the file
     */
-  def file(fileName: String, fileHash: String): Unit = {
+  def file(fileName: String, fileHash: String, baseDirectory: String = ""): Unit = {
     val logger = Logger.getLogger(this.getClass.getName)
     logger.fine(s"filename: $fileName, fileHash: $fileHash")
 
     // TODO: DO a check for if the file is binary here
-    val isBinaryFile = Files.exists(Paths.get(s"$BINARIES_FOLDER$fileHash"))
+    val isBinaryFile = Files.exists(Paths.get(s"$baseDirectory$BINARIES_FOLDER$fileHash"))
 
     // If the file is not a binary file its lines will be available in the String pool and using that we
     // can reconstruct the file

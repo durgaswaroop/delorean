@@ -10,7 +10,6 @@ import java.nio.file.{Files, Paths}
 import java.util.logging.Logger
 
 import delorean.FileOps._
-import delorean._
 
 /**
   * Class for create-timeline command.
@@ -34,7 +33,7 @@ case class CreateTimeLine(newTimeLine: String) {
   Files.createFile(Paths.get(newTimeLineFileLocation))
 
   // Then, copy the current pitstop hash (the contents of the indicator file) to the current timeline file
-  val currentPitstop: String = getCurrentPitstop
+  val currentPitstop: String = getCurrentPitstop()
   writeToFile(newTimeLineFileLocation, currentPitstop)
 
   // Then, point the 'current' branch pointer to point to the new branch

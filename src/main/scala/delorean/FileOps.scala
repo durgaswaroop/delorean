@@ -61,19 +61,23 @@ object FileOps {
   // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
   // overwriting the existing content.
   def addHashesAndContentOfLinesToPool(hashLineMap: mutable.LinkedHashMap[String, String],
-                                       stringPoolFile: String): Unit = {
-    logger.fine(s"Adding hashes & lines map, $hashLineMap to file $stringPoolFile")
-    var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(stringPoolFile)
+                                       stringPoolFile: String,
+                                       baseDirectory: String = ""): Unit = {
+    logger.fine(
+      s"Adding hashes & lines map, $hashLineMap to file ${baseDirectory + stringPoolFile}")
+    var fileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(
+      baseDirectory + stringPoolFile)
 
     hashLineMap.foreach(tuple => {
       if (!fileMap.contains(tuple._1)) {
         fileMap += tuple
       }
     })
-    logger.fine(s"After updating, $fileMap is now being written to $stringPoolFile")
+    logger.fine(
+      s"After updating, $fileMap is now being written to ${baseDirectory + stringPoolFile}")
 
     // Once the map is populated, write the map to travelogue file
-    writeMapToFile(fileMap, stringPoolFile)
+    writeMapToFile(fileMap, baseDirectory + stringPoolFile)
   }
 
   // Overwrites the existing content.
@@ -100,9 +104,10 @@ object FileOps {
 
   // Reads the current file as a map. Adds new things to add to this map and writes this entire map to file
   // overwriting the existing content.
-  def addToTravelogueFile(hashNameTuple: (String, String)): Unit = {
-    logger.fine(s"Trying to add tuple $hashNameTuple to travelogue file $TRAVELOGUE")
-    var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE)
+  def addToTravelogueFile(hashNameTuple: (String, String), baseDirectory: String = ""): Unit = {
+    logger.fine(
+      s"Trying to add tuple $hashNameTuple to travelogue file ${baseDirectory + TRAVELOGUE}")
+    var map: mutable.LinkedHashMap[String, String] = getFileAsMap(baseDirectory + TRAVELOGUE)
     logger.fine(s"Travelogue file before adding: $map")
 
     // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
@@ -120,9 +125,9 @@ object FileOps {
   def copyFile(src: String, dest: String): Path =
     Files.copy(Paths.get(src), Paths.get(dest), StandardCopyOption.REPLACE_EXISTING)
 
-  def getFilesInThePitstop(pitstop: String): List[String] = {
+  def getFilesInThePitstop(pitstop: String, baseDirectory: String = ""): List[String] = {
     logger.fine(s"Trying to get the file in the pitstop $pitstop")
-    val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop)
+    val filesAndHashMap = getFileAsMap(baseDirectory + PITSTOPS_FOLDER + pitstop)
     logger.fine(s"Files in the pitstop $pitstop are ${filesAndHashMap.values.toList}")
     filesAndHashMap.values.toList
   }
@@ -150,14 +155,14 @@ object FileOps {
     filenameHashMap
   }
 
-  def getLinesOfFile(filePath: String): List[String] = {
-    lazy val source: BufferedSource = Source.fromFile(filePath, "UTF-8")
+  def getLinesOfFile(filePath: String, baseDirectory: String = ""): List[String] = {
+    lazy val source: BufferedSource = Source.fromFile(baseDirectory + filePath, "UTF-8")
     val lines: Try[List[String]] = Try(source.getLines().toList)
     if (lines.isSuccess) {
       source.close()
       lines.get
     } else {
-      val bytes: Array[Byte] = Files.readAllBytes(Paths.get(filePath))
+      val bytes: Array[Byte] = Files.readAllBytes(Paths.get(baseDirectory + filePath))
       /*
        * Since mkString on the entire array can take a lot of time and might even give OOM errors,
        * We will take at max 100 elements in the array and create a string of that
@@ -170,14 +175,15 @@ object FileOps {
   // Try fails if its not able to read the file which happens if the file is binary file.
   // Not really the best way to do it but there doesn't seem to be any proper way to do it.
   def isBinaryFile(filePath: String): Boolean = {
+    logger.fine(s"Checking if $filePath is a binary file")
     Try(Source.fromFile(filePath).mkString).isFailure
   }
 
   // fileName -> hash, coz hashes can be same but fileNames will always be different
-  def getHashesOfAllFilesKnownToDelorean: Map[Path, String] = {
-    var currentPitstop = getCurrentPitstop
+  def getHashesOfAllFilesKnownToDelorean(baseDirectory: String = ""): Map[Path, String] = {
+    var currentPitstop = getCurrentPitstop(baseDirectory)
     logger.fine(s"Current pitstop = $currentPitstop")
-    getHashesOfAllFilesKnownToDelorean(currentPitstop)
+    getHashesOfAllFilesKnownToDelorean(currentPitstop, baseDirectory)
   }
 
   /**
@@ -185,12 +191,13 @@ object FileOps {
     *
     * Bascially it is the state of the repository at that particular pitstop
     */
-  def getHashesOfAllFilesKnownToDelorean(pitStop: String): Map[Path, String] = {
+  def getHashesOfAllFilesKnownToDelorean(pitStop: String,
+                                         baseDirectory: String): Map[Path, String] = {
     var map: Map[Path, String] = Map.empty
     var currentPitstop = pitStop
     while (currentPitstop.nonEmpty) {
       // fileName -> fileHash almost all of the places
-      val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop)
+      val pitstopMap = getFileAsMap(baseDirectory + PITSTOPS_FOLDER + currentPitstop)
       pitstopMap.foreach(
         kvPair =>
           if (!map.contains(Paths.get(kvPair._1)))
@@ -202,10 +209,10 @@ object FileOps {
 
     // Apart from looking at the pitstops, also looks at the files in _temp file.
     // Those files shouldn't come in the untracked files too.
-    val tempPitstopFile = getTempPitstopFileLocation
+    val tempPitstopFile = getTempPitstopFileLocation(baseDirectory)
     if (tempPitstopFile.nonEmpty) {
       // fileName -> hash
-      val tempFilePitstopMap = getFileAsMap(getTempPitstopFileLocation)
+      val tempFilePitstopMap = getFileAsMap(getTempPitstopFileLocation(baseDirectory))
       tempFilePitstopMap.foreach(kvPair => map = map + (Paths.get(kvPair._1) -> kvPair._2))
     }
     logger.fine(s"Updated map after looking at temp file too: $map")
@@ -215,11 +222,12 @@ object FileOps {
   /**
     * Returns either the pitstop hash of the current commit or an empty String.
     */
-  def getCurrentPitstop: String = {
-    val currentPitstopOrTimeline: String = getLinesOfFile(CURRENT_INDICATOR).head
+  def getCurrentPitstop(baseDirectory: String = ""): String = {
+    val currentPitstopOrTimeline: String = getLinesOfFile(CURRENT_INDICATOR, baseDirectory).head
     // If there is a timeline name in the 'current' file. We return the pitstop present in the timeline
-    if (Files.exists(Paths.get(INDICATORS_FOLDER + currentPitstopOrTimeline))) {
-      val lines: List[String] = getLinesOfFile(INDICATORS_FOLDER + currentPitstopOrTimeline)
+    if (Files.exists(Paths.get(baseDirectory + INDICATORS_FOLDER + currentPitstopOrTimeline))) {
+      val lines: List[String] =
+        getLinesOfFile(INDICATORS_FOLDER + currentPitstopOrTimeline, baseDirectory)
       if (lines.nonEmpty) lines.head else ""
     } else {
       // If there is a pitstop hash instead of a branch name we just return the 'pitstop' hash
@@ -228,8 +236,8 @@ object FileOps {
   }
 
   // Gets the parent pitstop of the given pitstop. Would be an empty string if no parent is present.
-  def parent(pitstop: String): String = {
-    val parent: String = getLinesOfFile(METADATA_FOLDER + pitstop)
+  def parent(pitstop: String, baseDirectory: String = ""): String = {
+    val parent: String = getLinesOfFile(baseDirectory + METADATA_FOLDER + pitstop)
       .filter(_.contains("Parent"))
       .head
       .split(":", 2)(1)
@@ -238,9 +246,9 @@ object FileOps {
   }
 
   // sends the full path something like .tm/pitstops/_temp...
-  def getTempPitstopFileLocation: String = {
+  def getTempPitstopFileLocation(baseDirectory: String = ""): String = {
     val tempFileArray: Array[File] =
-      filesMatchingInDir(new File(PITSTOPS_FOLDER), _.startsWith("_temp"))
+      filesMatchingInDir(new File(baseDirectory + PITSTOPS_FOLDER), _.startsWith("_temp"))
     if (tempFileArray.nonEmpty) tempFileArray(0).getPath else ""
   }
 
@@ -250,7 +258,7 @@ object FileOps {
     })
   }
 
-  def getAllDeloreanTrackedFiles: List[String] =
-    getFileAsMap(TRAVELOGUE).keys.toList
+  def getAllDeloreanTrackedFiles(baseDirectory: String = ""): List[String] =
+    getFileAsMap(baseDirectory + TRAVELOGUE).keys.toList
 
 }

@@ -16,7 +16,7 @@ import delorean.FileOps._
   */
 case class Status(fileName: String = "") {
   val allFilesAndHashesKnownToDelorean: Map[Path, String] =
-    getHashesOfAllFilesKnownToDelorean
+    getHashesOfAllFilesKnownToDelorean()
 
   if (fileName.nonEmpty) {
     logger.fine(s"Status requested for file $fileName")
@@ -47,7 +47,7 @@ case class Status(fileName: String = "") {
   }
 
   // SHOW STAGED FILES
-  val tempFile: String = getTempPitstopFileLocation
+  val tempFile: String = getTempPitstopFileLocation()
   var stagedFileSet: List[String] = List("")
 
   if (tempFile nonEmpty) {
@@ -82,7 +82,7 @@ case class Status(fileName: String = "") {
   }
 
   // SHOW UNTRACKED FILES THAT ARE NOT PART OF THE REPOSITORY
-  val untrackedFiles: Set[String] = getUntrackedFiles.filterNot(_.isEmpty)
+  val untrackedFiles: Set[String] = getUntrackedFiles().filterNot(_.isEmpty)
 
   if (untrackedFiles.nonEmpty) {
     println("""Untracked files:

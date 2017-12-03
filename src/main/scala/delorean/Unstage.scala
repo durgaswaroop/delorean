@@ -17,7 +17,7 @@ case class Unstage(files: List[String]) {
   logger.fine(s"Unstaging list of files $files.")
 
   // If temp pitstop file is empty it means that no files are currently staged
-  val tempPitstopFile: String = getTempPitstopFileLocation
+  val tempPitstopFile: String = getTempPitstopFileLocation()
   if (tempPitstopFile.isEmpty) {
     println("""|delorean: No files staged
                |

@@ -38,7 +38,7 @@ object Hasher {
     *
     * @param files : Staged files
     */
-  def computeHashOfStagedFiles(files: List[String]): Unit = {
+  def computeHashOfStagedFiles(files: List[String], baseDirectory: String = ""): Unit = {
     var fileNameFileHashMap: mutable.LinkedHashMap[String, String] =
       mutable.LinkedHashMap.empty
 
@@ -48,7 +48,7 @@ object Hasher {
       mutable.LinkedHashMap.empty
 
     val allFilesAndHashesKnownToDelorean: Map[Path, String] =
-      getHashesOfAllFilesKnownToDelorean
+      getHashesOfAllFilesKnownToDelorean(baseDirectory)
 
     /* Compute hash of each staged file. But add it to fileNameFileHashMap only if the exact (hash, file) pair
      * is not present in the allFilesAndHashesKnownToDelorean map.
@@ -63,7 +63,7 @@ object Hasher {
         /* If the hash file already exists, but the current hash is not known to Delorean (happens when the file was previously
          * staged and then unstaged afterwards. In that case we don't want to continue the hashing process again but
          * still want the file to be added to the _temp file as it was asked for. */
-        if (Files.exists(Paths.get(HASHES_FOLDER + hash)))
+        if (Files.exists(Paths.get(baseDirectory + HASHES_FOLDER + hash)))
           nameHashMapToAddToTempFile += (file -> hash)
 
         // This should be done regardless of above condition
@@ -75,14 +75,14 @@ object Hasher {
     // If the map is empty,there is nothing else to be done
     if (fileNameFileHashMap.isEmpty) return
 
-    fileNameFileHashMap.keySet.foreach(continueFullHashingProcess)
+    fileNameFileHashMap.keySet.foreach(file => continueFullHashingProcess(file, baseDirectory))
 
     /* Once the hashes are computed, check for the presence of a "_temp" file.
      * Existence of "_temp" file means that there were a few more files 'staged' before but not committed.
      *So, if the file exists, add information about the newly staged files to that or else create a new temp file. */
     val tempPitstopFile = {
-      if (getTempPitstopFileLocation.nonEmpty)
-        new File(getTempPitstopFileLocation)
+      if (getTempPitstopFileLocation(baseDirectory).nonEmpty)
+        new File(getTempPitstopFileLocation(baseDirectory))
       else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
     }
 
@@ -102,7 +102,7 @@ object Hasher {
     *
     * @param filePath : Path of the file
     */
-  def continueFullHashingProcess(filePath: String): Unit = {
+  def continueFullHashingProcess(filePath: String, baseDirectory: String = ""): Unit = {
     logger.fine(s"called with params: $filePath")
     var hashLineMap: mutable.LinkedHashMap[String, String] =
       mutable.LinkedHashMap.empty
@@ -113,20 +113,25 @@ object Hasher {
     // Compute SHA-256 Hash of all lines of a file combined to get the file hash
     val fileHash: String = FileDictionary(filePath, hashNeeded = true).hash
 
+    logger.fine(s"File hash: $fileHash")
+
     /* When its a binary file, don't do all the usual line extractions and hashing.
      * Just put the file into BINARIES_FOLDER with the filehash as the name */
-    if (isBinaryFile(filePath) && Files.notExists(Paths.get(BINARIES_FOLDER + fileHash))) {
-      copyFile(filePath, BINARIES_FOLDER + fileHash)
+    if (isBinaryFile(baseDirectory + filePath)
+        && Files.notExists(Paths.get(baseDirectory + BINARIES_FOLDER + fileHash))) {
+      Paths.get(filePath).getParent.toFile.list().foreach(logger.fine)
+      logger.fine(s"File $filePath is a binary file")
+      copyFile(filePath, baseDirectory + BINARIES_FOLDER + fileHash)
 
       // Once the file hash is computed, Add it to travelogue file
-      addToTravelogueFile((filePath, fileHash))
+      addToTravelogueFile((filePath, fileHash), baseDirectory)
       return
     }
-    logger.finest(s"Lines:\n$lines\n")
+    logger.finer(s"Lines:\n$lines\n")
 
     // Compute SHA-1 Hash of each line and create a Map of (line_hash -> line)
     lines.foreach(x => hashLineMap += (computeStringHash(x, FNV1A64) -> x))
-    logger.finest(s"Map:\n$hashLineMap\n")
+    logger.finer(s"Map:\n$hashLineMap\n")
 
     // Add line_hash - line to the string pool file
     addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
@@ -135,7 +140,7 @@ object Hasher {
     addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
 
     // Once the file hash is computed, Add it to travelogue file
-    addToTravelogueFile((filePath, fileHash))
+    addToTravelogueFile((filePath, fileHash), baseDirectory)
   }
 
   def computeStringHash(str: String, hash: String): String = {
@@ -157,7 +162,7 @@ object Hasher {
     * @param riderLog : Rider log given for the pitstop
     */
   def computePitStopHash(riderLog: String): Unit = {
-    val tempPitstopFile = getTempPitstopFileLocation
+    val tempPitstopFile = getTempPitstopFileLocation()
 
     // When temp file is not present nothing to do because no files are 'staged' yet
     if (tempPitstopFile isEmpty) {

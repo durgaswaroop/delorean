@@ -93,15 +93,16 @@ case class Download(remoteRepo: String) {
   })
 
   // Once everything is download, GoTo the latest commit on 'present' branch
-  GoTo("present")
+  GoTo("present", reponame)
 
   def getRemoteRepoServerUrl(remoteRepo: String): (String, String) = {
     val pattern = "(https?://.*)/(.*)".r
     remoteRepo match {
       case pattern(hostname, repositoryName) =>
         val directoryName =
-          if (repositoryName.matches(".*\\.delorean")) repositoryName.replace(".delorean", "")
-          else repositoryName
+          if (repositoryName.matches(".*\\.delorean"))
+            repositoryName.replace(".delorean", "") + File.separator
+          else repositoryName + File.separator
         val repoServerUrl = hostname + ":" + DELOREAN_SERVER_PORT + "/" + repositoryName + "/"
         logger.fine(s"Repo server Url constructed: $repoServerUrl")
         (repoServerUrl, repositoryName + File.separator)
