@@ -79,7 +79,7 @@ package object delorean {
         .toSet
     val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
     logger.fine(s"Untracked files: $untrackedFiles")
-    untrackedFiles.map(_.toString)
+    untrackedFiles.map(_.toAbsolutePath.toString)
   }
 
   /**
@@ -102,13 +102,13 @@ package object delorean {
         if (Files.isDirectory(Paths.get(path))) {
           ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_)).toSet
         } else {
-          ignoredFiles += Paths.get(path)
+          ignoredFiles += Paths.get(path).toAbsolutePath
         }
       }
     }
-    logger.fine(s"Ignored files: $ignoredFiles")
-    // TODO: For some reason this also returns an empty path. For now putting a filter like this. Have to take a look
-    ignoredFiles.filter(_.toString.nonEmpty)
+
+    // logger.fine(s"Ignored files: $ignoredFiles")
+    ignoredFiles.toList
   }
 
   def isDeloreanRepo: Boolean = {

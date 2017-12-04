@@ -13,6 +13,7 @@ import java.util.stream.Collectors
 
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.filefilter.{IOFileFilter, TrueFileFilter}
+
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.io.{BufferedSource, Source}
@@ -212,8 +213,8 @@ object FileOps {
       val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop, baseDirectory)
       pitstopMap.foreach(
         kvPair =>
-          if (!map.contains(Paths.get(kvPair._1)))
-            map = map + (Paths.get(kvPair._1) -> kvPair._2)
+          if (!map.contains(Paths.get(kvPair._1).toAbsolutePath))
+            map = map + (Paths.get(kvPair._1).toAbsolutePath -> kvPair._2)
       )
       currentPitstop = parent(currentPitstop, baseDirectory)
     }
