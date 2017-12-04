@@ -25,7 +25,7 @@ class StageTest {
   def stageTest(): Unit = {
     val filesToStage = List("src/test/resources/")
     Stage(filesToStage)
-    val tempFile: String = getTempPitstopFileLocation
+    val tempFile: String = getTempPitstopFileLocation()
     assertTrue(
       "_temp pitstop file should have been created in Pitstops directory",
       tempFile.nonEmpty
@@ -46,6 +46,6 @@ object StageTest {
   def tearDown(): Unit = {
     println("Tearing Down '.tm/' directory created for StageTest")
     Try(FileUtils.deleteDirectory(new File(TIME_MACHINE)))
-    Try(Files.delete(Paths.get(getTempPitstopFileLocation)))
+    Try(Files.delete(Paths.get(getTempPitstopFileLocation())))
   }
 }
