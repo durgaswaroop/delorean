@@ -88,7 +88,8 @@ case class Download(remoteRepo: String) {
   // Download all the binary files
   fileHashes.binaryFiles foreach (hash => {
     val fileHashPath = Paths.get(reponame).resolve(BINARIES_FOLDER).resolve(hash)
-    val fileBytes = fromURL(binaryFilesUrl + hash).mkString.getBytes(ISO_8859_1)
+    val fileBytes =
+      fromURL(binaryFilesUrl + hash, ISO_8859_1.toString).mkString.getBytes(ISO_8859_1)
     Files.write(fileHashPath, fileBytes)
   })
 
