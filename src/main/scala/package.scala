@@ -8,6 +8,8 @@ import java.nio.file.{Files, Path, Paths}
 
 import delorean.FileOps.{filesMatchingInDir, getFilesRecursively, getLinesOfFile, logger}
 
+import scala.collection.mutable.ListBuffer
+
 /**
   * Package object to hold variables.
   */
@@ -87,7 +89,7 @@ package object delorean {
     *
     * @return : A Set of ignored file names
     */
-  def getIgnoredFiles(baseDirectory: String = ""): Set[Path] = {
+  def getIgnoredFiles(baseDirectory: String = ""): List[Path] = {
     // ".tm" directory should be ignored always
     val biffFileContents: Set[String] = Set(baseDirectory + TIME_MACHINE) ++ {
       if (new File(baseDirectory + IGNORE_FILE).exists())
@@ -96,11 +98,12 @@ package object delorean {
     }
     logger.fine(s"biffFileContents : $biffFileContents")
 
-    var ignoredFiles: Set[Path] = Set.empty
+    val ignoredFiles: ListBuffer[Path] = ListBuffer(
+      Paths.get(baseDirectory + TIME_MACHINE).toAbsolutePath)
     biffFileContents.foreach { path =>
       {
         if (Files.isDirectory(Paths.get(path))) {
-          ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_)).toSet
+          ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_))
         } else {
           ignoredFiles += Paths.get(path).toAbsolutePath
         }
