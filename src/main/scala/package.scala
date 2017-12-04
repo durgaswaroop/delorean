@@ -72,13 +72,16 @@ package object delorean {
     */
   def getUntrackedFiles(baseDirectory: String = ""): Set[String] = {
     val ignoredFiles: Set[Path] = getIgnoredFiles(baseDirectory).toSet
+    logger.fine(s"Ignored files: $ignoredFiles")
     val allFilesDeloreanKnows: Set[Path] =
       FileOps.getHashesOfAllFilesKnownToDelorean(baseDirectory).keys.toSet
+    logger.fine(s"All files Dolorean knows: $allFilesDeloreanKnows")
     val allFilesInMainDirectory: Set[Path] =
       getFilesRecursively(if (baseDirectory.isEmpty) "." else baseDirectory)
         .map(x => Paths.get(x))
         .filterNot(p => p.toFile.isDirectory)
         .toSet
+    logger.fine(s"All files in main directory: $allFilesInMainDirectory")
     val untrackedFiles: Set[Path] = allFilesInMainDirectory -- allFilesDeloreanKnows -- ignoredFiles
     logger.fine(s"Untracked files: $untrackedFiles")
     untrackedFiles.map(_.toAbsolutePath.toString)

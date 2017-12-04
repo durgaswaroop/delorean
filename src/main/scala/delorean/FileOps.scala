@@ -36,8 +36,9 @@ object FileOps {
     val fileList: List[String] = FileUtils
       .listFilesAndDirs(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
       .asScala
-      .filterNot(file => file.toPath.toAbsolutePath == directoryAbsolutePath)
-      .map(_.getAbsolutePath)
+      .map(_.toPath.normalize().toAbsolutePath)
+      .filterNot(path => path == directoryAbsolutePath)
+      .map(_.toString)
       .toList
 
     logger.fine(s"List returned: $fileList")
