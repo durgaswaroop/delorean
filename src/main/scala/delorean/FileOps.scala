@@ -11,6 +11,8 @@ import java.util.function.Predicate
 import java.util.logging.Logger
 import java.util.stream.Collectors
 
+import org.apache.commons.io.FileUtils
+import org.apache.commons.io.filefilter.{IOFileFilter, TrueFileFilter}
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.io.{BufferedSource, Source}
@@ -23,17 +25,22 @@ object FileOps {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
 
   def getFilesRecursively(dir: String, condition: Predicate[Path] = _ => true): List[String] = {
-    logger.fine(s"Getting files recursively for directory $dir.")
-    val path = Paths.get(dir)
-    val files: List[Path] = Files
-      .walk(path)
-      .filter(condition)
-      .collect(Collectors.toList())
+    logger.fine(s"Getting files recursively in directory $dir.")
+
+    val directory = new File(dir)
+    val directoryAbsolutePath = directory.toPath.toAbsolutePath
+
+    // Get all the files in the directory recursively but ignore the directory itself.
+    // listFilesAndDirs returns the base directory also as part of the list. So, filter that out
+    val fileList: List[String] = FileUtils
+      .listFilesAndDirs(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
       .asScala
+      .filterNot(file => file.toPath.toAbsolutePath == directoryAbsolutePath)
+      .map(_.getAbsolutePath)
       .toList
 
-    logger.fine(s"List returned: ${files.map(p => p.normalize.toString)}")
-    files.map(p => p.normalize.toString)
+    logger.fine(s"List returned: $fileList")
+    fileList
   }
 
   /**

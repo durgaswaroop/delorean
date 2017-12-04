@@ -29,13 +29,15 @@ ext {
 dependencies {
     compile("org.scala-lang:scala-compiler:$scalaVersion")
     compile("org.scala-lang:scala-library:$scalaVersion")
+
     compile("com.sparkjava:spark-core:2.7.1")
     compile("com.google.code.gson:gson:2.8.2")
+    compile("commons-io:commons-io:2.5")
+
 
     compile files("fnv-hashing-1.0.jar")
 
     testCompile("junit:junit:$junitVersion")
-    testCompile("commons-io:commons-io:2.5")
 }
 
 compileScala { // or: tasks.withType(ScalaCompile)
