@@ -75,7 +75,7 @@ package object delorean {
     logger.fine(s"Ignored files: $ignoredFiles")
     val allFilesDeloreanKnows: Set[Path] =
       FileOps.getHashesOfAllFilesKnownToDelorean(baseDirectory).keys.toSet
-    logger.fine(s"All files Dolorean knows: $allFilesDeloreanKnows")
+    logger.fine(s"All files Delorean knows: $allFilesDeloreanKnows")
     val allFilesInMainDirectory: Set[Path] =
       getFilesRecursively(if (baseDirectory.isEmpty) "." else baseDirectory)
         .map(x => Paths.get(x))

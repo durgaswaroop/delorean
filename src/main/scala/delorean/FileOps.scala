@@ -29,14 +29,16 @@ object FileOps {
     logger.fine(s"Getting files recursively in directory $dir.")
 
     val directory = new File(dir)
-    val directoryAbsolutePath = directory.toPath.toAbsolutePath
+    val directoryAbsolutePath = directory.toPath.normalize.toAbsolutePath
+
+    logger.fine(s"Directory absolute path: $directoryAbsolutePath")
 
     // Get all the files in the directory recursively but ignore the directory itself.
     // listFilesAndDirs returns the base directory also as part of the list. So, filter that out
     val fileList: List[String] = FileUtils
       .listFilesAndDirs(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
       .asScala
-      .map(_.toPath.normalize().toAbsolutePath)
+      .map(_.toPath.normalize.toAbsolutePath)
       .filterNot(path => path == directoryAbsolutePath)
       .map(_.toString)
       .toList
@@ -194,7 +196,7 @@ object FileOps {
 
   // fileName -> hash, coz hashes can be same but fileNames will always be different
   def getHashesOfAllFilesKnownToDelorean(baseDirectory: String = ""): Map[Path, String] = {
-    var currentPitstop = getCurrentPitstop(baseDirectory)
+    val currentPitstop = getCurrentPitstop(baseDirectory)
     logger.fine(s"Current pitstop = $currentPitstop")
     getHashesOfAllFilesKnownToDelorean(currentPitstop, baseDirectory)
   }
@@ -227,7 +229,8 @@ object FileOps {
     if (tempPitstopFile.nonEmpty) {
       // fileName -> hash
       val tempFilePitstopMap = getFileAsMap(getTempPitstopFileLocation(baseDirectory))
-      tempFilePitstopMap.foreach(kvPair => map = map + (Paths.get(kvPair._1) -> kvPair._2))
+      tempFilePitstopMap.foreach(kvPair =>
+        map = map + (Paths.get(kvPair._1).toAbsolutePath -> kvPair._2))
     }
     logger.fine(s"Updated map after looking at temp file too: $map")
     map

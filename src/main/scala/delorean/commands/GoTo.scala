@@ -70,7 +70,7 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
 
     val directory = if (baseDirectory.isEmpty) "." else baseDirectory
     // Get files in the current directory if no base directory is given else get it from that directory
-    val allDirectoryFiles: List[String] = getFilesRecursively(directory).filterNot(_ == directory)
+    val allDirectoryFiles: List[String] = getFilesRecursively(directory)
 
     logger.info(s"\nAll directory files $allDirectoryFiles")
 
