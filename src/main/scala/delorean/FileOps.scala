@@ -157,11 +157,13 @@ object FileOps {
       val fileLines = getLinesOfFile(filePath, baseDirectory)
       if (fileLines.nonEmpty) {
         fileLines.foreach(line => {
-          // split(str, int) required to make sure that the splits array we get should have only two elements
-          // at the max. Other wise, it splits at every instance of ":" and we will get a lot more things in
-          // the splits array
-          val splits = line.split(":", 2)
-          filenameHashMap += (baseDirectory + splits(0) -> splits(1))
+          // Previously we were using split() here but there was an issue when we're storing full file name
+          // with "C:\\..." because the split() with ":" was splitting on the first colon which is not what we want.
+          // So, changed this to substrings instead
+          val lastColon = line.lastIndexOf(":")
+          val firstPart = line.substring(0, lastColon)
+          val secondPart = line.substring(lastColon + 1)
+          filenameHashMap += (baseDirectory + firstPart -> secondPart)
         })
       }
     }
