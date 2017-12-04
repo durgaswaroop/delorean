@@ -18,7 +18,7 @@ import delorean.Hasher.computeShaHash
   */
 case class GoTo(timeLine: String, baseDirectory: String = "") {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
-  println(s"Timeline: $timeLine, Base direc: $baseDirectory")
+  logger.fine(s"Timeline: $timeLine, Base direc: $baseDirectory")
 
   logger.fine(baseDirectory + INDICATORS_FOLDER + timeLine)
 
@@ -43,7 +43,7 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
     }
     updateRepoToCommit(pitstopToGoTo)
     // Update the current indicator
-    writeToFile(CURRENT_INDICATOR, timeLine)
+    writeToFile(baseDirectory + CURRENT_INDICATOR, timeLine)
     println(s"Moved to timeline '$timeLine'")
   }
 
@@ -117,7 +117,7 @@ case class GoTo(timeLine: String, baseDirectory: String = "") {
       } else {
         logger.fine(s"File $fileKnown does not exist in the current repository")
         Files.createFile(fileKnown)
-        Reconstruct.file(fileKnown.toString, hashKnown)
+        Reconstruct.file(fileKnown.toString, hashKnown, baseDirectory)
       }
     })
   }

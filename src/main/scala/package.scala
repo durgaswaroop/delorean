@@ -69,7 +69,7 @@ package object delorean {
     * @return : A Set of untracked file names
     */
   def getUntrackedFiles(baseDirectory: String = ""): Set[String] = {
-    val ignoredFiles: Set[Path] = getIgnoredFiles(baseDirectory)
+    val ignoredFiles: Set[Path] = getIgnoredFiles(baseDirectory).toSet
     val allFilesDeloreanKnows: Set[Path] =
       FileOps.getHashesOfAllFilesKnownToDelorean(baseDirectory).keys.toSet
     val allFilesInMainDirectory: Set[Path] =

@@ -109,7 +109,7 @@ object FileOps {
   def addToTravelogueFile(hashNameTuple: (String, String), baseDirectory: String = ""): Unit = {
     logger.fine(
       s"Trying to add tuple $hashNameTuple to travelogue file ${baseDirectory + TRAVELOGUE}")
-    var map: mutable.LinkedHashMap[String, String] = getFileAsMap(baseDirectory + TRAVELOGUE)
+    var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE, baseDirectory)
     logger.fine(s"Travelogue file before adding: $map")
 
     // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
@@ -129,7 +129,7 @@ object FileOps {
 
   def getFilesInThePitstop(pitstop: String, baseDirectory: String = ""): List[String] = {
     logger.fine(s"Trying to get the file in the pitstop $pitstop")
-    val filesAndHashMap = getFileAsMap(baseDirectory + PITSTOPS_FOLDER + pitstop)
+    val filesAndHashMap = getFileAsMap(PITSTOPS_FOLDER + pitstop, baseDirectory)
     logger.fine(s"Files in the pitstop $pitstop are ${filesAndHashMap.values.toList}")
     filesAndHashMap.values.toList
   }
@@ -137,19 +137,20 @@ object FileOps {
   // returns the "filename: fileHash" file as a Map of (filename -> fileHash
   // OR
   // returns the lineHash: lineContent Map
-  def getFileAsMap(filePath: String): mutable.LinkedHashMap[String, String] = {
+  def getFileAsMap(filePath: String,
+                   baseDirectory: String = ""): mutable.LinkedHashMap[String, String] = {
     logger.fine(s"Trying to get $filePath as a map.")
     var filenameHashMap: mutable.LinkedHashMap[String, String] =
       mutable.LinkedHashMap.empty
-    if (!createIfDoesNotExist(filePath)) {
-      val fileLines = getLinesOfFile(filePath)
+    if (!createIfDoesNotExist(baseDirectory + filePath)) {
+      val fileLines = getLinesOfFile(filePath, baseDirectory)
       if (fileLines.nonEmpty) {
         fileLines.foreach(line => {
           // split(str, int) required to make sure that the splits array we get should have only two elements
           // at the max. Other wise, it splits at every instance of ":" and we will get a lot more things in
           // the splits array
           val splits = line.split(":", 2)
-          filenameHashMap += (splits(0) -> splits(1))
+          filenameHashMap += (baseDirectory + splits(0) -> splits(1))
         })
       }
     }
@@ -196,12 +197,12 @@ object FileOps {
     */
   def getHashesOfAllFilesKnownToDelorean(pitStop: String,
                                          baseDirectory: String): Map[Path, String] = {
-    println(s"Pitstop: $pitStop, base directory: $baseDirectory")
+    // println(s"Pitstop: $pitStop, base directory: $baseDirectory")
     var map: Map[Path, String] = Map.empty
     var currentPitstop = pitStop
     while (currentPitstop.nonEmpty) {
       // fileName -> fileHash almost all of the places
-      val pitstopMap = getFileAsMap(baseDirectory + PITSTOPS_FOLDER + currentPitstop)
+      val pitstopMap = getFileAsMap(PITSTOPS_FOLDER + currentPitstop, baseDirectory)
       pitstopMap.foreach(
         kvPair =>
           if (!map.contains(Paths.get(kvPair._1)))
@@ -263,6 +264,6 @@ object FileOps {
   }
 
   def getAllDeloreanTrackedFiles(baseDirectory: String = ""): List[String] =
-    getFileAsMap(baseDirectory + TRAVELOGUE).keys.toList
+    getFileAsMap(TRAVELOGUE, baseDirectory).keys.toList
 
 }
