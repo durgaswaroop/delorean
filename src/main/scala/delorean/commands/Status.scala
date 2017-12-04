@@ -51,10 +51,13 @@ case class Status(fileName: String = "") {
   var stagedFileSet: List[String] = List("")
 
   if (tempFile nonEmpty) {
-    stagedFileSet =
-      getFileAsMap(tempFile).keys.map(s => Paths.get(s).toAbsolutePath.toString).toList
+    stagedFileSet = getFileAsMap(tempFile).keys.toList
+//    println(s"Staged files: $stagedFileSet")
+//    println(s"All files known to delorean: $allFilesAndHashesKnownToDelorean")
     val newlyStagedFiles = stagedFileSet diff allFilesAndHashesKnownToDelorean.keys.toList
+//    println(s"Newly Staged files: $newlyStagedFiles")
     val changedFiles = stagedFileSet diff newlyStagedFiles
+//    println(s"Changed files: $changedFiles")
     println("""Files ready to be added to a pitstop:
               | (use "delorean pitstop -rl <rider log>" to make a pitstop)
             """.stripMargin)

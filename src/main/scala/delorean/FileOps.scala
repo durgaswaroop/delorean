@@ -106,11 +106,13 @@ object FileOps {
   }
 
   // Overwrites the existing content.
-  def addLineHashesToHashesFile(lineHashes: List[String], file: String): Unit = {
-    logger.fine(s"Adding lines hashes $lineHashes to hashes file $file.")
+  def addLineHashesToHashesFile(lineHashes: List[String],
+                                file: String,
+                                baseDirectory: String = ""): Unit = {
+    logger.fine(s"Adding lines hashes $lineHashes to hashes file ${baseDirectory + file}.")
     // printwriter empties the contents of a file if it exists
-    val writer: PrintWriter = new PrintWriter(file)
-    lineHashes.foreach(x => writer.write(s"$x\n"))
+    val writer: PrintWriter = new PrintWriter(baseDirectory + file)
+    lineHashes.foreach(x => writer.write(x + System.lineSeparator))
     writer.flush()
     writer.close()
   }
@@ -123,11 +125,8 @@ object FileOps {
     var map: mutable.LinkedHashMap[String, String] = getFileAsMap(TRAVELOGUE, baseDirectory)
     logger.fine(s"Travelogue file before adding: $map")
 
-    // If the exact filePath -> fileHash exists in the map, Do nothing. But if not, it means the file has changed.
-    // So we add in the current key value pair which just updates the value of existing key
-    if (!map.exists(_ == (hashNameTuple._1 -> hashNameTuple._2))) {
-      map += (hashNameTuple._1 -> hashNameTuple._2)
-    }
+    // Update the filename and hash
+    map += (hashNameTuple._1 -> hashNameTuple._2)
     logger.fine(s"Travelogue file after adding/updating with the tuple $hashNameTuple: $map")
 
     // Once the map is populated, write the map to travelogue file
@@ -168,6 +167,7 @@ object FileOps {
       }
     }
     logger.fine(s"Map of the file $filePath = $filenameHashMap")
+//    println(s"Map of the file $filePath = $filenameHashMap")
     filenameHashMap
   }
 

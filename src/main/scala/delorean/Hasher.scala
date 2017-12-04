@@ -28,7 +28,7 @@ object Hasher {
   // 64 byte long
   val SHA256: String = "SHA-256"
 
-  val PITSTOPS_FOLDER_FILE: File = new File(PITSTOPS_FOLDER)
+  def PITSTOPS_FOLDER_FILE(baseDirectory: String = "") = new File(baseDirectory + PITSTOPS_FOLDER)
 
   /**
     * Do the hashing process for all the staged files.
@@ -83,7 +83,7 @@ object Hasher {
     val tempPitstopFile = {
       if (getTempPitstopFileLocation(baseDirectory).nonEmpty)
         new File(getTempPitstopFileLocation(baseDirectory))
-      else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE)
+      else File.createTempFile("_temp", null, PITSTOPS_FOLDER_FILE(baseDirectory))
     }
 
     // write the hashes of all staged files to temp pitstop file
@@ -117,8 +117,7 @@ object Hasher {
 
     /* When its a binary file, don't do all the usual line extractions and hashing.
      * Just put the file into BINARIES_FOLDER with the filehash as the name */
-    if (isBinaryFile(baseDirectory + filePath)
-        && Files.notExists(Paths.get(baseDirectory + BINARIES_FOLDER + fileHash))) {
+    if (isBinaryFile(filePath)) {
       logger.fine(s"File $filePath is a binary file")
       copyFile(filePath, baseDirectory + BINARIES_FOLDER + fileHash)
 
@@ -133,10 +132,10 @@ object Hasher {
     logger.finer(s"Map:\n$hashLineMap\n")
 
     // Add line_hash - line to the string pool file
-    addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL)
+    addHashesAndContentOfLinesToPool(hashLineMap, STRING_POOL, baseDirectory)
 
     // Add line hashes to hashes file
-    addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash)
+    addLineHashesToHashesFile(hashLineMap.keys.toList, HASHES_FOLDER + fileHash, baseDirectory)
 
     // Once the file hash is computed, Add it to travelogue file
     addToTravelogueFile((filePath, fileHash), baseDirectory)
