@@ -6,7 +6,6 @@
 package delorean
 package commands
 
-import java.io.File
 import java.nio.file.{Files, Path, Paths}
 
 import delorean.FileOps._
@@ -20,11 +19,19 @@ case class Status(fileName: String = "") {
 
   if (fileName.nonEmpty) {
     logger.fine(s"Status requested for file $fileName")
-    val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(Paths.get(fileName))
-    if (FileDictionary(fileName, hashNeeded = true).hash == hashOfLastKnownVersionOfFile)
-      println(s"file $fileName has not been modified since the last pitstop")
-    else
-      println(s"file $fileName is different from the last pitstopped/staged version")
+    val absoluteFilePath = Paths.get(fileName).toAbsolutePath
+    // If the file name key exists. Which means that it was previously staged
+    if (allFilesAndHashesKnownToDelorean.contains(absoluteFilePath)) {
+      val hashOfLastKnownVersionOfFile = allFilesAndHashesKnownToDelorean(
+        Paths.get(fileName).toAbsolutePath)
+      if (FileDictionary(fileName, hashNeeded = true).hash == hashOfLastKnownVersionOfFile)
+        println(s"file $fileName has not been modified since the last pitstop")
+      else
+        println(s"file $fileName is different from the last pitstopped/staged version")
+    } else {
+      println(s"delorean: File $fileName has never been staged before")
+    }
+
     System.exit(0)
   }
 
@@ -37,11 +44,11 @@ case class Status(fileName: String = "") {
   } else {
     //If its not a timeline it will be a pitstop
     println(s"""
-               |On pitstop '${currentTimeline.take(6)}'
-               |
+         |On pitstop '${currentTimeline.take(6)}'
+         |
                |You are not on any timeline now. To goto an existing timeline, run
-               |    delorean goto <timeline>
-               |
+         |    delorean goto <timeline>
+         |
                |For more: delorean --help
             """.stripMargin)
   }
@@ -52,15 +59,15 @@ case class Status(fileName: String = "") {
 
   if (tempFile nonEmpty) {
     stagedFileSet = getFileAsMap(tempFile).keys.toList
-//    println(s"Staged files: $stagedFileSet")
-//    println(s"All files known to delorean: $allFilesAndHashesKnownToDelorean")
+    //    println(s"Staged files: $stagedFileSet")
+    //    println(s"All files known to delorean: $allFilesAndHashesKnownToDelorean")
     val newlyStagedFiles = stagedFileSet diff allFilesAndHashesKnownToDelorean.keys.toList
-//    println(s"Newly Staged files: $newlyStagedFiles")
+    //    println(s"Newly Staged files: $newlyStagedFiles")
     val changedFiles = stagedFileSet diff newlyStagedFiles
-//    println(s"Changed files: $changedFiles")
+    //    println(s"Changed files: $changedFiles")
     println("""Files ready to be added to a pitstop:
-              | (use "delorean pitstop -rl <rider log>" to make a pitstop)
-            """.stripMargin)
+        | (use "delorean pitstop -rl <rider log>" to make a pitstop)
+      """.stripMargin)
     if (newlyStagedFiles nonEmpty)
       println(newlyStagedFiles.sorted.mkString("\tNew: ", "\n\tNew: ", "\n"))
     if (changedFiles nonEmpty)
@@ -77,8 +84,8 @@ case class Status(fileName: String = "") {
 
   if (modifiedFiles.nonEmpty || deletedFiles.nonEmpty) {
     println("""Files modified since last pitstop:
-              | (use "delorean stage <filename>" to stage the changes for the next pitstop)
-            """.stripMargin)
+        | (use "delorean stage <filename>" to stage the changes for the next pitstop)
+      """.stripMargin)
     if (modifiedFiles.nonEmpty)
       println(modifiedFiles.sorted.mkString("\tModified: ", "\n\tModified: ", "\n"))
     if (deletedFiles.nonEmpty)
@@ -90,8 +97,8 @@ case class Status(fileName: String = "") {
 
   if (untrackedFiles.nonEmpty) {
     println("""Untracked files:
-              | (use "delorean stage <filename>" to stage the file to be added to the next pitstop)
-            """.stripMargin)
+        | (use "delorean stage <filename>" to stage the file to be added to the next pitstop)
+      """.stripMargin)
     println(untrackedFiles.toList.sorted.mkString("\t", "\n\t", ""))
   }
 
