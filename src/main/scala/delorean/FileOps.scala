@@ -25,7 +25,7 @@ import scala.util.Try
 object FileOps {
   val logger: Logger = Logger.getLogger(this.getClass.getName)
 
-  def getFilesRecursively(dir: String, condition: Predicate[Path] = _ => true): List[String] = {
+  def getFilesRecursively(dir: String, includeParentDirectory: Boolean = false): List[String] = {
     logger.fine(s"Getting files recursively in directory $dir.")
 
     val directory = new File(dir)
@@ -34,12 +34,13 @@ object FileOps {
     logger.fine(s"Directory absolute path: $directoryAbsolutePath")
 
     // Get all the files in the directory recursively but ignore the directory itself.
-    // listFilesAndDirs returns the base directory also as part of the list. So, filter that out
+    // listFilesAndDirs returns the base directory also as part of the list. So, filter that out as per the boolean
+    // value passed in
     val fileList: List[String] = FileUtils
       .listFilesAndDirs(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
       .asScala
       .map(_.toPath.normalize.toAbsolutePath)
-      .filterNot(path => path == directoryAbsolutePath)
+      .filterNot(path => !includeParentDirectory && path == directoryAbsolutePath)
       .map(_.toString)
       .toList
 

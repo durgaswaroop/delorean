@@ -106,7 +106,8 @@ package object delorean {
     biffFileContents.foreach { path =>
       {
         if (Files.isDirectory(Paths.get(path))) {
-          ignoredFiles ++= getFilesRecursively(path).map(Paths.get(_))
+          ignoredFiles ++= getFilesRecursively(path, includeParentDirectory = true)
+            .map(Paths.get(_))
         } else {
           ignoredFiles += Paths.get(path).toAbsolutePath
         }
