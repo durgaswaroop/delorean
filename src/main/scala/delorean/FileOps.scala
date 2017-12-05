@@ -37,11 +37,9 @@ object FileOps {
     // listFilesAndDirs returns the base directory also as part of the list. So, filter that out as per the boolean
     // value passed in
     val fileList: List[String] = FileUtils
-      .listFilesAndDirs(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+      .listFiles(directory, TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
       .asScala
-      .map(_.toPath.normalize.toAbsolutePath)
-      .filterNot(path => !includeParentDirectory && path == directoryAbsolutePath)
-      .map(_.toString)
+      .map(_.getCanonicalFile.getAbsolutePath)
       .toList
 
     logger.fine(s"List returned: $fileList")
