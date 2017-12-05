@@ -27,18 +27,17 @@ case class Unstage(files: List[String]) {
   }
 
   // real files exist and imaginary files don't.
-  val (realFiles, imaginaryFiles) = files.span(file => new File(file).exists())
+  val (realFiles: List[String], imaginaryFiles) = files.span(file => new File(file).exists())
   imaginaryFiles.foreach(file => println(s"delorean: File $file does not exist"))
   if (realFiles.isEmpty) System.exit(1)
 
-  var filesToUnstage: List[String] = realFiles
+  var filesToUnstage: List[String] = realFiles.map(filename => new File(filename).getAbsolutePath)
   logger.fine(s"Files to unstage: $filesToUnstage")
 
-  val currentStagedFileMap: mutable.LinkedHashMap[String, String] =
-    getFileAsMap(tempPitstopFile)
-  var newStagedFileMap: mutable.LinkedHashMap[String, String] =
-    currentStagedFileMap
-  logger.fine(s"New files after unstage: $newStagedFileMap")
+  val currentStagedFileMap: mutable.LinkedHashMap[String, String] = getFileAsMap(tempPitstopFile)
+  var newStagedFileMap: mutable.LinkedHashMap[String, String] = currentStagedFileMap
+
   filesToUnstage foreach (newStagedFileMap -= _)
+  logger.fine(s"New files after unstage: $newStagedFileMap")
   writeMapToFile(newStagedFileMap, tempPitstopFile)
 }
